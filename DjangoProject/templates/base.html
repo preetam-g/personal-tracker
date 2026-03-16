@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Django App</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh; margin: 0;">
+
+    <header class="container">
+        <nav>
+            <ul>
+                <li><strong>Django Auth</strong></li>
+            </ul>
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><a href="{% url 'expenses:home' %}">Tracker</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'accounts:logout' %}">{{ user.username|slice:":1"|upper }}</a></li>
+                {% else %}
+                    <li><a href="{% url 'accounts:login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container" style="flex-grow: 1;">
+
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding: 1rem; margin-bottom: 1rem; border-radius: 8px;
+                            background-color: {% if message.tags == 'error' %}#f8d7da{% else %}#d1e7dd{% endif %};
+                            color: {% if message.tags == 'error' %}#842029{% else %}#0f5132{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock content %}
+
+    </main>
+
+    <footer class="container">
+        <hr>
+        <p><small>Copyright 2026</small></p>
+    </footer>
+
+</body>
+</html>

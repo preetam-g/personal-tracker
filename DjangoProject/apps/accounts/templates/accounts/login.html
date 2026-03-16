@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{# can use the below line if we want separate base.html for accounts app, to remove project dependency #}
+{#{% extends "accounts/base.html" %} #}
+
+{% block content %}
+    <article style="max-width: 400px; margin: 2rem auto;">
+
+        <header>
+            <h2 style="margin-bottom: 0; font-size: 1.5rem;">Welcome Back</h2>
+        </header>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <button type="submit">Log In</button>
+        </form>
+
+        <footer>
+            <small>Don't have an account? <a href="/auth/signup/">Sign Up here</a>.</small>
+        </footer>
+
+    </article>
+{% endblock content %}

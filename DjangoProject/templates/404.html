@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <article style="text-align: center; padding: 4rem 1rem; margin-top: 4rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+        
+        <h1 style="font-size: 5rem; margin-bottom: 0; color: var(--pico-primary);">404</h1>
+        <h2 style="margin-bottom: 1rem;">Lost in the ledger!</h2>
+        
+        <p style="color: var(--pico-muted-color); margin-bottom: 2rem;">
+            We couldn't find the page or the expense you were looking for. It might have been deleted, or the URL might be incorrect.
+        </p>
+        
+        <a href="{% url 'expenses:home' %}" role="button">
+            &larr; Back to Dashboard
+        </a>
+        
+    </article>
+{% endblock content %}

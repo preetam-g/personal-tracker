@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <article style="text-align: center; max-width: 600px; margin: 2rem auto;">
+
+        <header>
+            <h2 style="margin-bottom: 0;">Welcome to the Home Page</h2>
+        </header>
+
+        {% if user.is_authenticated %}
+
+            <p>Hello, <strong>{{ user.username }}</strong>! You are officially logged in.</p>
+            <p>Your email is: {{ user.email }}</p>
+
+{#            <form action="{% url 'accounts:logout' %}" method="POST" style="display: inline;">#}
+{#                {% csrf_token %}#}
+{#                <button type="submit" class="secondary">Log Out</button>#}
+{#            </form>#}
+
+        {% else %}
+
+            <p>You are currently browsing as a guest.</p>
+
+            <div class="grid" style="margin-top: 2rem;">
+                <a href="{% url 'accounts:login' %}" role="button">Log In</a>
+                <a href="{% url 'accounts:signup' %}" role="button" class="secondary">Sign Up</a>
+            </div>
+
+        {% endif %}
+
+    </article>
+{% endblock content %}

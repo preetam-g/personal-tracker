@@ -1,0 +1,13 @@
+html {
+    font-size: 14px;
+}
+
+button {
+    padding: 0.4rem 0.8rem;
+}
+
+input,
+select,
+textarea {
+    padding: 0.4rem 0.6rem;
+}
