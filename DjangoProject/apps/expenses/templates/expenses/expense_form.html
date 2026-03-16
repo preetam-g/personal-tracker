@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <article style="max-width: 600px; margin: 2rem auto;">
+
+        <header>
+            <h2 style="margin-bottom: 0;">
+                {% if form.instance.pk %}
+                    Expense Details
+                {% else %}
+                    Add New Expense
+                {% endif %}
+            </h2>
+        </header>
+
+        <form method="POST" id="expense-form">
+            {% csrf_token %}
+
+            {{ form.as_p }}
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
+
+                {% if form.instance.pk %}
+
+                    <div id="view-btns" style="display: flex; gap: 1rem;">
+                        <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="width: auto; margin-bottom: 0;">&larr; Back</a>
+                        <button type="button" id="edit-btn" class="secondary" style="width: auto; margin-bottom: 0;">
+                            Edit Expense
+                        </button>
+                    </div>
+
+                    <div id="action-btns" style="display: none; gap: 1rem;">
+                        <button type="button" id="cancel-edit-btn" class="secondary outline" style="width: auto; margin-bottom: 0;">Cancel</button>
+                        <button type="submit" id="save-btn" style="width: auto; margin-bottom: 0;">Update Expense</button>
+                    </div>
+
+                {% else %}
+                    <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="width: auto; margin-bottom: 0;">Cancel</a>
+                    <button type="submit" style="width: auto; margin-bottom: 0;">Save Expense</button>
+                {% endif %}
+
+            </div>
+        </form>
+
+    </article>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const isExistingExpense = {{ form.instance.pk|yesno:"true,false" }};
+
+            if (isExistingExpense) {
+                const form = document.getElementById("expense-form");
+                const formElements = form.querySelectorAll("input:not([type='hidden']), textarea, select");
+
+                const viewBtns = document.getElementById("view-btns"); // <--- Grab the new group
+                const editBtn = document.getElementById("edit-btn");
+                const actionBtns = document.getElementById("action-btns");
+                const cancelEditBtn = document.getElementById("cancel-edit-btn");
+
+                let originalValues = {};
+                const hasErrors = {{ form.errors|yesno:"true,false" }};
+
+                // 1. Initialize and lock the fields
+                formElements.forEach(element => {
+                    originalValues[element.name] = element.value;
+                    if (!hasErrors) {
+                        element.setAttribute("disabled", true);
+                    }
+                });
+
+                if (hasErrors) {
+                    viewBtns.style.display = "none"; // Hide Back/Edit
+                    actionBtns.style.display = "flex"; // Show Cancel/Update
+                }
+
+                // 2. Handle clicking "Edit Expense"
+                editBtn.addEventListener("click", function() {
+                    formElements.forEach(element => element.removeAttribute("disabled"));
+                    viewBtns.style.display = "none";  // Hide Back/Edit
+                    actionBtns.style.display = "flex"; // Show Cancel/Update
+                    if(formElements.length > 0) formElements[0].focus();
+                });
+
+                // 3. Handle clicking "Cancel"
+                cancelEditBtn.addEventListener("click", function() {
+                    formElements.forEach(element => {
+                        element.setAttribute("disabled", true);
+                        element.value = originalValues[element.name];
+                    });
+                    actionBtns.style.display = "none"; // Hide Cancel/Update
+                    viewBtns.style.display = "flex";   // Show Back/Edit
+                });
+
+                // 4. Unlock before submitting!
+                form.addEventListener("submit", function() {
+                     formElements.forEach(element => element.removeAttribute("disabled"));
+                });
+            }
+        });
+    </script>
+{% endblock content %}

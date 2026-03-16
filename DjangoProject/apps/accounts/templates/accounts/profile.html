@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div style="margin-top: 2rem; margin-bottom: 2rem;">
+        <h1 style="margin-bottom: 0;">My Account</h1>
+        <p style="color: var(--pico-muted-color);">Manage your profile details and security settings.</p>
+    </div>
+
+    <div class="grid">
+
+        <article>
+            <h3 style="margin-bottom: 1rem;">Profile Details</h3>
+
+            <form method="POST" action="{% url 'accounts:profile' %}" id="profile-form">
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {{ field }}
+
+                        {% if field.errors %}
+                            <small style="color: var(--pico-form-element-invalid-active-border-color);">
+                                {{ field.errors.0 }}
+                            </small>
+                        {% endif %}
+
+                        {% if field.help_text %}
+                            <small style="color: var(--pico-muted-color);">{{ field.help_text }}</small>
+                        {% endif %}
+                    </label>
+                {% endfor %}
+
+                <div style="margin-top: 1.5rem;">
+                    <button type="button" id="edit-btn" class="secondary">Edit Profile</button>
+
+                    <div id="action-btns" style="display: none; gap: 1rem; justify-content: flex-start;">
+
+                        <button type="button"
+                                id="cancel-btn"
+                                class="secondary outline"
+                                style="margin-bottom: 0; width: auto;"
+                        >Cancel</button>
+                        <button type="submit"
+                                id="save-btn"
+                                style="margin-bottom: 0; width: auto;"
+                        >Save Changes</button>
+
+                    </div>
+                </div>
+            </form>
+        </article>
+
+        <div>
+
+            <article style="margin-bottom: var(--pico-block-spacing-vertical);">
+                <h3 style="margin-bottom: 0.5rem;">Expense Dashboard</h3>
+                <p style="color: var(--pico-muted-color); font-size: 0.9rem;">
+                    Track your spending, add new expenses, and view your financial summary.
+                </p>
+                <a href="{% url 'expenses:home' %}" role="button" style="width: 100%;">
+                    Go to Dashboard &rarr;
+                </a>
+            </article>
+
+            <article>
+                <h3 style="margin-bottom: 0.5rem;">Security</h3>
+                <p style="color: var(--pico-muted-color); font-size: 0.9rem;">
+                    Ensure your account is using a long, random password to stay secure.
+                </p>
+                <a href="{% url 'accounts:profile' %}" role="button" class="secondary outline" style="width: 100%;">
+                    Change Password
+                </a>
+            </article>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("profile-form");
+
+            // UPGRADE: Now selects inputs, textareas (like bios), and selects (like dropdowns)!
+            const formElements = form.querySelectorAll("input:not([type='hidden']), textarea, select");
+
+            const editBtn = document.getElementById("edit-btn");
+            const actionBtns = document.getElementById("action-btns");
+            const cancelBtn = document.getElementById("cancel-btn");
+
+            let originalValues = {};
+            const hasErrors = {{ form.errors|yesno:"true,false" }};
+
+            // 1. Initialize the form state
+            formElements.forEach(element => {
+                originalValues[element.name] = element.value;
+
+                if (!hasErrors) {
+                    // Lock the field
+                    element.setAttribute("disabled", true);
+                    // Note: We use disabled here for broader compatibility with selects/textareas,
+                    // but we will remove it before submit so Django can read the data!
+                }
+            });
+
+            if (hasErrors) {
+                editBtn.style.display = "none";
+                actionBtns.style.display = "flex";
+            }
+
+            // 2. Handle clicking "Edit Profile"
+            editBtn.addEventListener("click", function() {
+                formElements.forEach(element => element.removeAttribute("disabled"));
+
+                editBtn.style.display = "none";
+                actionBtns.style.display = "flex";
+
+                if(formElements.length > 0) formElements[0].focus();
+            });
+
+            // 3. Handle clicking "Cancel"
+            cancelBtn.addEventListener("click", function() {
+                formElements.forEach(element => {
+                    element.setAttribute("disabled", true);
+                    element.value = originalValues[element.name];
+                });
+
+                actionBtns.style.display = "none";
+                editBtn.style.display = "block";
+            });
+
+            // 4. SECURITY CHECK: Make sure disabled fields are re-enabled exactly when the form submits
+            form.addEventListener("submit", function() {
+                 formElements.forEach(element => element.removeAttribute("disabled"));
+            });
+        });
+    </script>
+{% endblock content %}

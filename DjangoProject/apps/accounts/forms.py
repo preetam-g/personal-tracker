@@ -14,7 +14,11 @@ class LoginForm(AuthenticationForm):
     pass
 
 
-class UpdateUserForm(ModelForm):
+class UserUpdateForm(ModelForm):
     class Meta:
         model = UserProfile
-        fields = ["first_name", "last_name"]
+        fields = ["first_name", "last_name", "username", "email"]
+
+    def __init__(self, *args, **kwargs):
+        super(UserUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['email'].required = True

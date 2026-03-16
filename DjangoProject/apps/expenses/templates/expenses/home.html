@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="grid" style="align-items: center; margin-top: 2rem; margin-bottom: 2rem;">
+        <div>
+            <h2 style="margin-bottom: 0;">My Expenses</h2>
+            <p style="color: var(--pico-muted-color);">Track and manage your spending.</p>
+        </div>
+        <div style="text-align: right;">
+            <a href="{% url 'home' %}" role="button" class="secondary outline">Summary</a>
+            <a href="{% url 'expenses:add' %}" role='button'>+ Add Expense</a>
+        </div>
+    </div>
+
+    {% include "expenses/expense_table.html" %}
+
+{% endblock content %}

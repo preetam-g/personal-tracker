@@ -11,3 +11,67 @@ select,
 textarea {
     padding: 0.4rem 0.6rem;
 }
+
+/* ==========================================================================
+   Expense Tracker Table Styles
+   ========================================================================== */
+
+/* 1. Sticky Header (Only applies to this specific table) */
+.expense-tracker-table th {
+    position: sticky;
+    top: 0;
+    background-color: var(--pico-background-color);
+    z-index: 10;
+    box-shadow: 0 1px 0 var(--pico-muted-border-color);
+}
+
+/* 2. Responsive Mobile Card View */
+@media (max-width: 768px) {
+    /* Force blocks instead of table layout */
+    .expense-tracker-table,
+    .expense-tracker-table thead,
+    .expense-tracker-table tbody,
+    .expense-tracker-table th,
+    .expense-tracker-table td,
+    .expense-tracker-table tr {
+        display: block;
+    }
+
+    /* Hide the top header row completely */
+    .expense-tracker-table thead {
+        display: none;
+    }
+
+    /* Style each row to look like a floating card */
+    .expense-tracker-table tr {
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--pico-muted-border-color);
+        border-radius: var(--pico-border-radius);
+        padding: 0;
+    }
+
+    /* Flexbox for label on left, data on right */
+    .expense-tracker-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--pico-muted-border-color);
+        border-top: none;
+        text-align: right;
+        padding: 0.75rem 1rem;
+    }
+
+    /* Clean up the final row (buttons) */
+    .expense-tracker-table td:last-child {
+        border-bottom: none;
+        justify-content: flex-end;
+    }
+
+    /* Inject the hidden data-label attribute */
+    .expense-tracker-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--pico-muted-color);
+        text-align: left;
+    }
+}
