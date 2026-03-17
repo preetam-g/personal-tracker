@@ -35,7 +35,6 @@
                     <button type="button" id="edit-btn" class="secondary">Edit Profile</button>
 
                     <div id="action-btns" style="display: none; gap: 1rem; justify-content: flex-start;">
-
                         <button type="button"
                                 id="cancel-btn"
                                 class="secondary outline"
@@ -45,7 +44,6 @@
                                 id="save-btn"
                                 style="margin-bottom: 0; width: auto;"
                         >Save Changes</button>
-
                     </div>
                 </div>
             </form>
@@ -63,7 +61,7 @@
                 </a>
             </article>
 
-            <article>
+            <article style="margin-bottom: var(--pico-block-spacing-vertical);">
                 <h3 style="margin-bottom: 0.5rem;">Security</h3>
                 <p style="color: var(--pico-muted-color); font-size: 0.9rem;">
                     Ensure your account is using a long, random password to stay secure.
@@ -73,6 +71,19 @@
                 </a>
             </article>
 
+            <article>
+                <h3 style="margin-bottom: 0.5rem;">Log Out</h3>
+                <p style="color: var(--pico-muted-color); font-size: 0.9rem;">
+                    Done for the day? Securely end your session.
+                </p>
+                <form action="{% url 'accounts:logout' %}" method="POST" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="outline" style="width: 100%; color: #d9534f; border-color: #d9534f; margin-bottom: 0;">
+                        Log Out
+                    </button>
+                </form>
+            </article>
+
         </div>
     </div>
 
@@ -80,7 +91,6 @@
         document.addEventListener("DOMContentLoaded", function() {
             const form = document.getElementById("profile-form");
 
-            // UPGRADE: Now selects inputs, textareas (like bios), and selects (like dropdowns)!
             const formElements = form.querySelectorAll("input:not([type='hidden']), textarea, select");
 
             const editBtn = document.getElementById("edit-btn");
@@ -95,10 +105,7 @@
                 originalValues[element.name] = element.value;
 
                 if (!hasErrors) {
-                    // Lock the field
                     element.setAttribute("disabled", true);
-                    // Note: We use disabled here for broader compatibility with selects/textareas,
-                    // but we will remove it before submit so Django can read the data!
                 }
             });
 

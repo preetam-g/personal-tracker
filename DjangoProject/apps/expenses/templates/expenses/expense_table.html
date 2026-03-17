@@ -14,7 +14,7 @@
                     <tbody>
                         {% for expense in expenses %}
                             <tr>
-                                <td data-label="Date">{{ expense.date|date:"d-m-Y" }}</td>
+                                <td data-label="Date">{{ expense.date|date:"jS M'y" }}</td>
                                 <td data-label="Category">{{ expense.category.name|default:"-" }}</td>
                                 <td data-label="Type">{{ expense.type.name|default:"-" }}</td>
                                 <td data-label="Amount"><strong>₹{{ expense.amount }}</strong></td>

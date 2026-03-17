@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-top: 2rem; margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 0;">Financial Summary</h2>
+    <p style="color: var(--pico-muted-color);">Analyze and filter your historical spending.</p>
+</div>
+
+<article>
+    <form method="GET" action="{% url 'expenses:summary' %}">
+        <div class="grid">
+            {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {{ field }}
+                    </label>
+                    {% if field.errors %}
+                        <small style="color: var(--pico-form-element-invalid-active-border-color);">
+                            {{ field.errors.0 }}
+                        </small>
+                    {% endif %}
+                </div>
+
+                {% if forloop.counter|divisibleby:2 %}
+                    </div><div class="grid">
+                {% endif %}
+            {% endfor %}
+
+            {% if form|length|divisibleby:2  %}
+                <div></div>
+            {% endif %}
+
+            <div style="display: flex; gap: 1rem; align-items: flex-end; padding-bottom: var(--pico-spacing);">
+                <a href="{% url 'expenses:summary' %}" role="button" class="secondary outline" style="flex: 1; margin-bottom: 0;">
+                    Clear
+                </a>
+                <button type="submit" style="flex: 1; margin-bottom: 0;">
+                    Apply
+                </button>
+            </div>
+        </div>
+    </form>
+</article>
+
+{% include "expenses/expense_table.html" %}
+
+{% endblock content %}

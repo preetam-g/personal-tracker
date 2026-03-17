@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from . import forms, models
 
 
+@login_required(login_url="accounts:login")
 def home_view(request):
     qs = models.Expense.objects.all().filter(user=request.user)
     return render(request, 'expenses/home.html', {"expenses": qs})
@@ -63,3 +64,29 @@ def delete_expense_view(request, exp_id):
         messages.error(request, 'Failed to delete. Please try again later.')
 
     return redirect("expenses:home")
+
+
+@login_required(login_url='accounts:login')
+def filtered_expense_view(request):
+
+    expenses = models.Expense.objects.filter(user=request.user)
+    form = forms.ExpenseFilterForm(request.GET)
+
+    if form.is_valid():
+        field_map = {
+            'start_date': 'date__gte',
+            'end_date': 'date__lte',
+            'category': 'category',
+            'type': 'type',
+        }
+
+        filters = {field_map[k]: v for k, v in form.cleaned_data.items() if v and k in field_map}
+        expenses = expenses.filter(**filters)
+
+        sort = form.cleaned_data.get('sort_by') or '-date'
+        expenses = expenses.order_by(sort)
+
+    return render(request, 'expenses/summary.html', {
+        'form': form,
+        'expenses': expenses
+    })
