@@ -75,3 +75,9 @@ textarea {
         text-align: left;
     }
 }
+
+.icon-action-btn:focus:not(:focus-visible) {
+    box-shadow: none;
+    outline: none;
+    background-color: transparent;
+}

@@ -1,13 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="margin-top: 2rem; margin-bottom: 2rem;">
-    <h2 style="margin-bottom: 0;">Financial Summary</h2>
-    <p style="color: var(--pico-muted-color);">Analyze and filter your historical spending.</p>
+<div style="margin-top: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h2 style="margin-bottom: 0;">Your Activity</h2>
+        <p style="color: var(--pico-muted-color); margin-bottom: 0;">Analyze and filter your historical spending.</p>
+    </div>
+
+    <div>
+        <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">
+            &larr; Back to Expenses
+        </a>
+    </div>
 </div>
 
 <article>
-    <form method="GET" action="{% url 'expenses:summary' %}">
+    <form method="GET" action="{% url 'expenses:summary' %}" id="filter-form">
         <div class="grid">
             {% for field in form %}
                 <div>
@@ -27,22 +35,64 @@
                 {% endif %}
             {% endfor %}
 
-            {% if form|length|divisibleby:2  %}
+            {% if form.visible_fields|length|divisibleby:2 %}
                 <div></div>
             {% endif %}
 
-            <div style="display: flex; gap: 1rem; align-items: flex-end; padding-bottom: var(--pico-spacing);">
-                <a href="{% url 'expenses:summary' %}" role="button" class="secondary outline" style="flex: 1; margin-bottom: 0;">
-                    Clear
-                </a>
-                <button type="submit" style="flex: 1; margin-bottom: 0;">
-                    Apply
-                </button>
+            <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: flex-end; padding-bottom: var(--pico-spacing);">
+                <a href="{% url 'expenses:summary' %}"
+                   style="flex: 1; margin-bottom: 0; max-width: 25%"
+                   role="button"
+                   class="secondary outline">Clear</a>
+                <button type="submit" style="flex: 1; margin-bottom: 0; max-width: 25%">Apply</button>
             </div>
         </div>
     </form>
 </article>
 
+{% if stats %}
+    <div class="grid" style="margin-bottom: 2rem;">
+        <article style="padding: 1.5rem; text-align: center; margin-bottom: 0;">
+            <h5 style="color: var(--pico-muted-color); margin-bottom: 0.5rem; font-weight: normal;">Total Spent</h5>
+            <h2 style="margin-bottom: 0; color: var(--pico-primary);">₹{{ stats.total|floatformat:2 }}</h2>
+        </article>
+
+        <article style="padding: 1.5rem; text-align: center; margin-bottom: 0;">
+            <h5 style="color: var(--pico-muted-color); margin-bottom: 0.5rem; font-weight: normal;">Daily Average</h5>
+            <h2 style="margin-bottom: 0;">₹{{ stats.daily|floatformat:2 }}</h2>
+            <small style="color: var(--pico-muted-color);">Based on {{ stats.no_of_days }} days</small>
+        </article>
+
+        <article style="padding: 1.5rem; text-align: center; margin-bottom: 0;">
+            <h5 style="color: var(--pico-muted-color); margin-bottom: 0.5rem; font-weight: normal;">Weekly Average</h5>
+            <h2 style="margin-bottom: 0;">₹{{ stats.weekly|floatformat:2 }}</h2>
+            <small style="color: var(--pico-muted-color);">Projected</small>
+        </article>
+    </div>
+{% endif %}
+
 {% include "expenses/expense_table.html" %}
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Target the date inputs by their typical Django IDs or names
+        const startDateInput = document.querySelector('input[name="start_date"]');
+        const endDateInput = document.querySelector('input[name="end_date"]');
+
+        if (startDateInput && endDateInput) {
+            if (startDateInput.value) {
+                endDateInput.min = startDateInput.value;
+            }
+            // 2. Listen for changes on start_date
+            startDateInput.addEventListener('change', function() {
+                endDateInput.min = this.value;
+
+                // Optional: If end_date is now before start_date, clear end_date
+                if (endDateInput.value && endDateInput.value < this.value) {
+                    endDateInput.value = "";
+                }
+            });
+        }
+    });
+</script>
 {% endblock content %}

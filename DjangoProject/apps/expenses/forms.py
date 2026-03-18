@@ -55,12 +55,12 @@ class ExpenseFilterForm(forms.Form):
         empty_label="All Categories",
     )
 
-    # type = forms.ModelChoiceField(
-    #     queryset=ExpenseType.objects.all(),
-    #     required=False,
-    #     label="Type",
-    #     empty_label="All Types",
-    # )
+    type = forms.ModelChoiceField(
+        queryset=ExpenseType.objects.all(),
+        required=False,
+        label="Type",
+        empty_label="All Types",
+    )
 
     SORT_CHOICES = [
         ('-date', 'Newest First'),

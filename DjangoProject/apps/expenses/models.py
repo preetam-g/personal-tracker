@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from .managers import ExpenseManager
 
 
 class ExpenseCategory(models.Model): # grocery, shopping, ...
@@ -18,6 +19,9 @@ class ExpenseType(models.Model): # upi, credit card, ...
 
 class Expense(models.Model):
 
+    objects = models.Manager()
+    browser = ExpenseManager() # .browser will use custom manager
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     date = models.DateTimeField()
@@ -31,6 +35,7 @@ class Expense(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+
         ordering = ['-date']
         # indexes = [  # add later
         #     models.Index(fields=['date']),

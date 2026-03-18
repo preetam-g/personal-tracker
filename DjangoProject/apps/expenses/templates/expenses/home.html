@@ -8,11 +8,19 @@
             <p style="color: var(--pico-muted-color);">Track and manage your spending.</p>
         </div>
         <div style="text-align: right;">
-            <a href="{% url 'expenses:summary' %}" role="button" class="secondary outline">Summary</a>
+            <a href="{% url 'expenses:summary' %}" role="button" class="secondary outline">History</a>
             <a href="{% url 'expenses:add' %}" role='button'>+ Add Expense</a>
         </div>
     </div>
 
+    <div style="
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05rem;
+        color: var(--pico-muted-color);
+        margin-bottom: 1rem;
+        font-weight: 600;
+    ">Latest 10 Transactions</div>
     {% include "expenses/expense_table.html" %}
 
 {% endblock content %}

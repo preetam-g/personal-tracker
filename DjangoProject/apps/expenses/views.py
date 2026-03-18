@@ -6,7 +6,7 @@ from . import forms, models
 
 @login_required(login_url="accounts:login")
 def home_view(request):
-    qs = models.Expense.objects.all().filter(user=request.user)
+    qs = models.Expense.browser.all_for_user(request.user)[:10]
     return render(request, 'expenses/home.html', {"expenses": qs})
 
 
@@ -42,10 +42,10 @@ def edit_expense_view(request, exp_id):
         if form.is_valid():
             form.save()
             messages.success(request, 'Expense successfully updated.')
-            return redirect("expenses:home")
         else:
             messages.error(request, 'Failed to update. Please try again later.')
 
+        return redirect("expenses:home")
     else:
         form = forms.ExpenseForm(instance=expense)
 
@@ -69,24 +69,16 @@ def delete_expense_view(request, exp_id):
 @login_required(login_url='accounts:login')
 def filtered_expense_view(request):
 
-    expenses = models.Expense.objects.filter(user=request.user)
+    expenses = models.Expense.browser.all_for_user(request.user)
     form = forms.ExpenseFilterForm(request.GET)
 
+    stats = None
     if form.is_valid():
-        field_map = {
-            'start_date': 'date__gte',
-            'end_date': 'date__lte',
-            'category': 'category',
-            'type': 'type',
-        }
-
-        filters = {field_map[k]: v for k, v in form.cleaned_data.items() if v and k in field_map}
-        expenses = expenses.filter(**filters)
-
-        sort = form.cleaned_data.get('sort_by') or '-date'
-        expenses = expenses.order_by(sort)
+        stats = models.Expense.browser.get_stats(request.user, form.cleaned_data)
+        expenses = models.Expense.browser.filtered_for_user(request.user, form.cleaned_data)
 
     return render(request, 'expenses/summary.html', {
         'form': form,
-        'expenses': expenses
+        'expenses': expenses,
+        'stats': stats,
     })
