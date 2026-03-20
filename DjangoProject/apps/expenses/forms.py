@@ -15,13 +15,20 @@ class ExpenseForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
 
-    def __init__(self, *args, **kwargs): # frontend blocking for dates
+    def __init__(self, *args, **kwargs): # frontend
         super().__init__(*args, **kwargs)
 
         today = timezone.now().date().strftime('%Y-%m-%d')
         self.fields['date'].widget.attrs['max'] = today
 
-    def clean_date(self): # backend validation for dates
+        note_max_len = self.Meta.model._meta.get_field('note').max_length
+
+        if note_max_len:
+            self.fields['note'].widget.attrs['maxlength'] = str(note_max_len)
+            self.fields['note'].widget.attrs['rows'] = str(note_max_len/10 + 1)
+
+    # backend
+    def clean_date(self):
 
         submitted_date = self.cleaned_data['date']
 
@@ -32,6 +39,15 @@ class ExpenseForm(forms.ModelForm):
             raise forms.ValidationError('You cannot log an expense for a future date!')
 
         return self.cleaned_data['date']
+
+    def clean_note(self):
+        note = self.cleaned_data.get('note', '')
+        max_len = self.Meta.model._meta.get_field('note').max_length
+
+        if note and len(note) > max_len:
+            raise forms.ValidationError(f'Keep it short! Notes cannot exceed {max_len} characters.')
+
+        return note
 
 
 class ExpenseFilterForm(forms.Form):

@@ -26,7 +26,7 @@ class Expense(models.Model):
 
     date = models.DateTimeField()
     amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
-    note = models.TextField(blank=True)
+    note = models.CharField(blank=True, max_length=20)
 
     category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True, blank=True)
     type = models.ForeignKey(ExpenseType, on_delete=models.SET_NULL, null=True, blank=True)
@@ -37,9 +37,12 @@ class Expense(models.Model):
     class Meta:
 
         ordering = ['-date']
-        # indexes = [  # add later
-        #     models.Index(fields=['date']),
-        # ]
+        indexes = [  # add later
+            models.Index(fields=['date']),
+            models.Index(fields=['user']),
+            models.Index(fields=['category']),
+            models.Index(fields=['type']),
+        ]
 
     def __str__(self):
         return f"{self.date.date()}: {self.amount} on {self.category or 'No Category'}"

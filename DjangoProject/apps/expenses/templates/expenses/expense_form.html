@@ -1,101 +1,139 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <article style="max-width: 600px; margin: 2rem auto;">
+<article style="max-width: 600px; margin: 2rem auto;">
 
-        <header>
-            <h2 style="margin-bottom: 0;">
-                {% if form.instance.pk %}
-                    Expense Details
-                {% else %}
-                    Add New Expense
+    <header>
+        <h2 style="margin-bottom: 0;">
+            {% if form.instance.pk %}
+                Expense Details
+            {% else %}
+                Add New Expense
+            {% endif %}
+        </h2>
+    </header>
+
+    <form method="POST" id="expense-form">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div style="margin-bottom: 1rem;">
+                <label for="{{ field.id_for_label }}">
+                    {{ field.label }}
+                    {{ field }}
+                </label>
+
+                {% if field.errors %}
+                    <small style="color: var(--pico-form-element-invalid-active-border-color); display: block; margin-top: -0.5rem;">
+                        {{ field.errors.0 }}
+                    </small>
                 {% endif %}
-            </h2>
-        </header>
-
-        <form method="POST" id="expense-form">
-            {% csrf_token %}
-
-            {{ form.as_p }}
-
-            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem;">
-
-                {% if form.instance.pk %}
-
-                    <div id="view-btns" style="display: flex; gap: 1rem;">
-                        <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="width: auto; margin-bottom: 0;">&larr; Back</a>
-                        <button type="button" id="edit-btn" class="secondary" style="width: auto; margin-bottom: 0;">
-                            Edit Expense
-                        </button>
-                    </div>
-
-                    <div id="action-btns" style="display: none; gap: 1rem;">
-                        <button type="button" id="cancel-edit-btn" class="secondary outline" style="width: auto; margin-bottom: 0;">Cancel</button>
-                        <button type="submit" id="save-btn" style="width: auto; margin-bottom: 0;">Update Expense</button>
-                    </div>
-
-                {% else %}
-                    <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="width: auto; margin-bottom: 0;">Cancel</a>
-                    <button type="submit" style="width: auto; margin-bottom: 0;">Save Expense</button>
-                {% endif %}
-
             </div>
-        </form>
+        {% endfor %}
 
-    </article>
+        <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const isExistingExpense = {{ form.instance.pk|yesno:"true,false" }};
+            {% if form.instance.pk %}
+                <div id="view-btns" style="display: flex; gap: 1rem;">
+                    <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">&larr; Back</a>
+                    <button type="button" id="edit-btn" class="secondary" style="margin-bottom: 0;">Edit Expense</button>
+                </div>
 
-            if (isExistingExpense) {
-                const form = document.getElementById("expense-form");
-                const formElements = form.querySelectorAll("input:not([type='hidden']), textarea, select");
+                <div id="action-btns" style="display: none; gap: 1rem;">
+                    <button type="button" id="cancel-edit-btn" class="secondary outline" style="margin-bottom: 0;">Cancel</button>
+                    <button type="submit" id="save-btn" style="margin-bottom: 0;">Update Expense</button>
+                </div>
 
-                const viewBtns = document.getElementById("view-btns"); // <--- Grab the new group
-                const editBtn = document.getElementById("edit-btn");
-                const actionBtns = document.getElementById("action-btns");
-                const cancelEditBtn = document.getElementById("cancel-edit-btn");
+            {% else %}
+                <div style="display: flex; gap: 1rem;">
+                    <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">Cancel</a>
+                    <button type="submit" style="margin-bottom: 0;">Save Expense</button>
+                </div>
+            {% endif %}
 
-                let originalValues = {};
-                const hasErrors = {{ form.errors|yesno:"true,false" }};
+        </div>
+    </form>
+</article>
 
-                // 1. Initialize and lock the fields
-                formElements.forEach(element => {
-                    originalValues[element.name] = element.value;
-                    if (!hasErrors) {
-                        element.setAttribute("disabled", true);
-                    }
-                });
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
 
-                if (hasErrors) {
-                    viewBtns.style.display = "none"; // Hide Back/Edit
-                    actionBtns.style.display = "flex"; // Show Cancel/Update
-                }
+        // --- FEATURE 1: Dynamic Character Counter ---
+        const noteInput = document.getElementById('id_note');
+        if (noteInput) {
+            const maxLength = noteInput.getAttribute('maxlength');
+            if (maxLength) {
+                const counter = document.createElement('small');
+                counter.style.display = 'block';
+                counter.style.textAlign = 'right';
+                counter.style.color = 'var(--pico-muted-color)';
+                counter.style.marginTop = '-0.5rem';
 
-                // 2. Handle clicking "Edit Expense"
-                editBtn.addEventListener("click", function() {
-                    formElements.forEach(element => element.removeAttribute("disabled"));
-                    viewBtns.style.display = "none";  // Hide Back/Edit
-                    actionBtns.style.display = "flex"; // Show Cancel/Update
-                    if(formElements.length > 0) formElements[0].focus();
-                });
+                const updateCounter = () => {
+                    const currentLength = noteInput.value.length;
+                    counter.textContent = `${currentLength} / ${maxLength}`;
+                    counter.style.color = currentLength >= maxLength ? 'var(--pico-form-element-invalid-active-border-color)' : 'var(--pico-muted-color)';
+                };
 
-                // 3. Handle clicking "Cancel"
-                cancelEditBtn.addEventListener("click", function() {
-                    formElements.forEach(element => {
-                        element.setAttribute("disabled", true);
-                        element.value = originalValues[element.name];
-                    });
-                    actionBtns.style.display = "none"; // Hide Cancel/Update
-                    viewBtns.style.display = "flex";   // Show Back/Edit
-                });
-
-                // 4. Unlock before submitting!
-                form.addEventListener("submit", function() {
-                     formElements.forEach(element => element.removeAttribute("disabled"));
-                });
+                noteInput.parentNode.insertBefore(counter, noteInput.nextSibling);
+                updateCounter(); // Run once on load
+                noteInput.addEventListener('input', updateCounter);
             }
-        });
-    </script>
+        }
+
+        // --- FEATURE 2: View/Edit Toggle Logic ---
+        const isExistingExpense = {{ form.instance.pk|yesno:"true,false" }};
+
+        if (isExistingExpense) {
+            const form = document.getElementById("expense-form");
+            const formElements = form.querySelectorAll("input:not([type='hidden']), textarea, select");
+
+            const viewBtns = document.getElementById("view-btns");
+            const editBtn = document.getElementById("edit-btn");
+            const actionBtns = document.getElementById("action-btns");
+            const cancelEditBtn = document.getElementById("cancel-edit-btn");
+
+            let originalValues = {};
+            const hasErrors = {{ form.errors|yesno:"true,false" }};
+
+            // Initialize Form State
+            formElements.forEach(element => {
+                originalValues[element.name] = element.value;
+                if (!hasErrors) element.setAttribute("disabled", true);
+            });
+
+            if (hasErrors) {
+                viewBtns.style.display = "none";
+                actionBtns.style.display = "flex";
+            }
+
+            // Click: Edit
+            editBtn.addEventListener("click", function() {
+                formElements.forEach(element => element.removeAttribute("disabled"));
+                viewBtns.style.display = "none";
+                actionBtns.style.display = "flex";
+                if(formElements.length > 0) formElements[0].focus();
+            });
+
+            // Click: Cancel
+            cancelEditBtn.addEventListener("click", function() {
+                formElements.forEach(element => {
+                    element.setAttribute("disabled", true);
+                    element.value = originalValues[element.name];
+                });
+
+                // CRITICAL: Force the character counter to recalculate the old value
+                if (noteInput) noteInput.dispatchEvent(new Event('input'));
+
+                actionBtns.style.display = "none";
+                viewBtns.style.display = "flex";
+            });
+
+            // Submit: Unlock before sending
+            form.addEventListener("submit", function() {
+                 formElements.forEach(element => element.removeAttribute("disabled"));
+            });
+        }
+    });
+</script>
 {% endblock content %}
