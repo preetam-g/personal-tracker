@@ -54,7 +54,7 @@ def profile_view(request):
 
     if request.method == 'POST':
 
-        form = forms.UserUpdateForm(request.POST, instance=request.user)
+        form = forms.UpdateUserForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, f"Profile updated successfully!")
@@ -63,7 +63,7 @@ def profile_view(request):
             messages.error(request, f"Something went wrong!")
 
     else:
-        form = forms.UserUpdateForm(instance=request.user)
+        form = forms.UpdateUserForm(instance=request.user)
 
     context = {
         'form': form,
@@ -90,4 +90,23 @@ def update_profile_view(request):
     else:
         form = forms.UpdateUserForm(instance=request.user)
 
-        return render(request, "accounts/update_profile.html", {"form": form})
+    return render(request, "accounts/profile.html", {"form": form})
+
+
+@login_required(login_url='accounts:login')
+def password_change_view(request):
+
+    if request.method == 'POST':
+        form = forms.PasswordChangeForm(request.user, request.POST)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Your password was successfully updated!")
+            return redirect("home")
+        else:
+            messages.error(request, f"Something went wrong. Please try again.")
+
+    else:
+        form = forms.PasswordChangeForm(request.user)
+
+    return render(request,"accounts/password_change.html",{"form": form})

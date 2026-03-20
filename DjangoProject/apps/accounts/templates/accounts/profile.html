@@ -64,11 +64,21 @@
             <article style="margin-bottom: var(--pico-block-spacing-vertical);">
                 <h3 style="margin-bottom: 0.5rem;">Security</h3>
                 <p style="color: var(--pico-muted-color); font-size: 0.9rem;">
-                    Ensure your account is using a long, random password to stay secure.
+                    Update your current password, or send a reset link to your email if you've forgotten it.
                 </p>
-                <a href="{% url 'accounts:profile' %}" role="button" class="secondary outline" style="width: 100%;">
-                    Change Password
-                </a>
+                <div style="display: flex; gap: 1rem;">
+                    <a href="{% url 'accounts:password_change' %}"
+                       role="button"
+                       class="secondary outline"
+                       style="flex: 1; text-align: center; padding-left: 0; padding-right: 0;"
+                    >Change Password</a>
+                    <a href="{% url 'accounts:password_reset' %}"
+                       role="button"
+                       class="outline"
+                       style="flex: 1; text-align: center; padding-left: 0; padding-right: 0;"
+                    >Reset Password</a>
+                </div>
+            </article>
             </article>
 
             <article>
@@ -78,9 +88,13 @@
                 </p>
                 <form action="{% url 'accounts:logout' %}" method="POST" style="margin: 0;">
                     {% csrf_token %}
-                    <button type="submit" class="outline" style="width: 100%; color: #d9534f; border-color: #d9534f; margin-bottom: 0;">
-                        Log Out
-                    </button>
+                    <button type="submit"
+                            class="outline"
+                            style="width: 100%;
+                                color: #d9534f;
+                                border-color: #d9534f;
+                                margin-bottom: 0;"
+                    >Log Out</button>
                 </form>
             </article>
 

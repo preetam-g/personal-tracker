@@ -19,7 +19,11 @@
         </form>
 
         <footer>
-            <small>Don't have an account? <a href="/auth/signup/">Sign Up here</a>.</small>
+            <small>Don't have an account? <a href="{% url "accounts:signup" %}">Sign Up here</a>.</small>
+            <br />
+            <small>Forgot your username or password?
+                <a href="{% url "accounts:password_reset" %}">Click Here</a>
+            </small>
         </footer>
 
     </article>

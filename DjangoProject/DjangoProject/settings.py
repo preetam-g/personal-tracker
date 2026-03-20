@@ -33,6 +33,9 @@ ALLOWED_HOSTS = [] if DEBUG else os.getenv("ALLOWED_HOSTS", []).split(",")
 
 AUTH_USER_MODEL = "accounts.UserProfile"
 
+# Output emails to the console instead of sending them
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 # Application definition
 
 INSTALLED_APPS = [

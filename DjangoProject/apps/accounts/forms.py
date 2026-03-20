@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, PasswordChangeForm
 from .models import UserProfile
 from django.forms import ModelForm
 
@@ -14,11 +14,11 @@ class LoginForm(AuthenticationForm):
     pass
 
 
-class UserUpdateForm(ModelForm):
+class UpdateUserForm(ModelForm):
     class Meta:
         model = UserProfile
         fields = ["first_name", "last_name", "username", "email"]
 
     def __init__(self, *args, **kwargs):
-        super(UserUpdateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['email'].required = True
