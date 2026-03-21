@@ -9,7 +9,7 @@
 
     <div>
         <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">
-            &larr; Back to Expenses
+            &larr; Back
         </a>
     </div>
 </div>
@@ -30,12 +30,12 @@
                     {% endif %}
                 </div>
 
-                {% if forloop.counter|divisibleby:2 %}
+                {% if forloop.counter|divisibleby:3 %}
                     </div><div class="grid">
                 {% endif %}
             {% endfor %}
 
-            {% if form.visible_fields|length|divisibleby:2 %}
+            {% if form.visible_fields|length|divisibleby:3 %}
                 <div></div>
             {% endif %}
 
@@ -52,18 +52,18 @@
 
 {% if stats %}
     <div class="grid" style="margin-bottom: 2rem;">
-        <article style="padding: 1.5rem; text-align: center; margin-bottom: 0;">
+        <article style="padding: 1rem; text-align: center; margin-bottom: 0;">
             <h5 style="color: var(--pico-muted-color); margin-bottom: 0.5rem; font-weight: normal;">Total Spent</h5>
             <h2 style="margin-bottom: 0; color: var(--pico-primary);">₹{{ stats.total|floatformat:2 }}</h2>
         </article>
 
-        <article style="padding: 1.5rem; text-align: center; margin-bottom: 0;">
+        <article style="padding: 1rem; text-align: center; margin-bottom: 0;">
             <h5 style="color: var(--pico-muted-color); margin-bottom: 0.5rem; font-weight: normal;">Daily Average</h5>
             <h2 style="margin-bottom: 0;">₹{{ stats.daily|floatformat:2 }}</h2>
             <small style="color: var(--pico-muted-color);">Based on {{ stats.no_of_days }} days</small>
         </article>
 
-        <article style="padding: 1.5rem; text-align: center; margin-bottom: 0;">
+        <article style="padding: 1rem; text-align: center; margin-bottom: 0;">
             <h5 style="color: var(--pico-muted-color); margin-bottom: 0.5rem; font-weight: normal;">Weekly Average</h5>
             <h2 style="margin-bottom: 0;">₹{{ stats.weekly|floatformat:2 }}</h2>
             <small style="color: var(--pico-muted-color);">Projected</small>

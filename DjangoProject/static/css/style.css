@@ -37,6 +37,10 @@ textarea {
         display: block;
     }
 
+    .expense-tracker-table-figure {
+        max-height: 80vh;
+    }
+
     /* Hide the top header row completely */
     .expense-tracker-table thead {
         display: none;

@@ -33,10 +33,17 @@ ALLOWED_HOSTS = [] if DEBUG else os.getenv("ALLOWED_HOSTS", []).split(",")
 
 AUTH_USER_MODEL = "accounts.UserProfile"
 
-# Output emails to the console instead of sending them
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL SETUP
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend" # for debug mode
 
-# Application definition
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = f"Expense Tracker <{EMAIL_HOST_USER}>"
 
 INSTALLED_APPS = [
     'django.contrib.admin',

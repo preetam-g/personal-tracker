@@ -3,6 +3,7 @@ from email.policy import default
 from django import forms
 from .models import Expense, ExpenseCategory, ExpenseType
 from django.utils import timezone
+from .utils import SortChoices
 
 class ExpenseForm(forms.ModelForm):
 
@@ -78,15 +79,8 @@ class ExpenseFilterForm(forms.Form):
         empty_label="All Types",
     )
 
-    SORT_CHOICES = [
-        ('-date', 'Newest First'),
-        ('date', 'Oldest First'),
-        ('-amount', 'Highest Amount'),
-        ('amount', 'Lowest Amount'),
-    ]
-
     sort_by = forms.ChoiceField(
-        choices=SORT_CHOICES,
+        choices=SortChoices,
         required=False,
         label="Sort By",
     )

@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from . import forms, models
+from .utils import TimeFrame
 
 
 @login_required(login_url="accounts:login")
@@ -72,12 +73,14 @@ def filtered_expense_view(request):
     expenses = models.Expense.browser.all_for_user(request.user)
     form = forms.ExpenseFilterForm(request.GET)
 
+    test = models.Expense.browser.get_dashboard_data(request.user, TimeFrame.THIS_YEAR)
+
     stats = None
     if form.is_valid():
         stats = models.Expense.browser.get_stats(request.user, form.cleaned_data)
         expenses = models.Expense.browser.filtered_for_user(request.user, form.cleaned_data)
 
-    return render(request, 'expenses/summary.html', {
+    return render(request, 'expenses/history.html', {
         'form': form,
         'expenses': expenses,
         'stats': stats,

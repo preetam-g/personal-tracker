@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
@@ -71,26 +71,6 @@ def profile_view(request):
     }
 
     return render(request, "accounts/profile.html", context)
-
-
-
-@login_required(login_url='accounts:login')
-def update_profile_view(request):
-
-    if request.method == 'POST':
-        form = forms.UpdateUserForm(request.POST, instance=request.user)
-
-        if form.is_valid():
-            form.save()
-            messages.success(request, f"Your account has been updated successfully!")
-            return redirect("home")
-        else:
-            messages.error(request, f"Something went wrong. Please try again.")
-
-    else:
-        form = forms.UpdateUserForm(instance=request.user)
-
-    return render(request, "accounts/profile.html", {"form": form})
 
 
 @login_required(login_url='accounts:login')
