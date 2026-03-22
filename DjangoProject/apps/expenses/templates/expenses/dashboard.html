@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="container" style="margin-top: 2rem;">
+
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'expenses:home' %}" class="secondary" style="text-decoration: none;">
+            &larr; Back to Expenses
+        </a>
+    </div>
+
+    <header class="grid" style="margin-bottom: 2rem; align-items: center;">
+        <hgroup style="margin-bottom: 0;">
+            <h2>Analytics Overview</h2>
+            {% if data %}
+                <p style="color: var(--pico-muted-color);">
+                    Total Spent: <strong>₹{{ data.period_total|floatformat:2 }}</strong>
+                </p>
+            {% endif %}
+        </hgroup>
+
+        <div style="text-align: right;">
+            <form method="GET" action="{% url 'expenses:dashboard' %}">
+                <fieldset role="group">
+                    <select name="timeFrame" onchange="this.form.submit()">
+                        <option value="this_month" {% if request.GET.timeFrame == 'this_month' or not request.GET.timeFrame %}selected{% endif %}>This Month</option>
+                        <option value="7_days" {% if request.GET.timeFrame == '7_days' %}selected{% endif %}>Last 7 Days</option>
+                        <option value="this_year" {% if request.GET.timeFrame == 'this_year' %}selected{% endif %}>This Year</option>
+                    </select>
+                </fieldset>
+            </form>
+        </div>
+    </header>
+
+    {% if data %}
+
+        {{ data.category_data|json_script:"category-data" }}
+        {{ data.type_data|json_script:"type-data" }}
+        {{ data.trend_data|json_script:"trend-data" }}
+
+        <!-- 🔹 Charts Row -->
+        <div class="grid">
+
+            <!-- Category -->
+            <article>
+                <header><strong>Spending by Category</strong></header>
+                <div id="categoryWrapper" style="height: 300px; display:flex; align-items:center; justify-content:center;">
+                    <canvas id="categoryChart"></canvas>
+                    <p id="categoryEmpty" style="display:none; color: var(--pico-muted-color);">
+                        No data available
+                    </p>
+                </div>
+            </article>
+
+            <!-- Type -->
+            <article>
+                <header><strong>Spending by Type</strong></header>
+                <div id="typeWrapper" style="height: 300px; display:flex; align-items:center; justify-content:center;">
+                    <canvas id="typeChart"></canvas>
+                    <p id="typeEmpty" style="display:none; color: var(--pico-muted-color);">
+                        No data available for this timeframe.
+                    </p>
+                </div>
+            </article>
+
+        </div>
+
+        <!-- 🔹 Trend -->
+        <article style="margin-top: 1.5rem;">
+            <header><strong>Spending Trend</strong></header>
+            <div id="trendWrapper" style="height: 320px; display:flex; align-items:center; justify-content:center;">
+                <canvas id="trendChart"></canvas>
+                <p id="trendEmpty" style="display:none; color: var(--pico-muted-color);">
+                    No trend data available for this timeframe.
+                </p>
+            </div>
+        </article>
+
+    {% else %}
+        <article>
+            <p style="text-align: center; color: var(--pico-muted-color); margin: 2rem 0;">
+                No data available for this timeframe.
+            </p>
+        </article>
+    {% endif %}
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const catEl = document.getElementById('category-data');
+    if (!catEl) return;
+
+    const catData = JSON.parse(catEl.textContent);
+    const typeData = JSON.parse(document.getElementById('type-data').textContent);
+    const trendData = JSON.parse(document.getElementById('trend-data').textContent);
+
+    const colors = [
+        '#4CAF50', '#2196F3', '#FFC107', '#FF5722',
+        '#9C27B0', '#00BCD4', '#8BC34A', '#FF9800'
+    ];
+
+    // 🔥 Helper: check if all values are zero
+    function isAllZero(arr) {
+        return !arr || arr.length === 0 || arr.every(v => v === 0);
+    }
+
+    // ================= CATEGORY =================
+    if (isAllZero(catData.data)) {
+        document.getElementById('categoryChart').style.display = 'none';
+        document.getElementById('categoryEmpty').style.display = 'block';
+    } else {
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'doughnut',
+            data: {
+                labels: catData.labels,
+                datasets: [{
+                    data: catData.data,
+                    backgroundColor: colors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 12 },
+                        formatter: (value, ctx) => {
+                            const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percent = ((value / total) * 100).toFixed(1);
+                            return percent + '%\n₹' + value;
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+
+    // ================= TYPE =================
+    if (isAllZero(typeData.data)) {
+        document.getElementById('typeChart').style.display = 'none';
+        document.getElementById('typeEmpty').style.display = 'block';
+    } else {
+        new Chart(document.getElementById('typeChart'), {
+            type: 'doughnut',
+            data: {
+                labels: typeData.labels,
+                datasets: [{
+                    data: typeData.data,
+                    backgroundColor: colors,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { position: 'bottom' },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold', size: 12 },
+                        formatter: (value, ctx) => {
+                            const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            const percent = ((value / total) * 100).toFixed(1);
+                            return percent + '%\n₹' + value;
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    }
+
+    // ================= TREND =================
+    const trendTotals = trendData.map(i => i.total);
+
+    if (isAllZero(trendTotals)) {
+        document.getElementById('trendChart').style.display = 'none';
+        document.getElementById('trendEmpty').style.display = 'block';
+    } else {
+        new Chart(document.getElementById('trendChart'), {
+            type: 'line',
+            data: {
+                labels: trendData.map(i => i.date),
+                datasets: [{
+                    label: 'Amount (₹)',
+                    data: trendTotals,
+                    borderColor: '#2196F3',
+                    backgroundColor: 'rgba(33,150,243,0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+});
+</script>
+
+{% endblock %}

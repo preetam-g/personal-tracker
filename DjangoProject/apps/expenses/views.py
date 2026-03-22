@@ -73,8 +73,6 @@ def filtered_expense_view(request):
     expenses = models.Expense.browser.all_for_user(request.user)
     form = forms.ExpenseFilterForm(request.GET)
 
-    test = models.Expense.browser.get_dashboard_data(request.user, TimeFrame.THIS_YEAR)
-
     stats = None
     if form.is_valid():
         stats = models.Expense.browser.get_stats(request.user, form.cleaned_data)
@@ -84,4 +82,22 @@ def filtered_expense_view(request):
         'form': form,
         'expenses': expenses,
         'stats': stats,
+    })
+
+
+@login_required(login_url='accounts:login')
+def dashboard_view(request):
+
+    form = forms.DashboardForm(request.GET)
+
+    data = None
+    if form.is_valid():
+        data = models.Expense.browser.get_dashboard_data(
+            user=request.user,
+            timeFrame=form.cleaned_data['timeFrame'],
+        )
+
+    return render(request, 'expenses/dashboard.html', {
+        'form': form,
+        'data': data,
     })

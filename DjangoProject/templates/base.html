@@ -20,7 +20,6 @@
                 </li>
             </ul>
             <ul>
-{#                <li><a href="{% url 'home' %}">Home</a></li>#}
                 <li><a href="{% url 'expenses:home' %}">Tracker</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'accounts:profile' %}">{{ user.username|slice:":1"|upper }}</a></li>

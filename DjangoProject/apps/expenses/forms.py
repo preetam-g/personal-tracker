@@ -3,7 +3,7 @@ from email.policy import default
 from django import forms
 from .models import Expense, ExpenseCategory, ExpenseType
 from django.utils import timezone
-from .utils import SortChoices
+from .utils import SortChoices, TimeFrame
 
 class ExpenseForm(forms.ModelForm):
 
@@ -16,6 +16,7 @@ class ExpenseForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
 
+    # frontend
     def __init__(self, *args, **kwargs): # frontend
         super().__init__(*args, **kwargs)
 
@@ -91,3 +92,12 @@ class ExpenseFilterForm(forms.Form):
         today = timezone.now().date().strftime('%Y-%m-%d')
         self.fields['start_date'].widget.attrs['max'] = today
         self.fields['end_date'].widget.attrs['max'] = today
+
+
+class DashboardForm(forms.Form):
+    timeFrame = forms.ChoiceField(
+        choices=TimeFrame,
+        required=False,
+        initial=TimeFrame.THIS_MONTH,
+        label="Timeframe",
+    )
