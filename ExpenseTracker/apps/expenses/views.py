@@ -2,8 +2,8 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from . import forms, models
-from .utils import TimeFrame
-
+from django.core.mail import send_mail
+from django.http import HttpResponse
 
 @login_required(login_url="accounts:login")
 def home_view(request):
@@ -101,3 +101,17 @@ def dashboard_view(request):
         'form': form,
         'data': data,
     })
+
+
+def test_email_view(request):
+    try:
+        send_mail(
+            'Test Email',
+            'Hello from Render',
+            None,  # uses DEFAULT_FROM_EMAIL
+            ['your_email@gmail.com'],  # 👈 put your email here
+            fail_silently=False,
+        )
+        return HttpResponse("Email sent successfully")
+    except Exception as e:
+        return HttpResponse(f"Error: {str(e)}")

@@ -9,4 +9,5 @@ urlpatterns = [
     path('edit/<int:exp_id>/', views.edit_expense_view, name='edit'),
     path('delete/<int:exp_id>/', views.delete_expense_view, name='delete'),
     path('activity/', views.filtered_expense_view, name='summary'),
+    path('test-email/', views.test_email_view, name='test_email'),
 ]
