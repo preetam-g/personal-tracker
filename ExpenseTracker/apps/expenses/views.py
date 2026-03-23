@@ -101,17 +101,3 @@ def dashboard_view(request):
         'form': form,
         'data': data,
     })
-
-
-def test_email_view(request):
-    try:
-        send_mail(
-            'Test Email',
-            'Hello from Render',
-            None,  # uses DEFAULT_FROM_EMAIL
-            ['your_email@gmail.com'],  # 👈 put your email here
-            fail_silently=False,
-        )
-        return HttpResponse("Email sent successfully")
-    except Exception as e:
-        return HttpResponse(f"Error: {str(e)}")
