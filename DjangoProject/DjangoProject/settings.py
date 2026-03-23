@@ -30,7 +30,14 @@ SECRET_KEY = os.getenv("SECRET_KEY", "somernadadkfjioesdkfslmdfnsdlfds")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = [] if DEBUG else os.getenv("ALLOWED_HOSTS", "").split(",")
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+
+# If the variable exists, add it to ALLOWED_HOSTS
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME]
+else:
+    # If it doesn't exist, we must be running locally
+    ALLOWED_HOSTS = [] if DEBUG else os.getenv("ALLOWED_HOSTS", "").split(",")
 
 AUTH_USER_MODEL = "accounts.UserProfile"
 
