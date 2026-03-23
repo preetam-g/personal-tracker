@@ -100,7 +100,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 # This is the folder where Render will "collect" all your files
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Use WhiteNoise to serve compressed/cached files in production
 if not DEBUG:
