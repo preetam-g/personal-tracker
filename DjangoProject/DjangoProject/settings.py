@@ -29,13 +29,13 @@ SECRET_KEY = os.getenv("SECRET_KEY", "somernadadkfjioesdkfslmdfnsdlfds")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = [] if DEBUG else os.getenv("ALLOWED_HOSTS", []).split(",")
+ALLOWED_HOSTS = [] if DEBUG else os.getenv("ALLOWED_HOSTS", "").split(",")
 
 AUTH_USER_MODEL = "accounts.UserProfile"
 
 # EMAIL SETUP
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend" # for debug mode
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend" # for debug mode
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
