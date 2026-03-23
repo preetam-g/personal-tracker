@@ -37,12 +37,9 @@ class Expense(models.Model):
     class Meta:
 
         ordering = ['-date']
-        indexes = [  # add later
+        indexes = [
             models.Index(fields=['date']),
-            models.Index(fields=['user']),
-            models.Index(fields=['category']),
-            models.Index(fields=['type']),
         ]
 
     def __str__(self):
-        return f"{self.date.date()}: {self.amount} on {self.category or 'No Category'}"
+        return f"{self.amount}({self.note}) on {self.date.date}"
