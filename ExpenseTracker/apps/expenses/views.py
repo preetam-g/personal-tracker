@@ -109,7 +109,7 @@ def test_email_view(request):
             'Test Email',
             'Hello from Render',
             None,  # uses DEFAULT_FROM_EMAIL
-            ['your_email@gmail.com'],  # 👈 put your email here
+            ['preetamgopalasetty@gmail.com'],  # 👈 put your email here
             fail_silently=False,
         )
         return HttpResponse("Email sent successfully")
