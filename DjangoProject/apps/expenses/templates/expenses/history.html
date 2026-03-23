@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div style="margin-top: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
-    <div>
+<div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'expenses:home' %}" class="secondary" style="text-decoration: none;">
+        &larr; Back to Expenses
+    </a>
+</div>
+
+<header style="margin-bottom: 2rem;">
+    <hgroup style="margin-bottom: 0;">
         <h2 style="margin-bottom: 0;">Your Activity</h2>
         <p style="color: var(--pico-muted-color); margin-bottom: 0;">Analyze and filter your historical spending.</p>
-    </div>
-
-    <div>
-        <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">
-            &larr; Back
-        </a>
-    </div>
-</div>
+    </hgroup>
+</header>
 
 <article>
     <form method="GET" action="{% url 'expenses:summary' %}" id="filter-form">

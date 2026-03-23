@@ -38,7 +38,7 @@ class Expense(models.Model):
 
         ordering = ['-date']
         indexes = [
-            models.Index(fields=['date']),
+            models.Index(fields=['user', '-date']),
         ]
 
     def __str__(self):

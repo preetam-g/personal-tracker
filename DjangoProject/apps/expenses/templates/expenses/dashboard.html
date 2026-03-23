@@ -38,10 +38,8 @@
         {{ data.type_data|json_script:"type-data" }}
         {{ data.trend_data|json_script:"trend-data" }}
 
-        <!-- 🔹 Charts Row -->
         <div class="grid">
 
-            <!-- Category -->
             <article>
                 <header><strong>Spending by Category</strong></header>
                 <div id="categoryWrapper" style="height: 300px; display:flex; align-items:center; justify-content:center;">
@@ -52,7 +50,6 @@
                 </div>
             </article>
 
-            <!-- Type -->
             <article>
                 <header><strong>Spending by Type</strong></header>
                 <div id="typeWrapper" style="height: 300px; display:flex; align-items:center; justify-content:center;">
@@ -65,7 +62,6 @@
 
         </div>
 
-        <!-- 🔹 Trend -->
         <article style="margin-top: 1.5rem;">
             <header><strong>Spending Trend</strong></header>
             <div id="trendWrapper" style="height: 320px; display:flex; align-items:center; justify-content:center;">
@@ -99,10 +95,26 @@ document.addEventListener("DOMContentLoaded", function () {
     const typeData = JSON.parse(document.getElementById('type-data').textContent);
     const trendData = JSON.parse(document.getElementById('trend-data').textContent);
 
-    const colors = [
-        '#4CAF50', '#2196F3', '#FFC107', '#FF5722',
-        '#9C27B0', '#00BCD4', '#8BC34A', '#FF9800'
-    ];
+    // 🔥 Dynamic Color Generator
+    function getDynamicColors(dataLength) {
+        const baseColors = [
+            '#4CAF50', '#2196F3', '#FFC107', '#FF5722',
+            '#9C27B0', '#00BCD4', '#8BC34A', '#FF9800'
+        ];
+
+        let finalColors = [];
+        for (let i = 0; i < dataLength; i++) {
+            if (i < baseColors.length) {
+                finalColors.push(baseColors[i]);
+            } else {
+                // Generate distinct new colors.
+                // 45% lightness ensures the background is dark enough for white text.
+                const hue = (i * 137.5) % 360;
+                finalColors.push(`hsl(${hue}, 70%, 45%)`);
+            }
+        }
+        return finalColors;
+    }
 
     // 🔥 Helper: check if all values are zero
     function isAllZero(arr) {
@@ -120,7 +132,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: catData.labels,
                 datasets: [{
                     data: catData.data,
-                    backgroundColor: colors,
+                    backgroundColor: getDynamicColors(catData.data.length), // Applied here
                     borderWidth: 0
                 }]
             },
@@ -132,6 +144,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     legend: { position: 'bottom' },
                     datalabels: {
                         color: '#fff',
+                        // Added shadow so text pops on light backgrounds
+                        textShadowBlur: 4,
+                        textShadowColor: 'rgba(0, 0, 0, 0.6)',
                         font: { weight: 'bold', size: 12 },
                         formatter: (value, ctx) => {
                             const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
@@ -156,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 labels: typeData.labels,
                 datasets: [{
                     data: typeData.data,
-                    backgroundColor: colors,
+                    backgroundColor: getDynamicColors(typeData.data.length), // Applied here
                     borderWidth: 0
                 }]
             },
@@ -168,6 +183,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     legend: { position: 'bottom' },
                     datalabels: {
                         color: '#fff',
+                        // Added shadow so text pops on light backgrounds
+                        textShadowBlur: 4,
+                        textShadowColor: 'rgba(0, 0, 0, 0.6)',
                         font: { weight: 'bold', size: 12 },
                         formatter: (value, ctx) => {
                             const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
