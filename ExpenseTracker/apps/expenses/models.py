@@ -1,25 +1,25 @@
 from django.conf import settings
 from django.db import models
 from .managers import ExpenseManager
+from apps.base.models import SoftDeleteModel
 
 
-class ExpenseCategory(models.Model): # grocery, shopping, ...
+class ExpenseCategory(SoftDeleteModel): # grocery, shopping, ...
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
 
 
-class ExpenseType(models.Model): # upi, credit card, ...
+class ExpenseType(SoftDeleteModel): # upi, credit card, ...
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
 
 
-class Expense(models.Model):
+class Expense(SoftDeleteModel):
 
-    objects = models.Manager()
     browser = ExpenseManager() # .browser will use custom manager
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -39,7 +39,8 @@ class Expense(models.Model):
         ordering = ['-date']
         indexes = [
             models.Index(fields=['user', '-date']),
+            models.Index(fields=['is_deleted']),
         ]
 
     def __str__(self):
-        return f"{self.amount}({self.note}) on {self.date.date}"
+        return f"{self.amount}({self.note}) on {self.date.date()}"

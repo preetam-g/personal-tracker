@@ -1,7 +1,8 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
+from apps.base.models import SoftDeleteModel
 
-class UserProfile(AbstractUser):
+
+class UserProfile(AbstractUser, SoftDeleteModel):
 
     class Meta:
         ordering = ['-date_joined']

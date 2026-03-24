@@ -18,7 +18,7 @@ class ExpenseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs): # frontend
         super().__init__(*args, **kwargs)
 
-        today = timezone.now().date().strftime('%Y-%m-%d')
+        today = timezone.localdate().strftime('%Y-%m-%d')
         self.fields['date'].widget.attrs['max'] = today
         self.fields['date'].initial = today
 
@@ -32,11 +32,9 @@ class ExpenseForm(forms.ModelForm):
     def clean_date(self):
 
         submitted_date = self.cleaned_data['date']
+        current_date = timezone.localtime()
 
-        if hasattr(submitted_date, 'date'):
-            submitted_date = submitted_date.date()
-
-        if submitted_date > timezone.now().date():
+        if submitted_date > current_date:
             raise forms.ValidationError('You cannot log an expense for a future date!')
 
         return self.cleaned_data['date']
@@ -88,9 +86,19 @@ class ExpenseFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        today = timezone.now().date().strftime('%Y-%m-%d')
+        today = timezone.localtime().strftime('%Y-%m-%d')
+
         self.fields['start_date'].widget.attrs['max'] = today
         self.fields['end_date'].widget.attrs['max'] = today
+
+    def clean(self):
+        start = self.cleaned_data.get('start_date')
+        end = self.cleaned_data.get('end_date')
+
+        if start and end and start > end:
+            raise forms.ValidationError("Start date can't be after end date!")
+
+        return self.cleaned_data
 
 
 class DashboardForm(forms.Form):
