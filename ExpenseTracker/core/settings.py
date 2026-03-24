@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     # Internal Apps
     'apps.expenses',
     'apps.accounts',
+    'apps.base',
 ]
 
 MIDDLEWARE = [
