@@ -2,8 +2,6 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from . import forms, models
-from django.core.mail import send_mail
-from django.http import HttpResponse
 
 @login_required(login_url="accounts:login")
 def home_view(request):

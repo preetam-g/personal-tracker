@@ -20,7 +20,6 @@ RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME]
-    # prevent CSRF failures on HTTPS
     CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
 else:
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
@@ -115,12 +114,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # WhiteNoise Configuration for Production
 if IS_PRODUCTION or not DEBUG:
-    # Manifest storage handles cache-busting (important for Render)
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # 10. EMAIL SYSTEM
 if DEBUG:
-    # While developing on your Mac, emails will print to the terminal
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     # Real SMTP settings for production
@@ -137,7 +134,6 @@ DEFAULT_FROM_EMAIL = f"Expense Tracker <{os.getenv('EMAIL_HOST_USER', 'noreply@e
 if IS_PRODUCTION:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    # Only set these to True if your Render site is using HTTPS
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True

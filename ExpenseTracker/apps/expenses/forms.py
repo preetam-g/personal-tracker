@@ -1,5 +1,3 @@
-from email.policy import default
-
 from django import forms
 from .models import Expense, ExpenseCategory, ExpenseType
 from django.utils import timezone
