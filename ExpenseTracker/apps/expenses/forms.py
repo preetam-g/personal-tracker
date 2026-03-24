@@ -22,6 +22,7 @@ class ExpenseForm(forms.ModelForm):
 
         today = timezone.now().date().strftime('%Y-%m-%d')
         self.fields['date'].widget.attrs['max'] = today
+        self.fields['date'].initial = today
 
         note_max_len = self.Meta.model._meta.get_field('note').max_length
 
