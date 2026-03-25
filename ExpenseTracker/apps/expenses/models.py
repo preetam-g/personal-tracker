@@ -22,7 +22,7 @@ class Expense(SoftDeleteModel):
 
     browser = ExpenseManager() # .browser will use custom manager
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='expenses')
 
     date = models.DateTimeField()
     amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
@@ -43,4 +43,4 @@ class Expense(SoftDeleteModel):
         ]
 
     def __str__(self):
-        return f"{self.amount}({self.note}) on {self.date.date()}"
+        return f"{self.amount} on {self.date.date()}"
