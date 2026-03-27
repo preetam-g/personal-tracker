@@ -20,7 +20,7 @@ class ExpenseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs): # frontend
         super().__init__(*args, **kwargs)
 
-        today = timezone.now().date().strftime('%Y-%m-%d')
+        today = timezone.localdate().strftime('%Y-%m-%d')
         self.fields['date'].widget.attrs['max'] = today
         self.fields['date'].initial = today
 
@@ -37,8 +37,9 @@ class ExpenseForm(forms.ModelForm):
 
         if hasattr(submitted_date, 'date'):
             submitted_date = submitted_date.date()
+            current_time = timezone.localtime()
 
-        if submitted_date > timezone.now().date():
+        if submitted_date > current_time:
             raise forms.ValidationError('You cannot log an expense for a future date!')
 
         return self.cleaned_data['date']
