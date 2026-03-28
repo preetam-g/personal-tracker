@@ -35,7 +35,11 @@ class ExpenseForm(forms.ModelForm):
 
         submitted_date = self.cleaned_data['date']
 
-        if submitted_date > timezone.now():
+        if hasattr(submitted_date, 'date'):
+            submitted_date = submitted_date.date()
+            current_time = timezone.now()
+
+        if submitted_date > current_time:
             raise forms.ValidationError('You cannot log an expense for a future date!')
 
         return self.cleaned_data['date']
