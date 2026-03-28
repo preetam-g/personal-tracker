@@ -26,13 +26,13 @@ class ExpenseForm(forms.ModelForm):
 
         if note_max_len:
             self.fields['note'].widget.attrs['maxlength'] = str(note_max_len)
-            self.fields['note'].widget.attrs['rows'] = str(note_max_len/10 + 1)
+            self.fields['note'].widget.attrs['rows'] = str(note_max_len//10 + 1)
 
     # backend
     def clean_date(self):
 
         submitted_date = self.cleaned_data['date']
-        current_date = timezone.localtime()
+        current_date = timezone.localdate()
 
         if submitted_date > current_date:
             raise forms.ValidationError('You cannot log an expense for a future date!')
