@@ -7,12 +7,18 @@ from apps.base.models import SoftDeleteModel
 class ExpenseCategory(SoftDeleteModel): # grocery, shopping, ...
     name = models.CharField(max_length=50, unique=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
 
 class ExpenseType(SoftDeleteModel): # upi, credit card, ...
     name = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return self.name
