@@ -6,5 +6,7 @@ import datetime
 
 class UserProfile(AbstractUser, SoftDeleteModel):
 
+    SOFT_DELETE_CASCADES = ('expenses',)
+
     class Meta:
         ordering = ['-date_joined']
