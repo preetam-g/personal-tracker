@@ -2,7 +2,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models import Sum, Min, Max
 from django.db.models.functions import TruncDate, TruncMonth
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from .utils import TimeFrame, get_start_date, get_grouped_data
 from apps.base.models import SoftDeleteQuerySet, SoftDeleteManager
 
@@ -19,9 +19,7 @@ class ExpenseManager(SoftDeleteManager):
         qs = self.all_for_user(user)
 
         field_mapping = {
-            'keyword': 'note__icontains',
             'start_date': 'date__gte',
-            'end_date': 'date__lte',
             'category': 'category',
             'type': 'type',
         }
@@ -29,31 +27,42 @@ class ExpenseManager(SoftDeleteManager):
         filters = {field_mapping[k]: v for k, v in filter_form.items() if v and (k in field_mapping)}
         qs = qs.filter(**filters)
 
-        return qs.order_by(filter_form.get('sort_by') or '-date')
+        end_date = filter_form.get('end_date')
+        if end_date:
+            end = end_date + timedelta(days=1)
+            qs = qs.filter(date__lt=end)
+
+        if filter_form.get('sort_by'):
+            qs = qs.order_by(filter_form.get('sort_by'))
+
+        return qs
 
     def get_stats(self, user:AbstractBaseUser, filter_form:dict) -> dict:
 
-        qs = self.filtered_for_user(user, filter_form)
+        qs = self.filtered_for_user(user, filter_form).order_by()
 
-        daily_stats = qs.annotate(
-            day=TruncDate('date'),
-        ).values('day').annotate(
-            total_spent=Sum('amount'),
-        ).order_by(filter_form.get('sort_by') or '-day')
+        metrics = qs.aggregate(
+            total=Sum('amount'),
+            first_date=Min('date'),
+            last_date=Max('date'),
+        )
 
-        total = sum(item['total_spent'] for item in daily_stats) or 0.0
+        total = metrics['total'] or 0.0
+        start = filter_form.get('start_date') or metrics['first_date']
+        end = filter_form.get('end_date') or metrics['last_date']
 
-        end = filter_form.get('end_date')
-        if not end:
-            latest_record = qs.aggregate(last_date=Max('date'))['last_date']
-            end = latest_record.date() if latest_record else timezone.now().date()
+        if (not start) or (not end):
+            return {
+                'total': 0.0,
+                'daily': 0.0,
+                'weekly': 0.0,
+                'no_of_days': 0,
+            }
 
-        start = filter_form.get('start_date')
-        if not start:
-            earliest_record = qs.aggregate(first_date=Min('date'))['first_date']
-            start = earliest_record.date() if earliest_record else end
+        if isinstance(start, datetime): start = start.date()
+        if isinstance(end, datetime): end = end.date()
 
-        no_of_days = (end - start).days + 1
+        no_of_days = max((end - start).days + 1, 1)
         daily_avg = total / no_of_days
         return {
             'total': total,
@@ -62,37 +71,44 @@ class ExpenseManager(SoftDeleteManager):
             'no_of_days': no_of_days,
         }
 
-    def get_dashboard_data(self, user: AbstractBaseUser, timeFrame: str = TimeFrame.THIS_MONTH) -> dict:
-        qs = self.all_for_user(user)
-        today = timezone.now().date()
+    def get_dashboard_data(self, user:AbstractBaseUser, timeFrame: str = TimeFrame.THIS_MONTH) -> dict:
+
+        today = timezone.localdate()
 
         start_date = get_start_date(today, timeFrame)
-
-        qs = qs.filter(date__date__gte=start_date, date__date__lte=today)
+        qs = self.filtered_for_user(
+            user=user,
+            filter_form={
+                'start_date': start_date,
+                'end_date': today,
+            }
+        )
 
         period_total = qs.aggregate(total=Sum('amount'))['total'] or 0.0
-
         category_totals = get_grouped_data(qs, 'category__name')
         type_totals = get_grouped_data(qs, 'type__name')
 
         if timeFrame == TimeFrame.THIS_YEAR:
-            trend_qs = qs.annotate(period=TruncMonth('date')) \
-                .values_list('period') \
-                .annotate(total=Sum('amount')) \
+            trend_qs = (
+                qs.annotate(period=TruncMonth('date'))
+                .values('period')
+                .annotate(total=Sum('amount'))
                 .order_by('period')
+            )
 
             trend_data = [
-                {'date': p.strftime("%b %Y"), 'total': float(t)}
-                for p, t in trend_qs if p
+                {'date': item['period'].strftime("%b %Y"), 'total': float(item['total'])}
+                for item in trend_qs if item['period']
             ]
-
         else:
-            trend_qs = qs.annotate(period=TruncDate('date')) \
-                .values_list('period') \
-                .annotate(total=Sum('amount')) \
+            trend_qs = (
+                qs.annotate(period=TruncDate('date'))
+                .values('period')
+                .annotate(total=Sum('amount'))
                 .order_by('period')
+            )
 
-            trend_dict = {p: float(t) for p, t in trend_qs if p}
+            trend_dict = {item['period']: float(item['total']) for item in trend_qs if item['period']}
 
             delta_days = (today - start_date).days
             trend_data = [
@@ -101,10 +117,10 @@ class ExpenseManager(SoftDeleteManager):
                     'total': trend_dict.get(start_date + timedelta(days=i), 0.0)
                 }
                 for i in range(delta_days + 1)
-            ]
+            ] # this is to ensure that there are no missing dates
 
         return {
-            'period_total': float(period_total),
+            'period_total': period_total,
             'category_data': category_totals,
             'type_data': type_totals,
             'trend_data': trend_data,

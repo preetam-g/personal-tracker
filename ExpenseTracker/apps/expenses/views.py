@@ -68,10 +68,10 @@ def delete_expense_view(request, exp_id):
 @login_required(login_url='accounts:login')
 def filtered_expense_view(request):
 
-    expenses = models.Expense.browser.all_for_user(request.user)
     form = forms.ExpenseFilterForm(request.GET)
 
     stats = None
+    expenses = models.Expense.browser.all_for_user(request.user)
     if form.is_valid():
         stats = models.Expense.browser.get_stats(request.user, form.cleaned_data)
         expenses = models.Expense.browser.filtered_for_user(request.user, form.cleaned_data)
