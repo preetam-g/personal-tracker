@@ -2,6 +2,8 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from . import forms, models
+from .utils import get_start_date, TimeFrame
+from django.utils import timezone
 
 @login_required(login_url="accounts:login")
 def home_view(request):
@@ -68,11 +70,27 @@ def delete_expense_view(request, exp_id):
 @login_required(login_url='accounts:login')
 def filtered_expense_view(request):
 
-    form = forms.ExpenseFilterForm(request.GET)
+    data = request.GET.copy()
+    if not data:
+        data = {
+            'start_date': get_start_date(timezone.localdate(), TimeFrame.SEVEN_DAYS),
+            'end_date': timezone.localdate()
+        }
 
-    stats = None
-    expenses = models.Expense.browser.all_for_user(request.user)
+    form = forms.ExpenseFilterForm(data)
+
     if form.is_valid():
+        stats = models.Expense.browser.get_stats(request.user, form.cleaned_data)
+        expenses = models.Expense.browser.filtered_for_user(request.user, form.cleaned_data)
+    else:
+        # Fallback: If they typed garbage in the URL, ignore it and force the default view
+        fallback_data = {
+            'start_date': get_start_date(timezone.localdate(), TimeFrame.SEVEN_DAYS),
+            'end_date': timezone.localdate()
+        }
+        form = forms.ExpenseFilterForm(fallback_data)
+        form.is_valid()
+
         stats = models.Expense.browser.get_stats(request.user, form.cleaned_data)
         expenses = models.Expense.browser.filtered_for_user(request.user, form.cleaned_data)
 
