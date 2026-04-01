@@ -47,9 +47,14 @@ class ExpenseManager(SoftDeleteManager):
             last_date=Max('date'),
         )
 
+        db_first = metrics['first_date']
+        db_last = metrics['last_date']
+        db_start_date = timezone.localdate(db_first) if db_first else None
+        db_end_date = timezone.localdate(db_last) if db_last else None
+
         total = metrics['total'] or 0.0
-        start = filter_form.get('start_date') or metrics['first_date']
-        end = filter_form.get('end_date') or metrics['last_date']
+        start = filter_form.get('start_date') or db_start_date
+        end = filter_form.get('end_date') or db_end_date
 
         if (not start) or (not end):
             return {
@@ -57,10 +62,12 @@ class ExpenseManager(SoftDeleteManager):
                 'daily': 0.0,
                 'weekly': 0.0,
                 'no_of_days': 0,
+                'start_date': start,
+                'end_date': end,
             }
 
-        if isinstance(start, datetime): start = timezone.localdate(start)
-        if isinstance(end, datetime): end = timezone.localdate(end)
+        if isinstance(start, datetime): start = start.date()
+        if isinstance(end, datetime): end = end.date()
 
         no_of_days = max((end - start).days + 1, 1)
         daily_avg = total / no_of_days
@@ -69,6 +76,8 @@ class ExpenseManager(SoftDeleteManager):
             'daily': daily_avg,
             'weekly': daily_avg * 7,
             'no_of_days': no_of_days,
+            'start_date': start,
+            'end_date': end,
         }
 
     def get_dashboard_data(self, user:AbstractBaseUser, timeFrame: str = TimeFrame.THIS_MONTH) -> dict:
