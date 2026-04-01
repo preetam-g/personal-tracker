@@ -59,8 +59,8 @@ class ExpenseManager(SoftDeleteManager):
                 'no_of_days': 0,
             }
 
-        if isinstance(start, datetime): start = start.date()
-        if isinstance(end, datetime): end = end.date()
+        if isinstance(start, datetime): start = timezone.localdate(start)
+        if isinstance(end, datetime): end = timezone.localdate(end)
 
         no_of_days = max((end - start).days + 1, 1)
         daily_avg = total / no_of_days
