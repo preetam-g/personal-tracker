@@ -104,16 +104,20 @@ def filtered_expense_view(request):
 @login_required(login_url='accounts:login')
 def dashboard_view(request):
 
-    form = forms.DashboardForm(request.GET)
+    data = request.GET.dict()
+    if not data.get('timeFrame'):
+        data['timeFrame'] = TimeFrame.SEVEN_DAYS
 
-    data = None
+    form = forms.DashboardForm(data)
+
+    dashboard_data = None
     if form.is_valid():
-        data = models.Expense.browser.get_dashboard_data(
+        dashboard_data = models.Expense.browser.get_dashboard_data(
             user=request.user,
             timeFrame=form.cleaned_data['timeFrame'],
         )
 
     return render(request, 'expenses/dashboard.html', {
         'form': form,
-        'data': data,
+        'data': dashboard_data,
     })

@@ -6,7 +6,7 @@
     <header>
         <h2 style="margin-bottom: 0;">
             {% if form.instance.pk %}
-                Expense Details
+                Edit Expense
             {% else %}
                 Add New Expense
             {% endif %}
@@ -32,25 +32,12 @@
         {% endfor %}
 
         <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
-
-            {% if form.instance.pk %}
-                <div id="view-btns" style="display: flex; gap: 1rem;">
-                    <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">&larr; Back</a>
-                    <button type="button" id="edit-btn" class="secondary" style="margin-bottom: 0;">Edit Expense</button>
-                </div>
-
-                <div id="action-btns" style="display: none; gap: 1rem;">
-                    <button type="button" id="cancel-edit-btn" class="secondary outline" style="margin-bottom: 0;">Cancel</button>
-                    <button type="submit" id="save-btn" style="margin-bottom: 0;">Update Expense</button>
-                </div>
-
-            {% else %}
-                <div style="display: flex; gap: 1rem;">
-                    <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">Cancel</a>
-                    <button type="submit" style="margin-bottom: 0;">Save Expense</button>
-                </div>
-            {% endif %}
-
+            <div style="display: flex; gap: 1rem;">
+                <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">Cancel</a>
+                <button type="submit" style="margin-bottom: 0;">
+                    {% if form.instance.pk %}Update{% else %}Save{% endif %} Expense
+                </button>
+            </div>
         </div>
     </form>
 </article>
@@ -81,59 +68,6 @@
             }
         }
 
-        // --- FEATURE 2: View/Edit Toggle Logic ---
-        const isExistingExpense = {{ form.instance.pk|yesno:"true,false" }};
-
-        if (isExistingExpense) {
-            const form = document.getElementById("expense-form");
-            const formElements = form.querySelectorAll("input:not([type='hidden']), textarea, select");
-
-            const viewBtns = document.getElementById("view-btns");
-            const editBtn = document.getElementById("edit-btn");
-            const actionBtns = document.getElementById("action-btns");
-            const cancelEditBtn = document.getElementById("cancel-edit-btn");
-
-            let originalValues = {};
-            const hasErrors = {{ form.errors|yesno:"true,false" }};
-
-            // Initialize Form State
-            formElements.forEach(element => {
-                originalValues[element.name] = element.value;
-                if (!hasErrors) element.setAttribute("disabled", true);
-            });
-
-            if (hasErrors) {
-                viewBtns.style.display = "none";
-                actionBtns.style.display = "flex";
-            }
-
-            // Click: Edit
-            editBtn.addEventListener("click", function() {
-                formElements.forEach(element => element.removeAttribute("disabled"));
-                viewBtns.style.display = "none";
-                actionBtns.style.display = "flex";
-                if(formElements.length > 0) formElements[0].focus();
-            });
-
-            // Click: Cancel
-            cancelEditBtn.addEventListener("click", function() {
-                formElements.forEach(element => {
-                    element.setAttribute("disabled", true);
-                    element.value = originalValues[element.name];
-                });
-
-                // CRITICAL: Force the character counter to recalculate the old value
-                if (noteInput) noteInput.dispatchEvent(new Event('input'));
-
-                actionBtns.style.display = "none";
-                viewBtns.style.display = "flex";
-            });
-
-            // Submit: Unlock before sending
-            form.addEventListener("submit", function() {
-                 formElements.forEach(element => element.removeAttribute("disabled"));
-            });
-        }
     });
 </script>
 {% endblock content %}

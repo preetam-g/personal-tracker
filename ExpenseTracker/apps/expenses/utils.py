@@ -15,10 +15,11 @@ class TimeFrame(models.TextChoices):
     THIS_YEAR = 'this_year', 'This year'
 
 
-def get_start_date(today: datetime.date, timeFrame) -> datetime.date:
+def get_start_date(today: datetime.date, timeFrame: str) -> datetime.date:
     """
     Takes a pure calendar date and returns the starting calendar date.
     """
+
     mapping = {
         TimeFrame.SEVEN_DAYS: lambda d: d - datetime.timedelta(days=6),
         TimeFrame.THIS_MONTH: lambda d: d.replace(day=1),
@@ -26,7 +27,7 @@ def get_start_date(today: datetime.date, timeFrame) -> datetime.date:
     }
 
     # Default to THIS_MONTH if an unknown timeframe is passed
-    return mapping.get(timeFrame, mapping[TimeFrame.THIS_MONTH])(today)
+    return mapping.get(timeFrame)(today)
 
 
 def get_grouped_data(qs: models.QuerySet, field: str) -> dict:

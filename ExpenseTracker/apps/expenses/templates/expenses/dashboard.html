@@ -22,11 +22,7 @@
         <div style="text-align: right;">
             <form method="GET" action="{% url 'expenses:dashboard' %}">
                 <fieldset role="group">
-                    <select name="timeFrame" onchange="this.form.submit()">
-                        <option value="this_month" {% if request.GET.timeFrame == 'this_month' or not request.GET.timeFrame %}selected{% endif %}>This Month</option>
-                        <option value="7_days" {% if request.GET.timeFrame == '7_days' %}selected{% endif %}>Last 7 Days</option>
-                        <option value="this_year" {% if request.GET.timeFrame == 'this_year' %}selected{% endif %}>This Year</option>
-                    </select>
+                    {{ form.timeFrame }}
                 </fieldset>
             </form>
         </div>

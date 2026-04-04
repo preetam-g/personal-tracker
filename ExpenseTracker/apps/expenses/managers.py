@@ -2,7 +2,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models import Sum, Min, Max
 from django.db.models.functions import TruncDate, TruncMonth
 from django.utils import timezone
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time
 from .utils import TimeFrame, get_start_date, get_grouped_data
 from apps.base.models import SoftDeleteQuerySet, SoftDeleteManager
 
@@ -24,13 +24,18 @@ class ExpenseManager(SoftDeleteManager):
             'type': 'type',
         }
 
+        start_date = filter_form.get('start_date')
+        if start_date:
+            start_date = timezone.make_aware(datetime.combine(start_date, time.min))
+            filter_form.update(start_date=start_date)
+
         filters = {field_mapping[k]: v for k, v in filter_form.items() if v and (k in field_mapping)}
         qs = qs.filter(**filters)
 
         end_date = filter_form.get('end_date')
         if end_date:
-            end = end_date + timedelta(days=1)
-            qs = qs.filter(date__lt=end)
+            end_date = timezone.make_aware(datetime.combine(end_date + timedelta(days=1), time.min))
+            qs = qs.filter(date__lt=end_date)
 
         if filter_form.get('sort_by'):
             qs = qs.order_by(filter_form.get('sort_by'))
@@ -80,7 +85,7 @@ class ExpenseManager(SoftDeleteManager):
             'end_date': end,
         }
 
-    def get_dashboard_data(self, user:AbstractBaseUser, timeFrame: str = TimeFrame.THIS_MONTH) -> dict:
+    def get_dashboard_data(self, user:AbstractBaseUser, timeFrame: str) -> dict:
 
         today = timezone.localdate()
 
