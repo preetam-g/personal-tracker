@@ -10,11 +10,11 @@ powerful insights.
 
 This app allows you to:
 
--   💸 Track your daily expenses\
--   🏷️ Categorize spending (food, travel, etc.)\
--   ✏️ Edit or delete entries easily\
--   📊 Visualize spending with charts (donut + trends)\
--   🔍 Filter and explore past transactions\
+-   💸 Track your daily expenses
+-   🏷️ Categorize spending (food, travel, etc.)
+-   ✏️ Edit or delete entries easily
+-   📊 Visualize spending with charts (donut + trends)
+-   🔍 Filter and explore past transactions
 -   📈 Analyze spending over time (7 days, month, year)
 
 ------------------------------------------------------------------------
@@ -71,7 +71,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Open: [https://personal-apps-o9tc.onrender.com](https://personal-apps-o9tc.onrender.com)
+Open: [https://expense-tracker-kq6l.onrender.com](https://expense-tracker-kq6l.onrender.com)
 
 ------------------------------------------------------------------------
 
