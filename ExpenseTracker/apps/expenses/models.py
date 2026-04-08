@@ -43,7 +43,7 @@ class Expense(SoftDeleteModel):
 
     class Meta:
 
-        ordering = ['-date', '-created_at']
+        ordering = ['-date']
         indexes = [
             models.Index(fields=['user', '-date']),
             models.Index(fields=['is_deleted']),
