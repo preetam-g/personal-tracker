@@ -6,6 +6,7 @@ from apps.base.admin import SoftDeleteAdmin
 class UserProfileAdmin(SoftDeleteAdmin):
 
     list_display = ['username', 'first_name', 'last_name', 'email', 'is_deleted']
+    search_fields = ['username', 'email']
     list_filter = ['username']
 
 

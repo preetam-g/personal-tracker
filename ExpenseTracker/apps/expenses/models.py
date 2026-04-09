@@ -1,28 +1,115 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.db.models.functions import Lower
+from django.core.exceptions import ValidationError
+
 from .managers import ExpenseManager
 from apps.base.models import SoftDeleteModel
 
 
 class ExpenseCategory(SoftDeleteModel): # grocery, shopping, ...
-    name = models.CharField(max_length=50, unique=True)
+
+    name = models.CharField(max_length=50)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="expense_categories"
+    )
 
     class Meta:
+        verbose_name = "Expense Category"
+        verbose_name_plural = "Expense Categories"
         ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(
+                Lower('name'),
+                'user',
+                name='unique_category_per_user_case_insensitive'
+            )
+        ]
+
+    def clean(self):
+
+        if not self.name:
+            return
+
+        name = self.name.strip()
+
+        is_exists = ExpenseCategory.objects.filter(
+            models.Q(user__isnull=True) | models.Q(user=self.user),
+            name__iexact=name,
+            is_deleted=False
+        ).exclude(pk=self.pk).exists()
+
+        if is_exists:
+            raise ValidationError(
+                "This expense category already exists"
+            )
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.strip()
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        if self.user:
+            return f"{self.name} ({self.user.username})"
+        return f"{self.name} (Global)"
 
 
 class ExpenseType(SoftDeleteModel): # upi, credit card, ...
-    name = models.CharField(max_length=50, unique=True)
+
+    name = models.CharField(max_length=50)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="expense_types"
+    )
 
     class Meta:
+        verbose_name = "Expense Type"
+        verbose_name_plural = "Expense Types"
         ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(
+                Lower('name'),
+                'user',
+                name='unique_type_per_user_case_insensitive'
+            )
+        ]
+
+    def clean(self):
+
+        if not self.name:
+            return
+
+        name = self.name.strip()
+
+        is_exists = ExpenseType.objects.filter(
+            models.Q(user__isnull=True) | models.Q(user=self.user),
+            name__iexact=name,
+            is_deleted=False
+        ).exclude(pk=self.pk).exists()
+
+        if is_exists:
+            raise ValidationError(
+                "This expense type already exists"
+            )
+
+    def save(self, *args, **kwargs):
+        if self.name:
+            self.name = self.name.strip()
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        if self.user:
+            return f"{self.name} ({self.user.username})"
+        return f"{self.name} (Global)"
 
 
 class Expense(SoftDeleteModel):
@@ -50,4 +137,4 @@ class Expense(SoftDeleteModel):
         ]
 
     def __str__(self):
-        return f"{self.amount} on {timezone.localdate(self.date)}"
+        return f"{self.amount}, {timezone.localdate(self.date)} ({self.user.username})"
