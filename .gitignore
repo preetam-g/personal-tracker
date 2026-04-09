@@ -6,3 +6,6 @@ __pycache__
 
 .idea
 .DS_Store
+
+personal-apps.env
+to-do.txt
