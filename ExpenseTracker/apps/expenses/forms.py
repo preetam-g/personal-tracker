@@ -2,31 +2,40 @@ from django import forms
 from .models import Expense, ExpenseCategory, ExpenseType
 from django.utils import timezone
 from .utils import SortChoices, TimeFrame
+from apps.base.forms import CategoryTypeValidationForm
+
 
 class ExpenseForm(forms.ModelForm):
 
     class Meta:
-
         model = Expense
         fields = ['date', 'amount', 'note', 'category', 'type']
-
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
         }
 
     # frontend
     def __init__(self, *args, **kwargs): # frontend
+
+        self.user = kwargs.pop('user', None)
+        if not self.user: raise Exception('User is required')
+
         super().__init__(*args, **kwargs)
 
+        # date
         today = timezone.localdate().strftime('%Y-%m-%d')
         self.fields['date'].widget.attrs['max'] = today
         self.fields['date'].initial = today
 
+        # note
         note_max_len = self.Meta.model._meta.get_field('note').max_length
-
         if note_max_len:
             self.fields['note'].widget.attrs['maxlength'] = str(note_max_len)
             self.fields['note'].widget.attrs['rows'] = str(note_max_len//10 + 1)
+
+        # categories, types
+        self.fields['category'].queryset = ExpenseCategory.objects.user_items(self.user)
+        self.fields['type'].queryset = ExpenseType.objects.user_items(self.user)
 
     # backend
     def clean_date(self):
@@ -111,3 +120,25 @@ class DashboardForm(forms.Form):
             'onchange': 'this.form.submit()'
         })
     )
+
+
+class ExpenseCategoryForm(CategoryTypeValidationForm):
+
+    class Meta:
+        model = ExpenseCategory
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs['placeholder'] = "New Category"
+
+
+class ExpenseTypeForm(CategoryTypeValidationForm):
+
+    class Meta:
+        model = ExpenseType
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs['placeholder'] = "New Type"

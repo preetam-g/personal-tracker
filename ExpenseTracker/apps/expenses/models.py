@@ -3,12 +3,13 @@ from django.db import models
 from django.utils import timezone
 from django.db.models.functions import Lower
 from django.core.exceptions import ValidationError
-
-from .managers import ExpenseManager
+from .managers import ExpenseManager, CategoryTypeManager
 from apps.base.models import SoftDeleteModel
 
 
 class ExpenseCategory(SoftDeleteModel): # grocery, shopping, ...
+
+    objects = CategoryTypeManager()
 
     name = models.CharField(max_length=50)
     user = models.ForeignKey(
@@ -32,7 +33,6 @@ class ExpenseCategory(SoftDeleteModel): # grocery, shopping, ...
         ]
 
     def clean(self):
-
         if not self.name:
             return
 
@@ -52,15 +52,16 @@ class ExpenseCategory(SoftDeleteModel): # grocery, shopping, ...
     def save(self, *args, **kwargs):
         if self.name:
             self.name = self.name.strip()
+            self.name = self.name[:1].upper() + self.name[1:]
         super().save(*args, **kwargs)
 
     def __str__(self):
-        if self.user:
-            return f"{self.name} ({self.user.username})"
-        return f"{self.name} (Global)"
+        return self.name
 
 
 class ExpenseType(SoftDeleteModel): # upi, credit card, ...
+
+    objects = CategoryTypeManager()
 
     name = models.CharField(max_length=50)
     user = models.ForeignKey(
@@ -107,9 +108,7 @@ class ExpenseType(SoftDeleteModel): # upi, credit card, ...
         super().save(*args, **kwargs)
 
     def __str__(self):
-        if self.user:
-            return f"{self.name} ({self.user.username})"
-        return f"{self.name} (Global)"
+        return self.name
 
 
 class Expense(SoftDeleteModel):

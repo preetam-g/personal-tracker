@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from . import forms, models
 from .utils import get_start_date, TimeFrame
 from django.utils import timezone
+from apps.base.views import delete_object_view
 
 @login_required(login_url="accounts:login")
 def home_view(request):
@@ -16,7 +17,7 @@ def add_expense_view(request):
 
     if request.method == 'POST':
 
-        form = forms.ExpenseForm(request.POST)
+        form = forms.ExpenseForm(request.POST, user=request.user)
 
         if form.is_valid():
 
@@ -28,7 +29,7 @@ def add_expense_view(request):
             return redirect("expenses:home")
 
     else:
-        form = forms.ExpenseForm()
+        form = forms.ExpenseForm(user=request.user)
 
     return render(request, "expenses/expense_form.html", {"form": form})
 
@@ -39,7 +40,7 @@ def edit_expense_view(request, exp_id):
     expense = get_object_or_404(models.Expense, id=exp_id, user=request.user)
 
     if request.method == 'POST':
-        form = forms.ExpenseForm(request.POST, instance=expense)
+        form = forms.ExpenseForm(request.POST, instance=expense, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Expense successfully updated.')
@@ -48,23 +49,20 @@ def edit_expense_view(request, exp_id):
 
         return redirect("expenses:home")
     else:
-        form = forms.ExpenseForm(instance=expense)
+        form = forms.ExpenseForm(instance=expense, user=request.user)
 
     return render(request, "expenses/expense_form.html", {"form": form})
 
 
 @login_required(login_url='accounts:login')
 def delete_expense_view(request, exp_id):
-
-    expense = get_object_or_404(models.Expense, id=exp_id, user=request.user)
-
-    if request.method == 'POST':
-        expense.delete()
-        messages.success(request, 'Expense successfully deleted.')
-    else:
-        messages.error(request, 'Failed to delete. Please try again later.')
-
-    return redirect("expenses:home")
+    return delete_object_view(
+        request=request,
+        model=models.Expense,
+        name="Expense",
+        obj_id=exp_id,
+        final_redirect="expenses:home"
+    )
 
 
 @login_required(login_url='accounts:login')
@@ -121,3 +119,114 @@ def dashboard_view(request):
         'form': form,
         'data': dashboard_data,
     })
+
+
+@login_required(login_url='accounts:login')
+def add_category_view(request):
+
+    if request.method == 'POST':
+        form = forms.ExpenseCategoryForm(request.POST, user=request.user)
+
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.user = request.user
+            instance.save()
+
+            messages.success(request, f'"{instance.name}" successfully added.')
+            return redirect("expenses:home") # must change to preferences page
+
+    else:
+        form = forms.ExpenseCategoryForm()
+
+    return render(
+        request=request,
+        template_name="expenses/user_preferences/expense_category_type_form.html",
+        context={"form": form, "title": "Category"},
+    )
+
+
+@login_required(login_url='accounts:login')
+def edit_category_view(request, cat_id):
+
+    cat = get_object_or_404(models.ExpenseCategory, id=cat_id, user=request.user)
+    old_name = cat.name
+    if request.method == 'POST':
+        form = forms.ExpenseCategoryForm(request.POST, instance=cat, user=request.user)
+
+        if form.is_valid():
+            new_cat = form.save()
+            messages.success(request, f'"{old_name}" successfully updated as "{new_cat.name}".')
+            return redirect("expenses:home") # must change to preferences page
+    else:
+        form = forms.ExpenseCategoryForm(instance=cat, user=request.user)
+
+    return render(
+        request=request,
+        template_name="expenses/user_preferences/expense_category_type_form.html",
+        context={"form": form, "title": "Category"},
+    )
+
+
+@login_required(login_url='accounts:login')
+def delete_category_view(request, cat_id):
+    return delete_object_view(
+        request,
+        model=models.ExpenseCategory,
+        obj_id=cat_id,
+        final_redirect="expenses:home", # preferences
+    )
+
+@login_required(login_url='accounts:login')
+def add_type_view(request):
+
+    if request.method == 'POST':
+        form = forms.ExpenseTypeForm(request.POST, user=request.user)
+
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.user = request.user
+            instance.save()
+
+            messages.success(request, f'"{instance.name}" successfully added.')
+            return redirect("expenses:home") # must change to preferences page
+
+    else:
+        form = forms.ExpenseTypeForm()
+
+    return render(
+        request=request,
+        template_name="expenses/user_preferences/expense_category_type_form.html",
+        context={"form": form, "title": "Type"},
+    )
+
+
+@login_required(login_url='accounts:login')
+def edit_type_view(request, type_id):
+
+    type = get_object_or_404(models.ExpenseType, id=type_id, user=request.user)
+    old_name = type.name
+    if request.method == 'POST':
+        form = forms.ExpenseTypeForm(request.POST, instance=type, user=request.user)
+
+        if form.is_valid():
+            new_cat = form.save()
+            messages.success(request, f'"{old_name}" successfully updated as "{new_cat.name}".')
+            return redirect("expenses:home") # must change to preferences page
+    else:
+        form = forms.ExpenseTypeForm(instance=type, user=request.user)
+
+    return render(
+        request=request,
+        template_name="expenses/user_preferences/expense_category_type_form.html",
+        context={"form": form, "title": "Type"},
+    )
+
+
+@login_required(login_url='accounts:login')
+def delete_type_view(request, type_id):
+    return delete_object_view(
+        request=request,
+        model=models.ExpenseType,
+        obj_id=type_id,
+        final_redirect="expenses:home", # preferences
+    )
