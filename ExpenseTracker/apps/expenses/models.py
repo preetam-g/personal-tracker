@@ -51,8 +51,7 @@ class ExpenseCategory(SoftDeleteModel): # grocery, shopping, ...
 
     def save(self, *args, **kwargs):
         if self.name:
-            self.name = self.name.strip()
-            self.name = self.name[:1].upper() + self.name[1:]
+            self.name = self.name.strip().capitalize()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -104,7 +103,7 @@ class ExpenseType(SoftDeleteModel): # upi, credit card, ...
 
     def save(self, *args, **kwargs):
         if self.name:
-            self.name = self.name.strip()
+            self.name = self.name.strip().capitalize()
         super().save(*args, **kwargs)
 
     def __str__(self):
