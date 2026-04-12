@@ -144,7 +144,10 @@ class ExpenseManager(SoftDeleteManager):
 
 class CategoryTypeManager(SoftDeleteManager):
 
-    def user_items(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
-        return super().get_queryset().filter(
-            Q(user=user) | Q(user__isnull=True),
-        )
+    def user_items(self, user:AbstractBaseUser, include_global=True) -> SoftDeleteQuerySet:
+        query = Q(user=user)
+
+        if include_global:
+            query |= Q(user__isnull=True)
+
+        return super().get_queryset().filter(query)

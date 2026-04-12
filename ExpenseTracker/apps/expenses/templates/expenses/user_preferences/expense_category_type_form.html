@@ -6,9 +6,9 @@
     <header>
         <h2 style="margin-bottom: 0;">
             {% if form.instance.pk %}
-                Edit {% if title %}Expense {{ title }} {% else %} Item {% endif %}
+                Edit {% if title %} {{ title }} {% else %} Item {% endif %}
             {% else %}
-                Add New {% if title %}Expense {{ title }} {% else %} Item {% endif %}
+                Add New {% if title %} {{ title }} {% else %} Item {% endif %}
             {% endif %}
         </h2>
     </header>
@@ -33,7 +33,7 @@
 
         <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
             <div style="display: flex; gap: 1rem;">
-                <a href="{% url 'expenses:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">Cancel</a>
+                <a href="{% url 'expenses:preferences' %}" role="button" class="secondary outline" style="margin-bottom: 0;">Cancel</a>
                 <button type="submit" style="margin-bottom: 0;">
                     {% if form.instance.pk %}Update{% else %}Save{% endif %}
                 </button>

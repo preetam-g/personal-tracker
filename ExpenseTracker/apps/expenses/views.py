@@ -1,9 +1,9 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 from . import forms, models
 from .utils import get_start_date, TimeFrame
-from django.utils import timezone
 from apps.base.views import delete_object_view
 
 @login_required(login_url="accounts:login")
@@ -122,6 +122,28 @@ def dashboard_view(request):
 
 
 @login_required(login_url='accounts:login')
+def preferences_view(request):
+
+    categories = models.ExpenseCategory.objects.user_items(
+        user=request.user,
+        include_global=False
+    )
+    types = models.ExpenseType.objects.user_items(
+        user=request.user,
+        include_global=False
+    )
+
+    return render(
+        request,
+        "expenses/user_preferences/preferences.html",
+        {
+            "categories": categories,
+            "types": types,
+        }
+    )
+
+
+@login_required(login_url='accounts:login')
 def add_category_view(request):
 
     if request.method == 'POST':
@@ -133,7 +155,7 @@ def add_category_view(request):
             instance.save()
 
             messages.success(request, f'"{instance.name}" successfully added.')
-            return redirect("expenses:home") # must change to preferences page
+            return redirect("expenses:preferences") # must change to preferences page
 
     else:
         form = forms.ExpenseCategoryForm()
@@ -156,7 +178,7 @@ def edit_category_view(request, cat_id):
         if form.is_valid():
             new_cat = form.save()
             messages.success(request, f'"{old_name}" successfully updated as "{new_cat.name}".')
-            return redirect("expenses:home") # must change to preferences page
+            return redirect("expenses:preferences") # must change to preferences page
     else:
         form = forms.ExpenseCategoryForm(instance=cat, user=request.user)
 
@@ -173,8 +195,9 @@ def delete_category_view(request, cat_id):
         request,
         model=models.ExpenseCategory,
         obj_id=cat_id,
-        final_redirect="expenses:home", # preferences
+        final_redirect="expenses:preferences", # preferences
     )
+
 
 @login_required(login_url='accounts:login')
 def add_type_view(request):
@@ -188,7 +211,7 @@ def add_type_view(request):
             instance.save()
 
             messages.success(request, f'"{instance.name}" successfully added.')
-            return redirect("expenses:home") # must change to preferences page
+            return redirect("expenses:preferences") # must change to preferences page
 
     else:
         form = forms.ExpenseTypeForm()
@@ -211,7 +234,7 @@ def edit_type_view(request, type_id):
         if form.is_valid():
             new_cat = form.save()
             messages.success(request, f'"{old_name}" successfully updated as "{new_cat.name}".')
-            return redirect("expenses:home") # must change to preferences page
+            return redirect("expenses:preferences") # must change to preferences page
     else:
         form = forms.ExpenseTypeForm(instance=type, user=request.user)
 
@@ -228,5 +251,5 @@ def delete_type_view(request, type_id):
         request=request,
         model=models.ExpenseType,
         obj_id=type_id,
-        final_redirect="expenses:home", # preferences
+        final_redirect="expenses:preferences", # preferences
     )
