@@ -6,6 +6,7 @@ class CategoryTypeValidationForm(forms.ModelForm):
     """
     Reusable form to enforce uniqueness per user (+ optional global)
     This is used for Expense Category and Expense Type Models.
+    Make sure to call super().save() and super().commit() when overriding these methods.
     """
     unique_fields = ['name']  # override in child if needed
     include_global = True     # check global (user=None)
@@ -13,6 +14,7 @@ class CategoryTypeValidationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+        self._restore_instance = None
 
     def clean(self):
         cleaned_data = super().clean()
@@ -30,21 +32,53 @@ class CategoryTypeValidationForm(forms.ModelForm):
         if not filters:
             return cleaned_data
 
-        qs = self._meta.model.objects.filter(filters)
+        model = self._meta.model
+        base_qs = model.all_objects.filter(filters)
 
-        # user scope
         if self.include_global:
-            qs = qs.filter(Q(user=self.user) | Q(user__isnull=True))
+            base_qs = base_qs.filter(Q(user=self.user) | Q(user__isnull=True))
         else:
-            qs = qs.filter(user=self.user)
+            base_qs = base_qs.filter(user=self.user)
 
         # exclude self (edit case)
         if self.instance.pk:
-            qs = qs.exclude(pk=self.instance.pk)
+            base_qs = base_qs.exclude(pk=self.instance.pk)
 
-        if qs.exists():
+        active_qs = base_qs.filter(is_deleted=False)
+        deleted_qs = base_qs.filter(is_deleted=True)
+
+        if active_qs.exists():
             for field in self.unique_fields:
                 name = self.cleaned_data.get(field)
                 self.add_error(field, f'"{name}" already exists!')
+                return cleaned_data
+
+        if deleted_qs.exists():
+            self._restore_instance = deleted_qs.first()
 
         return cleaned_data
+
+    def save(self, commit=True):
+        """
+        If a deleted instance exists → restore it instead of creating new
+        """
+        if self._restore_instance:
+            obj = self._restore_instance
+            obj.is_deleted = False
+            obj.deleted_at = None
+
+            for field in self.unique_fields:
+                setattr(obj, field, self.cleaned_data.get(field))
+
+            if commit:
+                obj.save()
+
+            return obj
+
+        obj = super().save(commit=False)
+        if not obj.pk:
+            obj.user = self.user
+        if commit:
+            obj.save()
+
+        return obj
