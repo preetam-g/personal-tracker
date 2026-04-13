@@ -57,6 +57,14 @@ class ExpenseForm(forms.ModelForm):
 
         return note
 
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
+
+        if amount and amount <= 0:
+            raise forms.ValidationError('Amount must be greater than 0.')
+
+        return amount
+
 
 class ExpenseFilterForm(forms.Form):
 

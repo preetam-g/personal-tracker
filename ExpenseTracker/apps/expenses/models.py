@@ -133,6 +133,17 @@ class Expense(SoftDeleteModel):
             models.Index(fields=['user', '-date']),
             models.Index(fields=['is_deleted']),
         ]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount__gte=0),
+                name='amount_positive',
+            )
+        ]
 
     def __str__(self):
         return f"{self.amount}, {timezone.localdate(self.date)} ({self.user.username})"
+
+    def clean(self):
+
+        if self.amount and self.amount <= 0:
+            raise ValidationError({'amount': "Amount must be greater than 0."})
