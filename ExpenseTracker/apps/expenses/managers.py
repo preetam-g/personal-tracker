@@ -151,3 +151,6 @@ class CategoryTypeManager(SoftDeleteManager):
             query |= Q(user__isnull=True)
 
         return super().get_queryset().filter(query)
+
+    def only_global(self) -> SoftDeleteQuerySet:
+        return super().get_queryset().filter(user__isnull=True)

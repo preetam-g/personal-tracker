@@ -81,14 +81,14 @@ class ExpenseFilterForm(forms.Form):
     )
 
     category = forms.ModelChoiceField(
-        queryset=ExpenseCategory.objects.all(), # later filter based on user
+        queryset=ExpenseCategory.objects.only_global(),
         required=False,
         label="Category",
         empty_label="All Categories",
     )
 
     type = forms.ModelChoiceField(
-        queryset=ExpenseType.objects.all(),
+        queryset=ExpenseType.objects.only_global(),
         required=False,
         label="Type",
         empty_label="All Types",
@@ -101,12 +101,20 @@ class ExpenseFilterForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+
+        user = kwargs.pop('user', None)
+        if not user: raise Exception('User is required')
+
         super().__init__(*args, **kwargs)
 
         today = timezone.localtime().strftime('%Y-%m-%d')
 
         self.fields['start_date'].widget.attrs['max'] = today
         self.fields['end_date'].widget.attrs['max'] = today
+
+        if user:
+            self.fields['category'].queryset = ExpenseCategory.objects.user_items(user)
+            self.fields['type'].queryset = ExpenseType.objects.user_items(user)
 
     def clean(self):
         start = self.cleaned_data.get('start_date')

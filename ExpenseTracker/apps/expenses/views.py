@@ -68,25 +68,22 @@ def delete_expense_view(request, exp_id):
 @login_required(login_url='accounts:login')
 def filtered_expense_view(request):
 
+    fallback_data = {
+        'start_date': get_start_date(timezone.localdate(), TimeFrame.SEVEN_DAYS),
+        'end_date': timezone.localdate(),
+    }
+
     data = request.GET.copy()
     if not data:
-        data = {
-            'start_date': get_start_date(timezone.localdate(), TimeFrame.SEVEN_DAYS),
-            'end_date': timezone.localdate()
-        }
+        data = fallback_data
 
-    form = forms.ExpenseFilterForm(data)
+    form = forms.ExpenseFilterForm(data, user=request.user)
 
     if form.is_valid():
         stats = models.Expense.browser.get_stats(request.user, form.cleaned_data)
         expenses = models.Expense.browser.filtered_for_user(request.user, form.cleaned_data)
     else:
-        # Fallback: If they typed garbage in the URL, ignore it and force the default view
-        fallback_data = {
-            'start_date': get_start_date(timezone.localdate(), TimeFrame.SEVEN_DAYS),
-            'end_date': timezone.localdate()
-        }
-        form = forms.ExpenseFilterForm(fallback_data)
+        form = forms.ExpenseFilterForm(fallback_data, user=request.user)
         form.is_valid()
 
         stats = models.Expense.browser.get_stats(request.user, form.cleaned_data)
