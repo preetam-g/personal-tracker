@@ -4,10 +4,10 @@ from django.utils import timezone
 from django.db.models.functions import Lower
 from django.core.exceptions import ValidationError
 from .managers import ExpenseManager, CategoryTypeManager
-from apps.base.models import SoftDeleteModel
+from apps.base.models import SoftDeleteModel, TimeStampedModel
 
 
-class BaseCategoryType(SoftDeleteModel):
+class BaseCategoryType(SoftDeleteModel, TimeStampedModel):
 
     name = models.CharField(max_length=50)
     user = models.ForeignKey(
@@ -58,109 +58,6 @@ class BaseCategoryType(SoftDeleteModel):
         return self.name
 
 
-# class ExpenseCategory(SoftDeleteModel): # grocery, shopping, ...
-#
-#     objects = CategoryTypeManager()
-#
-#     name = models.CharField(max_length=50)
-#     user = models.ForeignKey(
-#         settings.AUTH_USER_MODEL,
-#         on_delete=models.CASCADE,
-#         null=True,
-#         blank=True,
-#         related_name="expense_categories"
-#     )
-#
-#     class Meta:
-#         verbose_name = "Expense Category"
-#         verbose_name_plural = "Expense Categories"
-#         ordering = ['name']
-#         constraints = [
-#             models.UniqueConstraint(
-#                 Lower('name'),
-#                 'user',
-#                 name='unique_category_per_user_case_insensitive'
-#             )
-#         ]
-#
-#     def clean(self):
-#         if not self.name:
-#             return
-#
-#         name = self.name.strip()
-#
-#         is_exists = ExpenseCategory.objects.filter(
-#             models.Q(user__isnull=True) | models.Q(user=self.user),
-#             name__iexact=name,
-#             is_deleted=False
-#         ).exclude(pk=self.pk).exists()
-#
-#         if is_exists:
-#             raise ValidationError(
-#                 "This expense category already exists"
-#             )
-#
-#     def save(self, *args, **kwargs):
-#         if self.name:
-#             self.name = self.name.strip()
-#         super().save(*args, **kwargs)
-#
-#     def __str__(self):
-#         return self.name
-#
-#
-# class ExpenseType(SoftDeleteModel): # upi, credit card, ...
-#
-#     objects = CategoryTypeManager()
-#
-#     name = models.CharField(max_length=50)
-#     user = models.ForeignKey(
-#         settings.AUTH_USER_MODEL,
-#         on_delete=models.CASCADE,
-#         null=True,
-#         blank=True,
-#         related_name="expense_types"
-#     )
-#
-#     class Meta:
-#         verbose_name = "Expense Type"
-#         verbose_name_plural = "Expense Types"
-#         ordering = ['name']
-#         constraints = [
-#             models.UniqueConstraint(
-#                 Lower('name'),
-#                 'user',
-#                 name='unique_type_per_user_case_insensitive'
-#             )
-#         ]
-#
-#     def clean(self):
-#
-#         if not self.name:
-#             return
-#
-#         name = self.name.strip()
-#
-#         is_exists = ExpenseType.objects.filter(
-#             models.Q(user__isnull=True) | models.Q(user=self.user),
-#             name__iexact=name,
-#             is_deleted=False
-#         ).exclude(pk=self.pk).exists()
-#
-#         if is_exists:
-#             raise ValidationError(
-#                 "This expense type already exists"
-#             )
-#
-#     def save(self, *args, **kwargs):
-#         if self.name:
-#             self.name = self.name.strip()
-#         super().save(*args, **kwargs)
-#
-#     def __str__(self):
-#         return self.name
-
-
 class ExpenseCategory(BaseCategoryType):
     class Meta(BaseCategoryType.Meta):
         verbose_name = "Expense Category"
@@ -173,9 +70,9 @@ class ExpenseType(BaseCategoryType):
         verbose_name_plural = "Expense Types"
 
 
-class Expense(SoftDeleteModel):
+class Expense(SoftDeleteModel, TimeStampedModel):
 
-    browser = ExpenseManager() # .browser will use custom manager
+    browser = ExpenseManager()
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='expenses')
 
@@ -185,9 +82,6 @@ class Expense(SoftDeleteModel):
 
     category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True, blank=True)
     type = models.ForeignKey(ExpenseType, on_delete=models.SET_NULL, null=True, blank=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
 

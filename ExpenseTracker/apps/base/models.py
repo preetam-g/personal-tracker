@@ -1,7 +1,14 @@
 from collections import Counter
-
 from django.db import models, transaction
 from django.utils import timezone
+
+
+class TimeStampedModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
 
 
 class SoftDeleteQuerySet(models.QuerySet):
@@ -57,7 +64,7 @@ class SoftDeleteModel(models.Model):
     all_objects = AllObjectsManager() # to ensure all_objects.delete also triggers soft delete
 
     class Meta:
-        abstract = True # to avoid creating a table in DB
+        abstract = True
 
     def delete(self, **kwargs):
         """This performs soft delete."""
