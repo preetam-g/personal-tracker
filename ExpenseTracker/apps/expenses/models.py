@@ -4,10 +4,10 @@ from django.utils import timezone
 from django.db.models.functions import Lower
 from django.core.exceptions import ValidationError
 from .managers import ExpenseManager, CategoryTypeManager
-from apps.base.models import SoftDeleteModel
+from apps.base.models import SoftDeleteModel, TimeStampedModel
 
 
-class BaseCategoryType(SoftDeleteModel):
+class BaseCategoryType(SoftDeleteModel, TimeStampedModel):
 
     name = models.CharField(max_length=50)
     user = models.ForeignKey(
@@ -70,9 +70,9 @@ class ExpenseType(BaseCategoryType):
         verbose_name_plural = "Expense Types"
 
 
-class Expense(SoftDeleteModel):
+class Expense(SoftDeleteModel, TimeStampedModel):
 
-    browser = ExpenseManager() # .browser will use custom manager
+    browser = ExpenseManager()
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='expenses')
 
@@ -82,9 +82,6 @@ class Expense(SoftDeleteModel):
 
     category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True, blank=True)
     type = models.ForeignKey(ExpenseType, on_delete=models.SET_NULL, null=True, blank=True)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
 
