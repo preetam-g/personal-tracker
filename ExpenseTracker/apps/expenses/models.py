@@ -33,11 +33,10 @@ class BaseCategoryType(SoftDeleteModel, TimeStampedModel):
         ]
 
     def clean(self):
-        if not self.name:
-            return
+        super().clean()
+        if not self.name: return
 
         name = self.name.strip()
-
         is_exists = self.__class__.objects.filter(
             models.Q(user__isnull=True) | models.Q(user=self.user),
             name__iexact=name,
@@ -45,9 +44,9 @@ class BaseCategoryType(SoftDeleteModel, TimeStampedModel):
         ).exclude(pk=self.pk).exists()
 
         if is_exists:
-            raise ValidationError(
-                f"This {self._meta.verbose_name} already exists"
-            )
+            raise ValidationError({
+                'name': f"This {self._meta.verbose_name} already exists",
+            })
 
     def save(self, *args, **kwargs):
         if self.name:
@@ -101,6 +100,6 @@ class Expense(SoftDeleteModel, TimeStampedModel):
         return f"{self.amount}, {timezone.localdate(self.date)} ({self.user.username})"
 
     def clean(self):
-
+        super().clean()
         if self.amount and self.amount <= 0:
             raise ValidationError({'amount': "Amount must be greater than 0."})

@@ -1,19 +1,19 @@
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Sum, Case, When, F, DecimalField
 from django.db.models.functions import Lower
 
-from apps.base.models import SoftDeleteModel
+from apps.base.models import SoftDeleteModel, TimeStampedModel
 from core import settings
-from .utils import LoanType, LinkStatus
+from .utils import LinkStatus, TransactionType
 
 
-class Contact(SoftDeleteModel):
+class Contact(SoftDeleteModel, TimeStampedModel):
 
     name = models.CharField(max_length=100)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        null=False,
-        blank=False,
         related_name="contacts",
     )
 
@@ -31,16 +31,10 @@ class Contact(SoftDeleteModel):
         max_length=20,
         choices=LinkStatus.choices,
         default=LinkStatus.UNLINKED,
-        null=False,
-        blank=False,
     )
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ('name',)
-
         constraints = [
             models.UniqueConstraint(
                 Lower('name'),
@@ -50,31 +44,60 @@ class Contact(SoftDeleteModel):
             )
         ]
 
+    def get_balance(self):
+        """
+        Calculates the running balance.
+        """
+        result = self.transactions.aggregate(
+            balance=Sum(
+                Case(
+                    # If it's a positive transaction type, use the positive amount
+                    When(
+                        type__in=[TransactionType.LENT, TransactionType.PAYMENT_SENT],
+                        then=F('amount')
+                    ),
+                    # Otherwise, make the amount negative
+                    default=-F('amount'),
+                    output_field=DecimalField()
+                )
+            )
+        )
+        return result['balance'] or 0
 
-class Loan(SoftDeleteModel):
+    def __str__(self):
+        return self.name
 
-    contact = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='loans')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='loans')
 
-    amount = models.DecimalField(decimal_places=2, max_digits=10, null=False, blank=False)
-    type = models.CharField(
-        choices=LoanType.choices,
-        # default=LoanType.LENT,
-        null=False,
-        blank=False,
+class Transaction(SoftDeleteModel, TimeStampedModel):
+
+    contact = models.ForeignKey(
+        Contact,
+        on_delete=models.PROTECT,
+        related_name='transactions'
     )
+
+    amount = models.DecimalField(decimal_places=2, max_digits=10)
+    type = models.CharField(max_length=20, choices=TransactionType.choices)
+    date = models.DateField()
     note = models.TextField(null=True, blank=True, max_length=100)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    class Meta:
+        ordering = ('-date', '-created_at')
 
+    def clean(self):
+        super().clean()
+        if self.amount and self.amount <= 0:
+            raise ValidationError({"amount": "Amount must be strictly positive."})
 
-class Payments(SoftDeleteModel):
+    @property
+    def signed_amount(self):
+        """
+        Returns the amount with the correct mathematical sign. Positive when User is owed money.
+        Useful for iterating over transactions in a template to show a running tally.
+        """
+        if self.type in [TransactionType.LENT, TransactionType.PAYMENT_SENT]:
+            return self.amount
+        return -self.amount
 
-    contact = models.ForeignKey(Contact, on_delete=models.CASCADE, related_name='payments')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='payments')
-
-    amount = models.DecimalField(decimal_places=2, max_digits=10, null=False, blank=False)
-    note = models.TextField(null=True, blank=True, max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    def __str__(self):
+        return f"{self.get_type_display()}: {self.amount} on {self.date}"
