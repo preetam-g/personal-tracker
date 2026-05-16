@@ -12,10 +12,8 @@
             <p>Hello, <strong>{{ user.username }}</strong>! You are officially logged in.</p>
             <p>Your email is: {{ user.email }}</p>
 
-{#            <form action="{% url 'accounts:logout' %}" method="POST" style="display: inline;">#}
-{#                {% csrf_token %}#}
-{#                <button type="submit" class="secondary">Log Out</button>#}
-{#            </form>#}
+            <p>Track your personal expenses here: <a href={% url 'expenses:home' %}>Expenses Page</a></p>
+            <p>Track your shared expenses here: <a href="{% url 'ledger:home' %}">Ledger Page</a></p>
 
         {% else %}
 

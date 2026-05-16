@@ -15,12 +15,12 @@
         <nav>
             <ul>
                 <li>
-                    <a href="{% url 'home' %}"
-                    ><strong>Expense Tracker</strong></a>
+                    <a href="{% url 'home' %}"><strong>Expense Tracker</strong></a>
                 </li>
             </ul>
             <ul>
                 <li><a href="{% url 'expenses:home' %}">Expenses</a></li>
+                <li><a href="{% url 'ledger:home' %}">Ledger</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'accounts:profile' %}">{{ user.username|slice:":1"|upper }}</a></li>
                 {% else %}

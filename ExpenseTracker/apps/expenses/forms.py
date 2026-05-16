@@ -9,9 +9,13 @@ class ExpenseForm(forms.ModelForm):
 
     class Meta:
         model = Expense
-        fields = ['date', 'amount', 'note', 'category', 'type']
+        fields = ['date', 'amount', 'category', 'type', 'note']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
+        }
+        labels = {
+            'amount': 'Amount*',
+            'date': 'Date*',
         }
 
     # frontend

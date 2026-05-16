@@ -5,16 +5,14 @@
 <div class="grid" style="align-items: center; margin-top: 2rem; margin-bottom: 2rem;">
 
     <div>
-        <h2 style="margin-bottom: 0;">Your Expenses</h2>
+        <h2 style="margin-bottom: 0;">Not Just You</h2>
         <p style="color: var(--pico-muted-color);">
-            Track, manage, and analyze your spending.
+            Manage your shared expenses
         </p>
     </div>
 
     <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
-        <a href="{% url 'expenses:dashboard' %}" role="button" class="secondary">📊 Dashboard</a>
-        <a href="{% url 'expenses:summary' %}" role="button" class="secondary outline">📜 Activity</a>
-        <a href="{% url 'expenses:add' %}" role="button">+ Add Expense</a>
+        <a href="{% url 'ledger:add' %}" role="button">+ New Entry</a>
     </div>
 </div>
 
@@ -25,8 +23,8 @@
     color: var(--pico-muted-color);
     margin-bottom: 1rem;
     font-weight: 600;
-">Latest 10 Transactions</div>
+">Latest 10 Records</div>
 
-{% include "expenses/expense_table.html" %}
+{% include "ledger/ledger_table.html" %}
 
 {% endblock content %}
