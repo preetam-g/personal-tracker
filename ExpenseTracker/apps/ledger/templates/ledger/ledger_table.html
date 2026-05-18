@@ -23,16 +23,20 @@
                             {% if transaction.signed_amount < 0 %}
                                 <!-- MONEY OUT (Red / Paid) -->
                                 <span class="tx-ledger__badge tx-ledger__badge--danger" title="Money Out">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="19" x2="19" y2="5"></line>
+                                        <polyline points="5 5 19 5 19 19"></polyline>
+                                    </svg>
                             {% else %}
                                 <!-- MONEY IN (Green / Received) -->
                                 <span class="tx-ledger__badge tx-ledger__badge--success" title="Money In">
-                            {% endif %}
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                         <line x1="19" y1="5" x2="5" y2="19"></line>
                                         <polyline points="19 19 5 19 5 5"></polyline>
                                     </svg>
+                            {% endif %}
                                     ₹{{ transaction.amount }}
-                                </span>
+                            </span>
                         </td>
 
                         <td data-label="Modify" class="tx-ledger__actions">
