@@ -34,7 +34,7 @@ class TransactionForm(forms.ModelForm):
             self.fields['note'].widget.attrs['maxlength'] = str(note_max_len)
             self.fields['note'].widget.attrs['rows'] = str(note_max_len // 10 + 1)
 
-        self.fields['contact'].queryset = Contact.objects.all() # all for user
+        self.fields['contact'].queryset = Contact.objects.base_for_user(self.user)
 
     def clean_date(self):
 

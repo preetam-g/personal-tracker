@@ -5,11 +5,13 @@ from django.db.models.functions import Lower
 
 from apps.base.models import SoftDeleteModel, TimeStampedModel
 from core import settings
-from .managers import TransactionManager
+from .managers import TransactionManager, ContactManager
 from .utils import LinkStatus, TransactionType
 
 
 class Contact(SoftDeleteModel, TimeStampedModel):
+
+    objects = ContactManager()
 
     name = models.CharField(max_length=100)
     owner = models.ForeignKey(
@@ -18,7 +20,6 @@ class Contact(SoftDeleteModel, TimeStampedModel):
         related_name="contacts",
     )
 
-    # if any user link to contact
     linked_user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -27,7 +28,6 @@ class Contact(SoftDeleteModel, TimeStampedModel):
         related_name="contact_as"
     )
 
-    # consent state
     link_status = models.CharField(
         max_length=20,
         choices=LinkStatus.choices,
@@ -100,12 +100,11 @@ class Transaction(SoftDeleteModel, TimeStampedModel):
     @property
     def signed_amount(self):
         """
-        Returns the amount with the correct mathematical sign. Positive when User is owed money.
-        Useful for iterating over transactions in a template to show a running tally.
+        Returns the amount with the correct mathematical sign. Positive when User gets money.
         """
         if self.type in [TransactionType.LENT, TransactionType.PAYMENT_SENT]:
-            return self.amount
-        return -self.amount
+            return -self.amount
+        return self.amount
 
     def __str__(self):
         return f"{self.get_type_display()}: {self.amount} on {self.date}"

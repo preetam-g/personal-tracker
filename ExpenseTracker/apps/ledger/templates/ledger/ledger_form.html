@@ -15,21 +15,7 @@
 
     <form method="POST" id="ledger-form">
         {% csrf_token %}
-        {% for field in form %}
-            <div style="margin-bottom: 1rem;">
-                <label for="{{ field.id_for_label }}">
-                    {{ field.label }}
-                    {{ field }}
-                </label>
-
-                {% if field.errors %}
-                    <small style="color: var(--pico-form-element-invalid-active-border-color); display: block; margin-top: -0.5rem;">
-                        {{ field.errors.0 }}
-                    </small>
-                {% endif %}
-            </div>
-        {% endfor %}
-
+        {{ form.as_p }}
         <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
             <div style="display: flex; gap: 1rem;">
                 <a href="{% url 'ledger:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">Cancel</a>
