@@ -23,7 +23,15 @@
     color: var(--pico-muted-color);
     margin-bottom: 1rem;
     font-weight: 600;
-">Latest 10 Records</div>
+">
+    Latest 10 Records.
+    <p style="
+        text-transform: none;
+        color: var(--pico-muted-color);
+    ">Make sure to save some contacts beforehand
+        <a href="{% url 'base:preferences' %}">(Click Here)</a>
+    </p>
+</div>
 
 {% include "ledger/ledger_table.html" %}
 

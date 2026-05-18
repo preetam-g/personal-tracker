@@ -1,0 +1,54 @@
+<!-- templates/base/partials/manage_section.html -->
+
+<article>
+
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+        <strong>{{ title }}</strong>
+
+        <a href="{% url add_url_name %}"
+           role="button"
+           class="btn-sm contrast outline">
+            + Add
+        </a>
+    </header>
+
+    {% for item in items %}
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 0.5rem 0;">
+
+            <span>{{ item.name }}</span>
+
+            <span style="display: flex; gap: 0.5rem;">
+
+                <a href="{% url edit_url_name item.id %}"
+                   title="Edit"
+                   style="text-decoration: none;">
+                    ✏️
+                </a>
+
+                <form method="POST"
+                      action="{% url delete_url_name item.id %}"
+                      style="margin: 0;">
+
+                    {% csrf_token %}
+
+                    <button type="submit"
+                            class="secondary outline"
+                            style="padding: 0 0.4rem; border: none;"
+                            onclick="return confirm('Delete this item?')">
+                        🗑
+                    </button>
+
+                </form>
+
+            </span>
+
+        </div>
+
+    {% empty %}
+
+        <small>{{ empty_text }}</small>
+
+    {% endfor %}
+
+</article>

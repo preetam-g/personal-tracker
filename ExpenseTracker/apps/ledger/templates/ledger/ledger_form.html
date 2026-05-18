@@ -11,6 +11,11 @@
                 Add New Ledger
             {% endif %}
         </h2>
+        <p style="
+            color: var(--pico-muted-color);
+        ">Make sure to save the contact beforehand
+            <a href="{% url 'base:preferences' %}">(Click Here)</a>
+        </p>
     </header>
 
     <form method="POST" id="ledger-form">

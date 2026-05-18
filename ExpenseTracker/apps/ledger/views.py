@@ -2,8 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 
-from .forms import TransactionForm
-from .models import Transaction
+from .forms import TransactionForm, ContactForm
+from .models import Transaction, Contact
 from apps.base.views import delete_object_view
 
 

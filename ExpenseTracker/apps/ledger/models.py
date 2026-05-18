@@ -14,7 +14,7 @@ class Contact(SoftDeleteModel, TimeStampedModel):
     objects = ContactManager()
 
     name = models.CharField(max_length=100)
-    owner = models.ForeignKey(
+    user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="contacts",
@@ -35,11 +35,11 @@ class Contact(SoftDeleteModel, TimeStampedModel):
     )
 
     class Meta:
-        ordering = ('owner', 'name',)
+        ordering = ('name', 'user')
         constraints = [
             models.UniqueConstraint(
                 Lower('name'),
-                'owner',
+                'user',
                 condition=models.Q(is_deleted=False),
                 name='unique_%(class)s_per_user_insensitive',
             )

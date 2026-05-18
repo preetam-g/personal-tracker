@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<main class="container" style="max-width: 900px; margin-top: 1.5rem;">
+
+    <div style="margin-bottom: 1.5rem;">
+        <a href="{% url 'accounts:profile' %}"
+           class="secondary"
+           style="text-decoration: none;">
+            &larr; Back to Profile
+        </a>
+    </div>
+
+    <div style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1rem;
+        align-items: start;
+    ">
+        {% include "base/partials/manage_list.html" with title="Categories" items=categories add_url_name="base:add_category" edit_url_name="base:edit_category" delete_url_name="base:delete_category" empty_text="No categories yet." %}
+
+        {% include "base/partials/manage_list.html" with title="Types" items=types add_url_name="base:add_type" edit_url_name="base:edit_type" delete_url_name="base:delete_type" empty_text="No types yet." %}
+
+        {% include "base/partials/manage_list.html" with title="Contacts" items=contacts add_url_name="base:add_contact" edit_url_name="base:edit_contact" delete_url_name="base:delete_contact" empty_text="No contacts yet." %}
+    </div>
+
+</main>
+
+{% endblock content %}

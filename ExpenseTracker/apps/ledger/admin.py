@@ -5,8 +5,8 @@ from apps.ledger.models import Transaction, Contact
 
 class ContactAdmin(SoftDeleteAdmin):
 
-    list_display = ('name', 'owner',)
-    list_filter = ('owner',)
+    list_display = ('name', 'user',)
+    list_filter = ('user',)
 
 
 class TransactionAdmin(SoftDeleteAdmin):

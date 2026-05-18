@@ -15,7 +15,7 @@ class TransactionManager(SoftDeleteManager):
 class ContactManager(SoftDeleteManager):
 
     def base_for_user(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
-        return self.get_queryset().filter(owner=user)
+        return self.get_queryset().filter(user=user)
 
     def all_for_user(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
         return (

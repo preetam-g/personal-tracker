@@ -32,7 +32,7 @@ class TransactionForm(forms.ModelForm):
         note_max_len = self.Meta.model._meta.get_field('note').max_length
         if note_max_len:
             self.fields['note'].widget.attrs['maxlength'] = str(note_max_len)
-            self.fields['note'].widget.attrs['rows'] = str(note_max_len // 10 + 1)
+            self.fields['note'].widget.attrs['rows'] = str(note_max_len//30 + 1)
 
         self.fields['contact'].queryset = Contact.objects.base_for_user(self.user)
 
@@ -62,3 +62,27 @@ class TransactionForm(forms.ModelForm):
             raise forms.ValidationError('Amount must be greater than 0.')
 
         return amount
+
+
+class ContactForm(forms.ModelForm):
+
+    class Meta:
+        model = Contact
+        fields = ['name']
+
+    def __init__(self, *args, **kwargs):
+
+        self.user = kwargs.pop('user', None)
+        if not self.user: raise Exception('User is required')
+
+        super().__init__(*args, **kwargs)
+        self.fields['name'].widget.attrs['placeholder'] = "New Contact (Dad, Mom)"
+
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '')
+        max_len = self.Meta.model._meta.get_field('name').max_length
+
+        if name and len(name) > max_len:
+            raise forms.ValidationError(f'Keep it short! Name cannot exceed {max_len} characters.')
+
+        return name.strip()
