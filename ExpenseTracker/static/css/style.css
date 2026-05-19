@@ -1,3 +1,7 @@
+/* =========================================
+   BASE
+========================================= */
+
 html {
     font-size: 14px;
 }
@@ -12,248 +16,159 @@ textarea {
     padding: 0.4rem 0.6rem;
 }
 
-/* ==========================================================================
-   Expense Tracker Table Styles
-   ========================================================================== */
 
-/* 1. Sticky Header (Only applies to this specific table) */
-.expense-tracker-table th {
+/* =========================================
+   GENERIC TABLE SYSTEM
+========================================= */
+
+.app-table-wrapper {
+    overflow-y: auto;
+    margin: 0;
+    max-height: 100vh;
+}
+
+.app-table th {
     position: sticky;
     top: 0;
     background-color: var(--pico-background-color);
     z-index: 10;
     box-shadow: 0 1px 0 var(--pico-muted-border-color);
-}
-
-/* 2. Responsive Mobile Card View */
-@media (max-width: 768px) {
-    /* Force blocks instead of table layout */
-    .expense-tracker-table,
-    .expense-tracker-table thead,
-    .expense-tracker-table tbody,
-    .expense-tracker-table th,
-    .expense-tracker-table td,
-    .expense-tracker-table tr {
-        display: block;
-    }
-
-    .expense-tracker-table-figure {
-        max-height: 80vh;
-    }
-
-    /* Hide the top header row completely */
-    .expense-tracker-table thead {
-        display: none;
-    }
-
-    /* Style each row to look like a floating card */
-    .expense-tracker-table tr {
-        margin-bottom: 1.5rem;
-        border: 1px solid var(--pico-muted-border-color);
-        border-radius: var(--pico-border-radius);
-        padding: 0;
-    }
-
-    /* Flexbox for label on left, data on right */
-    .expense-tracker-table td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid var(--pico-muted-border-color);
-        border-top: none;
-        text-align: right;
-        padding: 0.75rem 1rem;
-    }
-
-    /* Clean up the final row (buttons) */
-    .expense-tracker-table td:last-child {
-        border-bottom: none;
-        justify-content: flex-end;
-    }
-
-    /* Inject the hidden data-label attribute */
-    .expense-tracker-table td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--pico-muted-color);
-        text-align: left;
-    }
-}
-
-.icon-action-btn:focus:not(:focus-visible) {
-    box-shadow: none;
-    outline: none;
-    background-color: transparent;
-}
-
-.btn-sm {
-    padding: 0.2rem 0.5rem;
-    font-size: 0.9rem;
-    line-height: 1.2;
 }
 
 
 /* =========================================
-   TRANSACTION LEDGER COMPONENT
-   ========================================= */
+   ACTION BUTTONS
+========================================= */
 
-/* --- Layout & Table --- */
-.tx-ledger__wrapper {
-    overflow-y: auto;
-    margin: 0;
-    max-height: 80vh;
-}
-
-/* Sticky Header */
-.tx-ledger__table th {
-    position: sticky;
-    top: 0;
-    background-color: var(--pico-background-color);
-    z-index: 10;
-    box-shadow: 0 1px 0 var(--pico-muted-border-color);
-}
-
-/* Rebalanced Column Widths for 6 Columns */
-.tx-ledger__table th.tx-ledger__col-date { width: 12%; }
-.tx-ledger__table th.tx-ledger__col-contact { width: 15%; }
-.tx-ledger__table th.tx-ledger__col-type { width: 15%; }
-.tx-ledger__table th.tx-ledger__col-note { width: 18%; }
-.tx-ledger__table th.tx-ledger__col-amount { width: 15%; }
-.tx-ledger__table th.tx-ledger__col-modify { width: 12%; }
-
-/* --- Amount Badges (The Pill UI) --- */
-.tx-ledger__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.6rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    line-height: 1;
-    white-space: nowrap;
-}
-
-.tx-ledger__badge--success {
-    background-color: #d1fae5;
-    color: #065f46;
-}
-
-.tx-ledger__badge--danger {
-    background-color: #fee2e2;
-    color: #991b1b;
-}
-
-.tx-ledger__badge--neutral {
-    background-color: #f3f4f6;
-    color: #4b5563;
-}
-
-/* Modal Text Colors */
-.tx-ledger__text-success { color: #065f46; }
-.tx-ledger__text-danger { color: #991b1b; }
-
-/* --- Action Buttons (Clean SVGs) --- */
-.tx-ledger__actions {
+.app-table-actions {
     display: flex;
-    gap: 0.5rem;
     align-items: center;
+    gap: 0.5rem;
 }
 
-.tx-ledger__btn-action {
-    padding: 0.3rem;
+.app-btn-icon {
+    padding: 0.35rem;
     margin-bottom: 0;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     border: none;
     background: transparent;
     box-shadow: none;
     color: var(--pico-muted-color);
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition:
+        color 0.2s ease,
+        transform 0.15s ease;
 }
 
-.tx-ledger__btn-action:hover,
-.tx-ledger__btn-action:focus {
+.app-btn-icon:hover,
+.app-btn-icon:focus {
     background: transparent;
-    color: var(--pico-primary);
     outline: none;
+    box-shadow: none;
+    color: var(--pico-primary);
+    transform: scale(1.05);
 }
 
-.tx-ledger__btn-delete {
+.app-btn-icon svg {
+    pointer-events: none;
+}
+
+.app-btn-danger {
     color: #d9534f;
 }
 
-.tx-ledger__btn-delete:hover,
-.tx-ledger__btn-delete:focus {
-    background: transparent;
+.app-btn-danger:hover,
+.app-btn-danger:focus {
     color: #a83232;
 }
 
-/* --- Modal Styling --- */
-.tx-ledger__modal-title { margin-bottom: 0; }
-.tx-ledger__modal-footer {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    margin-top: 1.5rem;
-}
-.tx-ledger__form-inline { margin-bottom: 0; }
-.tx-ledger__btn-cancel { margin-bottom: 0; }
-.tx-ledger__btn-confirm-del {
-    background-color: #d9534f;
-    border-color: #d9534f;
-    margin-bottom: 0;
-    color: white;
+
+/* =========================================
+   EMPTY STATES
+========================================= */
+
+.app-empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
 }
 
-/* --- Empty State --- */
-.tx-ledger__empty-state { text-align: center; padding: 3rem 1rem; }
-.tx-ledger__empty-title { margin-bottom: 0.5rem; }
+.app-empty-title {
+    margin-bottom: 0.5rem;
+}
 
 
 /* =========================================
-   RESPONSIVE MOBILE CARD VIEW
-   ========================================= */
+   LEDGER BADGES
+========================================= */
+
+.amount-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.amount-badge--success {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.amount-badge--danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+
+/* =========================================
+   MOBILE CARD TABLES
+========================================= */
+
 @media (max-width: 768px) {
-    .tx-ledger__table,
-    .tx-ledger__table thead,
-    .tx-ledger__table tbody,
-    .tx-ledger__table th,
-    .tx-ledger__table td,
-    .tx-ledger__table tr {
+
+    .app-table,
+    .app-table thead,
+    .app-table tbody,
+    .app-table th,
+    .app-table td,
+    .app-table tr {
         display: block;
         width: 100%;
     }
 
-    .tx-ledger__table thead {
+    .app-table thead {
         display: none;
     }
 
-    .tx-ledger__table tr {
+    .app-table tr {
         margin-bottom: 1.5rem;
         border: 1px solid var(--pico-muted-border-color);
         border-radius: var(--pico-border-radius);
-        padding: 0;
         background-color: var(--pico-background-color);
     }
 
-    .tx-ledger__table td {
+    .app-table td {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding: 0.75rem 1rem;
+        text-align: right;
         border-bottom: 1px solid var(--pico-muted-border-color);
         border-top: none;
-        text-align: right;
-        padding: 0.75rem 1rem;
     }
 
-    .tx-ledger__table td:last-child {
+    .app-table td:last-child {
         border-bottom: none;
         justify-content: flex-end;
     }
 
-    .tx-ledger__table td::before {
+    .app-table td::before {
         content: attr(data-label);
         font-weight: 600;
         color: var(--pico-muted-color);
