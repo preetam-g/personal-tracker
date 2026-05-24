@@ -9,7 +9,7 @@ from apps.base.views import delete_object_view
 
 @login_required(login_url='login')
 def home_view(request):
-    qs = Transaction.objects.all_for_user(request.user)[:10]
+    qs = Transaction.objects.all_for_user(request.user)
     return render(request, 'ledger/home.html', {"transactions": qs})
 
 
