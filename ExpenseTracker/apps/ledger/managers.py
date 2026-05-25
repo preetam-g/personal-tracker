@@ -18,11 +18,4 @@ class ContactManager(SoftDeleteManager):
         return self.get_queryset().filter(user=user)
 
     def all_for_user(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
-        return (
-            self.base_for_user(user)
-            .select_related('owner', 'linked_user')
-            .only(
-                'id', 'amount', 'date', 'note', 'type',
-                'contact__name',
-            )
-        )
+        return self.base_for_user(user).select_related('user', 'linked_user')
