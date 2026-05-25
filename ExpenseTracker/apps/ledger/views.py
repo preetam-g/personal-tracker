@@ -65,3 +65,8 @@ def delete_transaction_view(request, tran_id):
         obj_id=tran_id,
         final_redirect="ledger:home"
     )
+
+
+@login_required(login_url='login')
+def summary_view(request):
+    pass
