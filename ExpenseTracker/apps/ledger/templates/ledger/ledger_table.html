@@ -1,16 +1,16 @@
 <article>
     {% if transactions %}
-        <figure class="tx-ledger__wrapper">
-            <table role="grid" class="tx-ledger__table">
+        <figure class="app-table-wrapper">
+            <table role="grid" class="app-table">
                 <thead>
-                    <tr>
-                        <th scope="col" class="tx-ledger__col-date">Date</th>
-                        <th scope="col" class="tx-ledger__col-contact">Contact</th>
-                        <th scope="col" class="tx-ledger__col-type">Type</th>
-                        <th scope="col" class="tx-ledger__col-note">Note</th>
-                        <th scope="col" class="tx-ledger__col-amount">Amount</th>
-                        <th scope="col" class="tx-ledger__col-modify">Modify</th>
-                    </tr>
+                <tr>
+                    <th scope="col" style="width: 12%;">Date</th>
+                    <th scope="col" style="width: 12%;">Contact</th>
+                    <th scope="col" style="width: 12%;">Type</th>
+                    <th scope="col" style="width: 18%;">Note</th>
+                    <th scope="col" style="width: 15%;">Amount</th>
+                    <th scope="col" style="width: 12%;">Modify</th>
+                </tr>
                 </thead>
                 <tbody>
                 {% for transaction in transactions %}
@@ -21,82 +21,100 @@
                         <td data-label="Note">{{ transaction.note|default:"-" }}</td>
                         <td data-label="Amount">
                             {% if transaction.signed_amount < 0 %}
-                                <!-- MONEY OUT (Red / Paid) -->
-                                <span class="tx-ledger__badge tx-ledger__badge--danger" title="Money Out">
+                                <span class="amount-badge amount-badge--danger" title="Money Out">
+                                    <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <line x1="5" y1="19" x2="19" y2="5"></line>
+                                        <polyline points="5 5 19 5 19 19"></polyline>
+                                    </svg>
+                                    ₹{{ transaction.amount }}
+                                </span>
                             {% else %}
-                                <!-- MONEY IN (Green / Received) -->
-                                <span class="tx-ledger__badge tx-ledger__badge--success" title="Money In">
-                            {% endif %}
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <span class="amount-badge amount-badge--success" title="Money In">
+                                    <svg
+                                        width="14"
+                                        height="14"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2.5"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round">
                                         <line x1="19" y1="5" x2="5" y2="19"></line>
                                         <polyline points="19 19 5 19 5 5"></polyline>
                                     </svg>
                                     ₹{{ transaction.amount }}
                                 </span>
+                            {% endif %}
                         </td>
 
-                        <td data-label="Modify" class="tx-ledger__actions">
-                            <!-- Edit Button -->
-                            <a href="{% url 'ledger:edit' transaction.id %}"
-                               class="tx-ledger__btn-action" title="Edit">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <td data-label="Modify" class="app-table-actions">
+                            <!-- Edit -->
+                            <a
+                                href="{% url 'ledger:edit' transaction.id %}"
+                                class="app-btn-icon"
+                                title="Edit">
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
                             </a>
 
-                            <!-- Delete Button -->
-                            <button type="button" class="tx-ledger__btn-action tx-ledger__btn-delete"
-                                    onclick="document.getElementById('delete-modal-{{ transaction.id }}').showModal()"
-                                    title="Delete">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <!-- Delete -->
+                            <button
+                                type="button"
+                                class="
+                                    app-btn-icon
+                                    app-btn-danger
+                                    delete-btn
+                                "
+                                title="Delete"
+                                data-action="{% url 'ledger:delete' transaction.id %}"
+                                data-message="
+                                    Are you sure you want to delete this transaction for
+                                    <strong>₹{{ transaction.amount }}</strong>?
+                                    This action can't be reversed.
+                                ">
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
                                     <polyline points="3 6 5 6 21 6"></polyline>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                     <line x1="10" y1="11" x2="10" y2="17"></line>
                                     <line x1="14" y1="11" x2="14" y2="17"></line>
                                 </svg>
                             </button>
-
-                            <dialog id="delete-modal-{{ transaction.id }}">
-                                <article>
-                                    <header>
-                                        <button aria-label="Close" class="close" rel="prev"
-                                                onclick="document.getElementById('delete-modal-{{ transaction.id }}').close()"></button>
-                                        <h3 class="tx-ledger__modal-title">Confirm Deletion</h3>
-                                    </header>
-
-                                    <p>Are you sure you want to delete this transaction for
-                                        <strong class="{% if transaction.signed_amount > 0 %}tx-ledger__text-danger{% elif transaction.signed_amount < 0 %}tx-ledger__text-success{% endif %}">
-                                            ₹{{ transaction.amount }}
-                                        </strong>? This action cannot be undone.
-                                    </p>
-
-                                    <footer class="tx-ledger__modal-footer">
-                                        <button type="button" class="secondary outline tx-ledger__btn-cancel"
-                                                onclick="document.getElementById('delete-modal-{{ transaction.id }}').close()">
-                                            Cancel
-                                        </button>
-
-                                        <form action="{% url 'ledger:delete' transaction.id %}"
-                                              method="POST" class="tx-ledger__form-inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="tx-ledger__btn-confirm-del">
-                                                Yes, Delete
-                                            </button>
-                                        </form>
-                                    </footer>
-                                </article>
-                            </dialog>
                         </td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </figure>
-
     {% else %}
-        <div class="tx-ledger__empty-state">
-            <h3 class="tx-ledger__empty-title">No transactions yet!</h3>
+
+        <div class="app-empty-state">
+            <h3 class="app-empty-title">No transactions yet!</h3>
             <p>You are perfectly balanced at zero. Yay!</p>
         </div>
     {% endif %}

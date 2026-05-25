@@ -1,0 +1,130 @@
+<dialog
+    id="global-delete-modal"
+    onclick="handleModalBackdrop(event)">
+
+    <article>
+
+        <header>
+
+            <button
+                type="button"
+                aria-label="Close"
+                class="close icon-action-btn"
+                onclick="closeDeleteModal()">
+            </button>
+
+            <h3 style="margin-bottom: 0;">
+                Confirm Deletion
+            </h3>
+
+        </header>
+
+        <p id="delete-modal-message">
+            Are you sure? This action can't be reversed.
+        </p>
+
+        <footer
+            style="
+                display: flex;
+                gap: 1rem;
+                justify-content: flex-end;
+            ">
+
+            <button
+                type="button"
+                class="secondary outline"
+                onclick="closeDeleteModal()"
+                style="margin-bottom: 0;">
+
+                Cancel
+
+            </button>
+
+            <form
+                id="delete-modal-form"
+                method="POST"
+                style="margin-bottom: 0;">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    style="
+                        background-color: #d9534f;
+                        border-color: #d9534f;
+                        margin-bottom: 0;
+                    ">
+
+                    Yes, Delete
+
+                </button>
+
+            </form>
+
+        </footer>
+
+    </article>
+
+</dialog>
+
+<script>
+
+function openDeleteModal(action, message) {
+
+    document.getElementById(
+        "delete-modal-form"
+    ).action = action;
+
+    document.getElementById(
+        "delete-modal-message"
+    ).innerHTML = message;
+
+    document.getElementById(
+        "global-delete-modal"
+    ).showModal();
+}
+
+function closeDeleteModal() {
+
+    document.getElementById(
+        "global-delete-modal"
+    ).close();
+}
+
+function handleModalBackdrop(event) {
+
+    const dialog = document.getElementById(
+        "global-delete-modal"
+    );
+
+    const rect = dialog.getBoundingClientRect();
+
+    const clickedInDialog =
+        rect.top <= event.clientY &&
+        event.clientY <= rect.bottom &&
+        rect.left <= event.clientX &&
+        event.clientX <= rect.right;
+
+    if (!clickedInDialog) {
+        dialog.close();
+    }
+}
+
+if (!window.deleteModalInitialized) {
+
+    window.deleteModalInitialized = true;
+
+    document.addEventListener("click", function (e) {
+
+        const btn = e.target.closest(".delete-btn");
+
+        if (!btn) return;
+
+        openDeleteModal(
+            btn.dataset.action,
+            btn.dataset.message
+        );
+    });
+}
+
+</script>

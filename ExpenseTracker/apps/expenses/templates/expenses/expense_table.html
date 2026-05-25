@@ -1,15 +1,15 @@
 <article>
     {% if expenses %}
-        <figure class="expense-tracker-table-figure" style="overflow-y: auto; margin: 0">
-            <table role="grid" class="expense-tracker-table">
+        <figure class="app-table-wrapper">
+            <table role="grid" class="app-table">
                 <thead>
                 <tr>
-                    <th scope="col" style="width: 10%">Date</th>
-                    <th scope="col" style="width: 10%">Category</th>
-                    <th scope="col" style="width: 10%">Type</th>
-                    <th scope="col" style="width: 15%">Note</th>
-                    <th scope="col" style="width: 10%">Amount</th>
-                    <th scope="col" style="width: 8%">Modify</th>
+                    <th scope="col" style="width: 10%;">Date</th>
+                    <th scope="col" style="width: 10%;">Category</th>
+                    <th scope="col" style="width: 10%;">Type</th>
+                    <th scope="col" style="width: 15%;">Note</th>
+                    <th scope="col" style="width: 10%;">Amount</th>
+                    <th scope="col" style="width: 8%;">Modify</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -20,69 +20,52 @@
                         <td data-label="Type">{{ expense.type.name|default:"-" }}</td>
                         <td data-label="Note">{{ expense.note|default:"-" }}</td>
                         <td data-label="Amount"><strong>₹{{ expense.amount }}</strong></td>
-
-                        <td data-label="Modify" style="display: flex; gap: 0.5rem; align-items: center;">
-                            <a href="{% url 'expenses:edit' expense.id %}" role="button" class="secondary outline"
-                               style="padding: 0.3rem 0.5rem; margin-bottom: 0; display: flex; align-items: center;"
-                               title="Edit">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <td data-label="Modify" class="app-table-actions">
+                            <!-- Edit -->
+                            <a href="{% url 'expenses:edit' expense.id %}" class="app-btn-icon" title="Edit">
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
                             </a>
-
-                            <button type="button" class="outline icon-action-btn"
-                                    onclick="document.getElementById('delete-modal-{{ expense.id }}').showModal()"
-                                    style="padding: 0.3rem 0.5rem;
-                                        margin-bottom: 0;
-                                        display: flex;
-                                        align-items: center;
-                                        color: #d9534f;
-                                        border-color: #d9534f;
-                                        background: transparent;"
-                                    title="Delete"
-                            >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <!-- Delete -->
+                            <button type="button"
+                                class="
+                                    app-btn-icon
+                                    app-btn-danger
+                                    delete-btn
+                                "
+                                title="Delete"
+                                data-action="{% url 'expenses:delete' expense.id %}"
+                                data-message="
+                                    Are you sure you want to delete this expense for
+                                    <strong>₹{{ expense.amount }}</strong>?
+                                    This action can't be reversed.
+                                ">
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
                                     <polyline points="3 6 5 6 21 6"></polyline>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                     <line x1="10" y1="11" x2="10" y2="17"></line>
                                     <line x1="14" y1="11" x2="14" y2="17"></line>
                                 </svg>
                             </button>
-
-                            <dialog id="delete-modal-{{ expense.id }}">
-                                <article>
-                                    <header>
-                                        <button aria-label="Close"
-                                                class="close icon-action-btn"
-                                                rel="prev"
-                                                onclick="document.getElementById('delete-modal-{{ expense.id }}').close()"></button>
-                                        <h3 style="margin-bottom: 0;">Confirm Deletion</h3>
-                                    </header>
-
-                                    <p>Are you sure you want to delete this expense for
-                                        <strong>₹{{ expense.amount }}</strong>? This action cannot be undone.</p>
-
-                                    <footer style="display: flex; gap: 1rem; justify-content: flex-end;">
-                                        <button type="button" class="secondary outline"
-                                                onclick="document.getElementById('delete-modal-{{ expense.id }}').close()"
-                                                style="margin-bottom: 0;"
-                                        >Cancel</button>
-
-                                        <form action="{% url 'expenses:delete' expense.id %}" method="POST"
-                                              style="margin-bottom: 0;">
-                                            {% csrf_token %}
-                                            <button type="submit"
-                                                    style="background-color: #d9534f;
-                                                        border-color: #d9534f;
-                                                        margin-bottom: 0;"
-                                            >Yes, Delete</button>
-                                        </form>
-                                    </footer>
-                                </article>
-                            </dialog>
                         </td>
                     </tr>
                 {% endfor %}
@@ -91,8 +74,8 @@
         </figure>
 
     {% else %}
-        <div style="text-align: center; padding: 3rem 1rem;">
-            <h3 style="margin-bottom: 0.5rem;">No expenses yet!</h3>
+        <div class="app-empty-state">
+            <h3 class="app-empty-title">No expenses yet!</h3>
             <p>Your wallet is looking suspiciously full.</p>
         </div>
     {% endif %}
