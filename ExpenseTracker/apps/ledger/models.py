@@ -47,17 +47,15 @@ class Contact(SoftDeleteModel, TimeStampedModel):
 
     def get_balance(self):
         """
-        Calculates the running balance.
+        Calculates the running balance. Positive if contact owes user.
         """
         result = self.transactions.aggregate(
             balance=Sum(
                 Case(
-                    # If it's a positive transaction type, use the positive amount
                     When(
-                        type__in=[TransactionType.LENT, TransactionType.PAYMENT_SENT],
+                        type__in=TransactionType.outgoing_types(),
                         then=F('amount')
                     ),
-                    # Otherwise, make the amount negative
                     default=-F('amount'),
                     output_field=DecimalField()
                 )
@@ -100,11 +98,12 @@ class Transaction(SoftDeleteModel, TimeStampedModel):
     @property
     def signed_amount(self):
         """
-        Returns the amount with the correct mathematical sign. Positive when User gets money.
+        Returns the amount with the correct mathematical sign. Positive when User receives money.
+        Used in templates to display amount accordingly.
         """
-        if self.type in [TransactionType.LENT, TransactionType.PAYMENT_SENT]:
-            return -self.amount
-        return self.amount
+        if self.type in TransactionType.incoming_types():
+            return self.amount
+        return -self.amount
 
     def __str__(self):
         return f"{self.get_type_display()}: {self.amount} on {self.date}"
