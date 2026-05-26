@@ -9,3 +9,4 @@ whitenoise>=6.6.0       # Required to serve your static files (CSS/JS)
 gunicorn>=21.2.0
 requests>=2.34.2
 babel>=2.18.0
+currency-symbols>=2.0.4
