@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.base',
     'apps.ledger',
+    'apps.forex',
 ]
 
 MIDDLEWARE = [
@@ -148,3 +149,9 @@ if IS_PRODUCTION:
 
 # 12. MISC
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# 13. FOREX
+EXCHANGE_RATE_API_KEY = os.getenv("EXCHANGE_RATE_API_KEY")
+EXCHANGE_RATE_BASE_URL = os.getenv("EXCHANGE_RATE_BASE_URL")
+EXCHANGE_RATE_API_TIMEOUT = 20
