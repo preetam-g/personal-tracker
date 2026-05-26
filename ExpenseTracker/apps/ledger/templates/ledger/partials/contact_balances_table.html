@@ -1,0 +1,59 @@
+<article>
+{% if contacts_info %}
+    <figure class="app-table-wrapper">
+            <table role="grid" class="app-table app-table--ledger">
+                <thead>
+                <tr>
+                    <th scope="col" rowspan="2" style="width: 15%; vertical-align: middle;">Contact</th>
+
+                    <th scope="colgroup" colspan="2" style="text-align: center; border-bottom: none;">
+                        <div style="border-bottom: var(--pico-border-width) solid var(--pico-muted-border-color); padding-bottom: 8px;">
+                            You paid
+                        </div>
+                    </th>
+
+                    <th scope="colgroup" colspan="2" style="text-align: center; border-bottom: none;">
+                        <div style="border-bottom: var(--pico-border-width) solid var(--pico-muted-border-color); padding-bottom: 8px;">
+                            You received
+                        </div>
+                    </th>
+
+                    <th scope="col" rowspan="2" style="width: 15%; vertical-align: middle;">
+                        Balance
+                    </th>
+                </tr>
+                <tr>
+                    <th scope="col" style="width: 10%; padding-top: 8px;">Lent</th>
+                    <th scope="col" style="width: 10%; padding-top: 8px;">Paid</th>
+
+                    <th scope="col" style="width: 10%; padding-top: 8px;">Borrowed</th>
+                    <th scope="col" style="width: 10%; padding-top: 8px;">Received</th>
+                </tr>
+            </thead>
+                <tbody>
+                {% for info in contacts_info %}
+                    <tr>
+                        <td data-label="Contact">{{ info.contact_name }}</td>
+                        <td data-label="Lent">₹{{ info.lent|default:0 }}</td>
+                        <td data-label="Sent">₹{{ info.sent|default:0 }}</td>
+                        <td data-label="Borrowed">₹{{ info.borrowed|default:0 }}</td>
+                        <td data-label="Received">₹{{ info.received|default:0 }}</td>
+                        <td data-label="Balance">
+                            {% if info.balance >= 0 %}
+                                <strong>+₹{{ info.balance|default:0 }}</strong>
+                            {% else %}
+                                <strong>-₹{{ info.balance|cut:"-" }}</strong>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </figure>
+{% else %}
+    <div class="app-empty-state">
+        <h3 class="app-empty-title">No contacts info yet!</h3>
+        <p>Comeback after adding some transactions.</p>
+    </div>
+{% endif %}
+</article>

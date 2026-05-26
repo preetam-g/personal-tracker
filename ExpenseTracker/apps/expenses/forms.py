@@ -1,7 +1,10 @@
 from django import forms
 from .models import Expense, ExpenseCategory, ExpenseType
 from django.utils import timezone
-from .utils import SortChoices, TimeFrame
+
+from .utils import SortChoices
+
+from apps.base.utils import TimeFrame
 from apps.base.forms import CategoryTypeValidationForm
 
 

@@ -1,10 +1,13 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.utils import timezone
 
-from .forms import TransactionForm, ContactForm
-from .models import Transaction, Contact
+from .forms import TransactionForm, SummaryFilterForm
+from .models import Transaction
+
 from apps.base.views import delete_object_view
+from apps.base.utils import get_start_date, TimeFrame
 
 
 @login_required(login_url='login')
@@ -69,4 +72,28 @@ def delete_transaction_view(request, tran_id):
 
 @login_required(login_url='login')
 def summary_view(request):
-    pass
+
+    fallback_data = {
+        'start_date': get_start_date(timezone.localdate(), TimeFrame.THIS_MONTH),
+        'end_date': timezone.localdate(),
+    }
+
+    data = request.GET.copy()
+    if not data:
+        data = fallback_data
+
+    form = SummaryFilterForm(data)
+    if form.is_valid():
+        context_data = Transaction.objects.get_contacts_summary(request.user, form.cleaned_data)
+    else:
+        form = SummaryFilterForm(fallback_data, user=request.user)
+        context_data = Transaction.objects.get_contacts_summary(request.user, form.cleaned_data)
+
+    return render(
+        request,
+        template_name='ledger/summary_page.html',
+        context={
+            'form': form,
+            **context_data,
+        },
+    )

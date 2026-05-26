@@ -176,3 +176,24 @@ textarea {
         margin-right: 1rem;
     }
 }
+
+/* =========================================
+   LEDGER TABLE STICKY HEADER
+========================================= */
+
+
+.app-table--ledger {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.app-table--ledger thead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.app-table--ledger thead th {
+    background-color: var(--pico-background-color);
+    box-shadow: 0 1px 0 var(--pico-muted-border-color);
+}

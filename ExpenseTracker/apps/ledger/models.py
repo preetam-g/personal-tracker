@@ -45,24 +45,6 @@ class Contact(SoftDeleteModel, TimeStampedModel):
             )
         ]
 
-    def get_balance(self):
-        """
-        Calculates the running balance. Positive if contact owes user.
-        """
-        result = self.transactions.aggregate(
-            balance=Sum(
-                Case(
-                    When(
-                        type__in=TransactionType.outgoing_types(),
-                        then=F('amount')
-                    ),
-                    default=-F('amount'),
-                    output_field=DecimalField()
-                )
-            )
-        )
-        return result['balance'] or 0
-
     def __str__(self):
         return self.name
 

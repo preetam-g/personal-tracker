@@ -2,8 +2,11 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models import Sum, Min, Max, Q
 from django.db.models.functions import TruncDate, TruncMonth
 from django.utils import timezone
+
 from datetime import timedelta, datetime, time
-from .utils import TimeFrame, get_start_date, get_grouped_data
+
+from .utils import get_grouped_data
+from apps.base.utils import TimeFrame, get_start_date
 from apps.base.models import SoftDeleteQuerySet, SoftDeleteManager, SoftDeleteModel
 
 

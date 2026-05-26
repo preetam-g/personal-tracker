@@ -2,9 +2,12 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+
 from . import forms, models
-from .utils import get_start_date, TimeFrame
+
+from apps.base.utils import get_start_date, TimeFrame
 from apps.base.views import delete_object_view
+
 
 @login_required(login_url="accounts:login")
 def home_view(request):

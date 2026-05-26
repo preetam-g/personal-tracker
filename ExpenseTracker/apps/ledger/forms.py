@@ -86,3 +86,25 @@ class ContactForm(forms.ModelForm):
             raise forms.ValidationError(f'Keep it short! Name cannot exceed {max_len} characters.')
 
         return name.strip()
+
+
+class SummaryFilterForm(forms.Form):
+
+    start_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label='Start Date',
+    )
+
+    end_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label='End Date',
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        today = timezone.localdate().strftime('%Y-%m-%d')
+        self.fields['start_date'].widget.attrs['max'] = today
+        self.fields['end_date'].widget.attrs['max'] = today
