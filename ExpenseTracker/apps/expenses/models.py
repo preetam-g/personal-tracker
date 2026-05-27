@@ -9,6 +9,7 @@ from babel.numbers import format_currency
 from .managers import ExpenseManager, CategoryTypeManager
 
 from apps.base.models import SoftDeleteModel, TimeStampedModel
+from apps.base.utils import DEFAULT_BASE_CURRENCY_CODE, DEFAULT_BASE_CURRENCY_SYMBOL
 from apps.forex.models import Currency
 
 
@@ -93,19 +94,19 @@ class Expense(SoftDeleteModel, TimeStampedModel):
     amount_entered = models.DecimalField(max_digits=18, decimal_places=2) # amount entered by user
 
     @property
-    def formatted_original_amount(self):
-        return format_currency(
-            self.amount_entered,
-            self.currency.code,
-            locale='en_IN',
+    def formatted_amount_entered(self):
+        return (
+            f"{self.currency.symbol} "
+            f"{self.amount_entered:,} "
+            f"({self.currency.code})"
         )
 
     @property
     def formatted_amount(self):
-        return format_currency(
-            self.amount,
-            'INR',
-            locale='en_IN',
+        return (
+            f"{DEFAULT_BASE_CURRENCY_SYMBOL} "
+            f"{self.amount:,} "
+            f"({DEFAULT_BASE_CURRENCY_CODE})"
         )
 
     class Meta:

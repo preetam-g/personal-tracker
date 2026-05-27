@@ -10,11 +10,16 @@ def populate_extra_forex_fields(apps, schema_editor):
     Expense = apps.get_model('expenses', 'Expense')
     Currency = apps.get_model('forex', 'Currency')
 
-    inr = Currency.objects.get(code='INR')
+    # Historical expenses were stored before multi-currency support
+    # was introduced, so all existing amounts are assumed to be INR.
+    inr = Currency.objects.get(code='INR').first()
+
+    if not inr:
+        return
 
     Expense._base_manager.filter(currency__isnull=True).update(
         currency=inr,
-        exchange_rate=Decimal('1.0'),
+        exchange_rate=Decimal('1'),
         amount_entered=F('amount'),
     )
 

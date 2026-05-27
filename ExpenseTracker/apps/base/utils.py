@@ -21,3 +21,7 @@ def get_start_date(today: datetime.date, timeFrame: str) -> datetime.date:
 
     # Default to THIS_MONTH if an unknown timeframe is passed
     return mapping.get(timeFrame)(today)
+
+
+DEFAULT_BASE_CURRENCY_CODE = 'INR'
+DEFAULT_BASE_CURRENCY_SYMBOL = '₹'

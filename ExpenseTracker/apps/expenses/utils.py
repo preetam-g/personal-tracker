@@ -1,6 +1,7 @@
 from django.db.models import Sum
 from django.db import models
 
+
 class SortChoices(models.TextChoices):
     NEWEST_FIRST = '-date', 'Newest First'
     OLDEST_FIRST =  'date', 'Oldest First'

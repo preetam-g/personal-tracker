@@ -4,8 +4,9 @@ from django.utils import timezone
 
 from .utils import SortChoices
 
-from apps.base.utils import TimeFrame
+from apps.base.utils import TimeFrame, DEFAULT_BASE_CURRENCY_CODE
 from apps.base.forms import CategoryTypeValidationForm
+from apps.forex.services import convert_currency
 
 
 class ExpenseForm(forms.ModelForm):
@@ -78,6 +79,27 @@ class ExpenseForm(forms.ModelForm):
             raise forms.ValidationError('Amount must be greater than 0.')
 
         return amount_ent
+
+    def save(self, commit=True):
+
+        expense = super().save(commit=False)
+
+        currency = expense.currency
+        amount_entered = expense.amount_entered
+
+        converted_amt, rate = convert_currency(
+            from_code=currency.code,
+            to_code=DEFAULT_BASE_CURRENCY_CODE,
+            amount=amount_entered,
+        )
+
+        expense.exchange_rate = rate
+        expense.amount = converted_amt
+
+        if commit:
+            expense.save()
+
+        return expense
 
 
 class ExpenseFilterForm(forms.Form):
