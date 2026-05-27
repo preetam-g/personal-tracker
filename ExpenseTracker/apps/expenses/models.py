@@ -3,8 +3,13 @@ from django.db import models
 from django.utils import timezone
 from django.db.models.functions import Lower
 from django.core.exceptions import ValidationError
+
+from babel.numbers import format_currency
+
 from .managers import ExpenseManager, CategoryTypeManager
+
 from apps.base.models import SoftDeleteModel, TimeStampedModel
+from apps.forex.models import Currency
 
 
 class BaseCategoryType(SoftDeleteModel, TimeStampedModel):
@@ -71,16 +76,37 @@ class ExpenseType(BaseCategoryType):
 
 class Expense(SoftDeleteModel, TimeStampedModel):
 
-    browser = ExpenseManager()
+    objects = ExpenseManager()
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='expenses')
 
     date = models.DateTimeField(null=False, blank=False)
-    amount = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False)
+    amount = models.DecimalField(max_digits=18, decimal_places=2) # will have INR converted value
     note = models.CharField(blank=True, max_length=50)
 
     category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True, blank=True)
     type = models.ForeignKey(ExpenseType, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # forex extra fields
+    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, related_name='+') # currency of entered amount
+    exchange_rate = models.DecimalField(max_digits=18, decimal_places=8) # rate used
+    amount_entered = models.DecimalField(max_digits=18, decimal_places=2) # amount entered by user
+
+    @property
+    def formatted_original_amount(self):
+        return format_currency(
+            self.amount_entered,
+            self.currency.code,
+            locale='en_IN',
+        )
+
+    @property
+    def formatted_amount(self):
+        return format_currency(
+            self.amount,
+            'INR',
+            locale='en_IN',
+        )
 
     class Meta:
 

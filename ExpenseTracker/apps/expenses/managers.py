@@ -13,10 +13,10 @@ from apps.base.models import SoftDeleteQuerySet, SoftDeleteManager, SoftDeleteMo
 class ExpenseManager(SoftDeleteManager):
 
     def get_queryset(self) -> SoftDeleteQuerySet:
-        return super().get_queryset().select_related('category', 'type')
+        return super().get_queryset()
 
     def all_for_user(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
-        return self.get_queryset().filter(user=user)
+        return self.get_queryset().filter(user=user).select_related('category', 'type')
 
     def filtered_for_user(self, user:AbstractBaseUser, filter_form:dict) -> SoftDeleteQuerySet:
         qs = self.all_for_user(user)

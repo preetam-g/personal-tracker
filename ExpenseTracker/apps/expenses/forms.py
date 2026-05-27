@@ -12,16 +12,24 @@ class ExpenseForm(forms.ModelForm):
 
     class Meta:
         model = Expense
-        fields = ['date', 'amount', 'category', 'type', 'note']
+        fields = [
+            'date',
+            'currency',
+            'amount_entered',
+            'category',
+            'type',
+            'note',
+        ]
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date'}),
+            'currency': forms.Select(attrs={'class': 'tom-select'}),
         }
         labels = {
-            'amount': 'Amount*',
+            'amount_entered': 'Amount*',
             'date': 'Date*',
+            'currency': 'Currency*',
         }
 
-    # frontend
     def __init__(self, *args, **kwargs): # frontend
 
         self.user = kwargs.pop('user', None)
@@ -44,7 +52,6 @@ class ExpenseForm(forms.ModelForm):
         self.fields['category'].queryset = ExpenseCategory.objects.user_items(self.user)
         self.fields['type'].queryset = ExpenseType.objects.user_items(self.user)
 
-    # backend
     def clean_date(self):
 
         submitted_date = self.cleaned_data['date']
@@ -64,13 +71,13 @@ class ExpenseForm(forms.ModelForm):
 
         return note
 
-    def clean_amount(self):
-        amount = self.cleaned_data.get('amount')
+    def clean_amount_entered(self):
+        amount_ent = self.cleaned_data.get('amount_entered')
 
-        if amount and amount <= 0:
+        if amount_ent and amount_ent <= 0:
             raise forms.ValidationError('Amount must be greater than 0.')
 
-        return amount
+        return amount_ent
 
 
 class ExpenseFilterForm(forms.Form):

@@ -197,3 +197,49 @@ textarea {
     background-color: var(--pico-background-color);
     box-shadow: 0 1px 0 var(--pico-muted-border-color);
 }
+
+
+/* =========================================
+   TOM SELECT INPUT STYLES
+========================================= */
+
+.ts-wrapper.single .ts-control,
+.ts-wrapper.single.input-active .ts-control {
+    background: var(--pico-form-element-background-color) !important;
+    border: 1px solid var(--pico-form-element-border-color);
+    border-radius: var(--pico-border-radius);
+    color: var(--pico-color);
+
+    padding:
+        var(--pico-form-element-spacing-vertical)
+        var(--pico-form-element-spacing-horizontal);
+
+    box-shadow: none;
+}
+
+.ts-wrapper.single .ts-control input {
+    color: var(--pico-color) !important;
+}
+
+.ts-dropdown {
+    background: var(--pico-card-background-color);
+    border: 1px solid var(--pico-form-element-border-color);
+    border-radius: var(--pico-border-radius);
+    color: var(--pico-color);
+}
+
+.ts-dropdown .option {
+    background: transparent;
+    color: var(--pico-color);
+}
+
+.ts-dropdown .active {
+    background-color: var(--pico-form-element-background-color);
+    color: var(--pico-color);
+}
+
+.ts-control,
+.ts-control input {
+    cursor: pointer;
+    height: auto;
+}

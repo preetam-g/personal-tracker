@@ -69,5 +69,13 @@
         }
 
     });
+    document.querySelectorAll('.tom-select').forEach((el) => {
+        new TomSelect(el, {
+            create: false,
+            maxItems: 1, // Explicitly enforce single-select behavior
+            plugins: ['dropdown_input'], // Moves the search box into the dropdown
+            maxOptions: null,
+        });
+    });
 </script>
 {% endblock content %}

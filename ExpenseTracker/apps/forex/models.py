@@ -11,7 +11,7 @@ class Currency(models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ('name',)
+        ordering = ('code',)
         verbose_name = 'Currency'
         verbose_name_plural = 'Currencies'
 
