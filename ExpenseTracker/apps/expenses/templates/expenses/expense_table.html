@@ -19,7 +19,15 @@
                         <td data-label="Category">{{ expense.category.name|default:"-" }}</td>
                         <td data-label="Type">{{ expense.type.name|default:"-" }}</td>
                         <td data-label="Note">{{ expense.note|default:"-" }}</td>
-                        <td data-label="Amount"><strong>₹{{ expense.amount }}</strong></td>
+                        <td data-label="Amount">
+                            <strong>
+                                {{ expense.formatted_amount_entered }}
+                            </strong>
+                            {% if expense.currency.code != 'INR' %}
+                                <br/>
+                                <small>{{ expense.formatted_amount }}</small>
+                            {% endif %}
+                        </td>
                         <td data-label="Modify" class="app-table-actions">
                             <!-- Edit -->
                             <a href="{% url 'expenses:edit' expense.id %}" class="app-btn-icon" title="Edit">

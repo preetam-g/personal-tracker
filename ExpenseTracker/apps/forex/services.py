@@ -209,8 +209,10 @@ def get_exchange_rate(from_code: str, to_code: str) -> Decimal:
     return exchange_rate.rate
 
 
-def convert_currency(from_code: str, to_code: str, amount) -> Decimal:
-
+def convert_currency(from_code: str, to_code: str, amount) -> tuple[Decimal, Decimal]:
+    """
+    Returns converted currency and the exchange rate used between the currencies.
+    """
     logger.info(
         f"Converting currency: "
         f"{amount} "
@@ -227,4 +229,4 @@ def convert_currency(from_code: str, to_code: str, amount) -> Decimal:
         f"{converted_amt} ({to_code})"
     )
 
-    return converted_amt.quantize(Decimal('0.01'))
+    return converted_amt.quantize(Decimal('0.01')), rate
