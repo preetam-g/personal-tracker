@@ -12,7 +12,7 @@ def populate_extra_forex_fields(apps, schema_editor):
 
     # Historical expenses were stored before multi-currency support
     # was introduced, so all existing amounts are assumed to be INR.
-    inr = Currency.objects.get(code='INR').first()
+    inr = Currency.objects.get(code='INR')
 
     if not inr:
         return
