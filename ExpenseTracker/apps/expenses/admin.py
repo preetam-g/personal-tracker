@@ -15,10 +15,12 @@ class CategoryTypeChoiceField(forms.ModelChoiceField):
 
 class ExpenseAdminForm(forms.ModelForm):
     category = CategoryTypeChoiceField(
-        queryset=ExpenseCategory.objects.all()
+        queryset=ExpenseCategory.objects.all(),
+        required=False,
     )
     type = CategoryTypeChoiceField(
-        queryset=ExpenseType.objects.all()
+        queryset=ExpenseType.objects.all(),
+        required=False,
     )
 
     class Meta:

@@ -128,5 +128,24 @@ class Expense(SoftDeleteModel, TimeStampedModel):
 
     def clean(self):
         super().clean()
+
         if self.amount and self.amount <= 0:
             raise ValidationError({'amount': "Amount must be greater than 0."})
+
+        if self.category:
+            if (
+                    self.category.user is not None
+                    and self.category.user != self.user
+            ):
+                raise ValidationError({
+                    'category': 'Invalid category for this user.',
+                })
+
+        if self.type:
+            if (
+                    self.type.user is not None
+                    and self.type.user != self.user
+            ):
+                raise ValidationError({
+                    'type': 'Invalid type for this user.',
+                })
