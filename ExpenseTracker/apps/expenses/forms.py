@@ -53,6 +53,9 @@ class ExpenseForm(forms.ModelForm):
         self.fields['category'].queryset = ExpenseCategory.objects.user_items(self.user)
         self.fields['type'].queryset = ExpenseType.objects.user_items(self.user)
 
+        # currency
+        self.fields['currency'].initial = self.user.preferences.preferred_currency
+
     def clean_date(self):
 
         submitted_date = self.cleaned_data['date']
@@ -84,17 +87,40 @@ class ExpenseForm(forms.ModelForm):
 
         expense = super().save(commit=False)
 
-        currency = expense.currency
-        amount_entered = expense.amount_entered
+        is_new = expense.pk is None
 
-        converted_amt, rate = convert_currency(
-            from_code=currency.code,
-            to_code=DEFAULT_BASE_CURRENCY_CODE,
-            amount=amount_entered,
-        )
+        if is_new:
 
-        expense.exchange_rate = rate
-        expense.amount = converted_amt
+            converted_amt, rate = convert_currency(
+                from_code=expense.currency.code,
+                to_code=DEFAULT_BASE_CURRENCY_CODE,
+                amount=expense.amount_entered,
+            )
+
+            expense.exchange_rate = rate
+            expense.amount = converted_amt
+
+        else:
+
+            original = Expense.objects.get(pk=expense.pk)
+
+            if expense.currency_id != original.currency_id:
+
+                converted_amt, rate = convert_currency(
+                    from_code=expense.currency.code,
+                    to_code=DEFAULT_BASE_CURRENCY_CODE,
+                    amount=expense.amount_entered,
+                )
+
+                expense.exchange_rate = rate
+                expense.amount = converted_amt
+
+            elif expense.amount_entered != original.amount_entered:
+
+                expense.amount = (
+                        expense.amount_entered *
+                        original.exchange_rate
+                )
 
         if commit:
             expense.save()

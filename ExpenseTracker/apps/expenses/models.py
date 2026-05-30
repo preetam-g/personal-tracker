@@ -82,7 +82,7 @@ class Expense(SoftDeleteModel, TimeStampedModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='expenses')
 
     date = models.DateTimeField(null=False, blank=False)
-    amount = models.DecimalField(max_digits=18, decimal_places=2) # will have INR converted value
+    amount = models.DecimalField(max_digits=18, decimal_places=8)
     note = models.CharField(blank=True, max_length=50)
 
     category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True, blank=True)
@@ -97,7 +97,7 @@ class Expense(SoftDeleteModel, TimeStampedModel):
     def formatted_amount_entered(self):
         return (
             f"{self.currency.symbol} "
-            f"{self.amount_entered:,} "
+            f"{self.amount_entered:,.2f} "
             f"({self.currency.code})"
         )
 
@@ -105,7 +105,7 @@ class Expense(SoftDeleteModel, TimeStampedModel):
     def formatted_amount(self):
         return (
             f"{DEFAULT_BASE_CURRENCY_SYMBOL} "
-            f"{self.amount:,} "
+            f"{self.amount:,.2f} "
             f"({DEFAULT_BASE_CURRENCY_CODE})"
         )
 

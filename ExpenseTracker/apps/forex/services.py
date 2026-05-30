@@ -229,4 +229,4 @@ def convert_currency(from_code: str, to_code: str, amount) -> tuple[Decimal, Dec
         f"{converted_amt} ({to_code})"
     )
 
-    return converted_amt.quantize(Decimal('0.01')), rate
+    return converted_amt, rate
