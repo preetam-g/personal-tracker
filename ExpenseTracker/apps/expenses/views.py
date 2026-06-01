@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from . import forms, models
 
-from apps.base.utils import get_start_date, TimeFrame
+from apps.base.utils import TimeFrame
 from apps.base.views import delete_object_view
 
 
@@ -72,7 +72,7 @@ def delete_expense_view(request, exp_id):
 def filtered_expense_view(request):
 
     fallback_data = {
-        'start_date': get_start_date(timezone.localdate(), TimeFrame.SEVEN_DAYS),
+        'start_date': TimeFrame.get_start_date(timezone.localdate(), TimeFrame.SEVEN_DAYS),
         'end_date': timezone.localdate(),
     }
 

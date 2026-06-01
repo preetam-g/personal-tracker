@@ -6,8 +6,8 @@ from django.utils import timezone
 from datetime import timedelta, datetime, time
 
 from .utils import get_grouped_data
-from apps.base.utils import TimeFrame, get_start_date
-from apps.base.models import SoftDeleteQuerySet, SoftDeleteManager, SoftDeleteModel
+from apps.base.utils import TimeFrame
+from apps.base.models import SoftDeleteQuerySet, SoftDeleteManager
 
 
 class ExpenseManager(SoftDeleteManager):
@@ -92,7 +92,7 @@ class ExpenseManager(SoftDeleteManager):
 
         today = timezone.localdate()
 
-        start_date = get_start_date(today, timeFrame)
+        start_date = TimeFrame.get_start_date(today, timeFrame)
         qs = self.filtered_for_user(
             user=user,
             filter_form={

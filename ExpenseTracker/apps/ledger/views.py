@@ -7,7 +7,7 @@ from .forms import TransactionForm, SummaryFilterForm
 from .models import Transaction
 
 from apps.base.views import delete_object_view
-from apps.base.utils import get_start_date, TimeFrame
+from apps.base.utils import TimeFrame
 
 
 @login_required(login_url='login')
@@ -74,7 +74,7 @@ def delete_transaction_view(request, tran_id):
 def summary_view(request):
 
     fallback_data = {
-        'start_date': get_start_date(timezone.localdate(), TimeFrame.THIS_MONTH),
+        'start_date': TimeFrame.get_start_date(timezone.localdate(), TimeFrame.THIS_MONTH),
         'end_date': timezone.localdate(),
     }
 
