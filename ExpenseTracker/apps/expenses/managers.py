@@ -88,11 +88,11 @@ class ExpenseManager(SoftDeleteManager):
             'end_date': end,
         }
 
-    def get_dashboard_data(self, user:AbstractBaseUser, timeFrame: str) -> dict:
+    def get_dashboard_data(self, user:AbstractBaseUser, timeframe: str) -> dict:
 
         today = timezone.localdate()
 
-        start_date = TimeFrame.get_start_date(today, timeFrame)
+        start_date = TimeFrame.get_start_date(today, timeframe)
         qs = self.filtered_for_user(
             user=user,
             filter_form={
@@ -105,7 +105,7 @@ class ExpenseManager(SoftDeleteManager):
         category_totals = get_grouped_data(qs, 'category__name')
         type_totals = get_grouped_data(qs, 'type__name')
 
-        if timeFrame == TimeFrame.THIS_YEAR:
+        if timeframe == TimeFrame.THIS_YEAR:
             trend_qs = (
                 qs.annotate(period=TruncMonth('date'))
                 .values('period')
@@ -141,7 +141,7 @@ class ExpenseManager(SoftDeleteManager):
             'category_data': category_totals,
             'type_data': type_totals,
             'trend_data': trend_data,
-            'current_timeframe': timeFrame,
+            'current_timeframe': timeframe,
         }
 
 

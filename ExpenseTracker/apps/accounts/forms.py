@@ -8,6 +8,7 @@ from apps.expenses import (
 )
 
 from apps.base.utils import TimeFrame
+from ..expenses.utils import SortChoices
 
 
 class SignupForm(UserCreationForm):
@@ -52,6 +53,12 @@ class ExpenseFilterDefaultsForm(forms.Form):
         required=False,
         label="Type",
         empty_label="All Types",
+    )
+
+    sort_by = forms.ChoiceField(
+        choices=SortChoices,
+        required=False,
+        label="Sort By",
     )
 
     def __init__(self, *args, **kwargs):
