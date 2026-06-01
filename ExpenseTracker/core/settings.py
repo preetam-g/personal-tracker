@@ -77,16 +77,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # 6. DATABASE CONFIGURATION
 # PROD: Uses Postgres (Render) | LOCAL: Uses SQLite for speed/simplicity
 if IS_PRODUCTION:
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',
-    #         'NAME': os.getenv("POSTGRES_NAME"),
-    #         'USER': os.getenv("POSTGRES_USER"),
-    #         'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
-    #         'HOST': os.getenv("POSTGRES_HOST"),
-    #         'PORT': os.getenv("POSTGRES_PORT", "5432"),
-    #     }
-    # }
     DATABASES = {
         'default': dj_database_url.parse(
             os.getenv("DATABASE_URL")

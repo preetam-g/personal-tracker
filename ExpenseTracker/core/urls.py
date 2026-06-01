@@ -25,7 +25,7 @@ urlpatterns = [
     path("", home_view, name="home"),
     path("", include('apps.base.urls')),
     path('admin/', admin.site.urls),
-    path('auth/', include('apps.accounts.urls')),
+    path('user/', include('apps.accounts.urls')),
     path('expenses/', include('apps.expenses.urls')),
     path('ledger/', include('apps.ledger.urls')),
 ]

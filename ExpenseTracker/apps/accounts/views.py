@@ -2,7 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
+
 from . import forms
+from .forms import ExpenseFilterDefaultsForm
+from .utils import serialize_form_data
 
 Profile = get_user_model()
 
@@ -90,3 +93,27 @@ def password_change_view(request):
         form = forms.PasswordChangeForm(request.user)
 
     return render(request,"accounts/password_change.html",{"form": form})
+
+
+@login_required(login_url='accounts:login')
+def expense_filter_defaults_view(request):
+
+    if request.method != 'POST':
+        return redirect('base:preferences')
+
+    preferences = request.user.preferences
+    form = ExpenseFilterDefaultsForm(request.POST, user=request.user)
+    if form.is_valid():
+
+        preferences.set_expenses_preferences(
+            expenses_filter_defaults=serialize_form_data(form.cleaned_data)
+        )
+
+        messages.success(
+            request,
+            'Expense filter defaults saved successfully.'
+        )
+    else:
+        messages.error(request, "Something went wrong. Please try again.")
+
+    return redirect("base:preferences")

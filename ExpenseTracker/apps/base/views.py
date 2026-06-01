@@ -2,8 +2,18 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from apps.expenses import models as expense_models, forms as expense_forms
-from apps.ledger import models as ledger_models, forms as ledger_forms
+from apps.expenses import (
+    models as expense_models,
+    forms as expense_forms
+)
+from apps.ledger import (
+    models as ledger_models,
+    forms as ledger_forms
+)
+from apps.accounts import (
+    forms as accounts_forms,
+)
+
 
 def delete_object_view(request, model, obj_id, final_redirect: str , name: str = None):
     """Base template view for deleting an object."""
@@ -24,16 +34,25 @@ def delete_object_view(request, model, obj_id, final_redirect: str , name: str =
 @login_required(login_url='accounts:login')
 def preferences_view(request):
 
+    curr_user = request.user
     categories = expense_models.ExpenseCategory.objects.user_items(
-        user=request.user,
+        user=curr_user,
         include_global=False
     )
     types = expense_models.ExpenseType.objects.user_items(
-        user=request.user,
+        user=curr_user,
         include_global=False
     )
 
     contacts = ledger_models.Contact.objects.base_for_user(user=request.user)
+
+    expenses_filter_form = accounts_forms.ExpenseFilterDefaultsForm(
+        initial=curr_user.preferences.get_expenses_preferences(
+            key='expenses_filter_defaults',
+            default={}
+        ),
+        user=curr_user
+    )
 
     return render(
         request,
@@ -42,6 +61,7 @@ def preferences_view(request):
             "categories": categories,
             "types": types,
             "contacts": contacts,
+            "expenses_filter_form": expenses_filter_form,
         }
     )
 

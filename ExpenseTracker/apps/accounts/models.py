@@ -7,7 +7,6 @@ from apps.forex.models import Currency
 
 
 class UserProfile(AbstractUser, SoftDeleteModel):
-
     SOFT_DELETE_CASCADES = (
         'expenses',
         'expensecategory_items',
@@ -51,3 +50,35 @@ class UserPreference(SoftDeleteModel):
 
     def __str__(self):
         return f"{self.user} preferences"
+
+
+    def set_expenses_preferences(self, **kwargs):
+        self.expenses_preferences.update(kwargs)
+        self.save(update_fields=['expenses_preferences'])
+
+    def get_expenses_preferences(self, key, default=None):
+        return self.expenses_preferences.get(key, default)
+
+
+    def set_ledger_preferences(self, **kwargs):
+        self.ledger_preferences.update(kwargs)
+        self.save(update_fields=['ledger_preferences'])
+
+    def get_ledger_preferences(self, key, default=None):
+        return self.ledger_preferences.get(key, default)
+
+
+    def set_accounts_preferences(self, **kwargs):
+        self.accounts_preferences.update(kwargs)
+        self.save(update_fields=['accounts_preferences'])
+
+    def get_accounts_preferences(self, key, default=None):
+        return self.accounts_preferences.get(key, default)
+
+
+    def set_ui_preferences(self, **kwargs):
+        self.ui_preferences.update(kwargs)
+        self.save(update_fields=['ui_preferences'])
+
+    def get_ui_preferences(self, key, default=None):
+        return self.ui_preferences.get(key, default)

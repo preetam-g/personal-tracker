@@ -4,33 +4,71 @@
 
 <main class="container" style="max-width: 900px; margin-top: 1.5rem;">
 
-    <div style="margin-bottom: 1.5rem;">
-        <a href="{% url 'accounts:profile' %}"
-           class="secondary"
-           style="text-decoration: none;">
-            &larr; Back to Profile
-        </a>
-    </div>
+<div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'accounts:profile' %}"
+       class="secondary"
+       style="text-decoration: none;">
+        &larr; Back to Profile
+    </a>
+</div>
+
+<section style="margin-bottom: 3rem;">
+
+    <h2 style="margin-bottom: 0;">
+        Personalization
+    </h2>
+
+    <small>
+        Add your categories, types, and contacts used throughout the app.
+    </small>
 
     <div style="
-    column-width: 320px;
-    column-gap: 1rem;
-    width: 100%;
-">
+        column-width: 320px;
+        column-gap: 1rem;
+        width: 100%;
+        margin-top: 1rem;
+    ">
 
-    <div style="break-inside: avoid; margin-bottom: 1rem;">
-        {% include "base/partials/manage_list.html" with title="Categories" items=categories add_url_name="base:add_category" edit_url_name="base:edit_category" delete_url_name="base:delete_category" empty_text="No categories yet." %}
+        <div style="break-inside: avoid; margin-bottom: 1rem;">
+            {% include "base/partials/manage_list.html" with title="Categories" items=categories add_url_name="base:add_category" edit_url_name="base:edit_category" delete_url_name="base:delete_category" empty_text="No categories yet." %}
+        </div>
+
+        <div style="break-inside: avoid; margin-bottom: 1rem;">
+            {% include "base/partials/manage_list.html" with title="Types" items=types add_url_name="base:add_type" edit_url_name="base:edit_type" delete_url_name="base:delete_type" empty_text="No types yet." %}
+        </div>
+
+        <div style="break-inside: avoid; margin-bottom: 1rem;">
+            {% include "base/partials/manage_list.html" with title="Contacts" items=contacts add_url_name="base:add_contact" edit_url_name="base:edit_contact" delete_url_name="base:delete_contact" empty_text="No contacts yet." %}
+        </div>
+
     </div>
 
-    <div style="break-inside: avoid; margin-bottom: 1rem;">
-        {% include "base/partials/manage_list.html" with title="Types" items=types add_url_name="base:add_type" edit_url_name="base:edit_type" delete_url_name="base:delete_type" empty_text="No types yet." %}
+</section>
+
+<section>
+
+    <h2 style="margin-bottom: 0;">
+        Defaults
+    </h2>
+
+    <small>
+        Configure default values and preferences to suit your needs.
+    </small>
+
+    <div style="
+        column-width: 320px;
+        column-gap: 1rem;
+        width: 100%;
+        margin-top: 1rem;
+    ">
+
+        <div style="break-inside: avoid; margin-bottom: 1rem;">
+            {% include "base/partials/preferences_form.html" with title="Expense Filters" sub_title="Preferred values for the expense activity page." form_url_name="accounts:expense_app_defaults" form=expenses_filter_form form_id="expense-filter-form-preferences" %}
+        </div>
+
     </div>
 
-    <div style="break-inside: avoid; margin-bottom: 1rem;">
-        {% include "base/partials/manage_list.html" with title="Contacts" items=contacts add_url_name="base:add_contact" edit_url_name="base:edit_contact" delete_url_name="base:delete_contact" empty_text="No contacts yet." %}
-    </div>
-
-</div>
+</section>
 
 </main>
 

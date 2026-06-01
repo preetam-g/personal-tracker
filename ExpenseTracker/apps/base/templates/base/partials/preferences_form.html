@@ -1,0 +1,32 @@
+<article style="max-width: 600px;">
+
+    <header style="margin-bottom: 0.5rem">
+        <h2 style="margin-bottom: 0;">
+            {{ title }}
+        </h2>
+        {% if sub_title %}
+            <small>{{ sub_title }}</small>
+        {% endif %}
+    </header>
+
+    <form method="POST"
+          action="{% url form_url_name %}"
+          id="{{ form_id|default:'generic-form' }}"
+    >
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
+            <div style="display: flex; gap: 1rem;">
+                <button type="reset"
+                    class="secondary outline"
+                    style="margin-bottom: 0;"
+                >
+                    Reset
+                </button>
+                <button type="submit" style="margin-bottom: 0;">
+                    Save Defaults
+                </button>
+            </div>
+        </div>
+    </form>
+</article>

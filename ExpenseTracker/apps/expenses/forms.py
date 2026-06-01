@@ -164,19 +164,35 @@ class ExpenseFilterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
 
-        user = kwargs.pop('user', None)
-        if not user: raise Exception('User is required')
+        self.user = kwargs.pop('user', None)
+        if not self.user: raise Exception('User is required')
 
         super().__init__(*args, **kwargs)
 
-        today = timezone.localtime().strftime('%Y-%m-%d')
+        today = timezone.localdate().strftime('%Y-%m-%d')
 
         self.fields['start_date'].widget.attrs['max'] = today
         self.fields['end_date'].widget.attrs['max'] = today
 
-        if user:
-            self.fields['category'].queryset = ExpenseCategory.objects.user_items(user)
-            self.fields['type'].queryset = ExpenseType.objects.user_items(user)
+        self.fields['category'].queryset = ExpenseCategory.objects.user_items(self.user)
+        self.fields['type'].queryset = ExpenseType.objects.user_items(self.user)
+
+        if not self.is_bound:
+            defaults = self.user.preferences.get_expenses_preferences(
+                key='expenses_filter_defaults',
+                default={}
+            )
+
+            timeframe = defaults.get('timeframe', TimeFrame.SEVEN_DAYS) # seven days in-case no defaults set
+
+            if timeframe:
+                self.initial['start_date'] = TimeFrame.get_start_date(
+                    today=timezone.localdate(),
+                    timeframe=timeframe,
+                )
+                self.initial['end_date'] = timezone.localdate()
+
+            self.initial.update(defaults)
 
     def clean(self):
         start = self.cleaned_data.get('start_date')

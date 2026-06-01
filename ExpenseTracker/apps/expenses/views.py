@@ -71,26 +71,18 @@ def delete_expense_view(request, exp_id):
 @login_required(login_url='accounts:login')
 def filtered_expense_view(request):
 
-    fallback_data = {
-        'start_date': TimeFrame.get_start_date(timezone.localdate(), TimeFrame.SEVEN_DAYS),
-        'end_date': timezone.localdate(),
-    }
-
-    data = request.GET.copy()
-    if not data:
-        data = fallback_data
-
-    form = forms.ExpenseFilterForm(data, user=request.user)
+    form = forms.ExpenseFilterForm(
+        request.GET or None,
+        user=request.user
+    )
 
     if form.is_valid():
-        stats = models.Expense.objects.get_stats(request.user, form.cleaned_data)
-        expenses = models.Expense.objects.filtered_for_user(request.user, form.cleaned_data)
+        filters = form.cleaned_data
     else:
-        form = forms.ExpenseFilterForm(fallback_data, user=request.user)
-        form.is_valid()
+        filters = form.initial
 
-        stats = models.Expense.objects.get_stats(request.user, form.cleaned_data)
-        expenses = models.Expense.objects.filtered_for_user(request.user, form.cleaned_data)
+    stats = models.Expense.objects.get_stats(request.user, filters)
+    expenses = models.Expense.objects.filtered_for_user(request.user, filters)
 
     return render(request, 'expenses/history.html', {
         'form': form,
