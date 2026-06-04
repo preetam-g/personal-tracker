@@ -63,15 +63,15 @@
     ">
 
         <div style="break-inside: avoid; margin-bottom: 1rem;">
-            {% include "base/partials/preferences_form.html" with title="Expense Filters" sub_title="Preferred initial values for the expense activity page." form_url_name="accounts:expenses_filter_defaults" form=expenses_filter_form form_id="expense-filter-form-preferences" %}
+            {% include "base/partials/preferences_form.html" with title="Expense Filters" sub_title="Preferred initial values for the expense activity page." form_url_name="accounts:expenses_filter_defaults" form=expenses_filter_form form_id="expense-filter-preferences-form" %}
         </div>
 
         <div style="break-inside: avoid; margin-bottom: 1rem;">
-            {% include "base/partials/preferences_form.html" with title="Ledger Filters" sub_title="Preferred initial values for the ledger summary page." form_url_name="accounts:ledger_summary_defaults" form=ledger_summary_form form_id="ledger-summary-form-preferences" %}
+            {% include "base/partials/preferences_form.html" with title="Ledger Filters" sub_title="Preferred initial values for the ledger summary page." form_url_name="accounts:ledger_summary_defaults" form=ledger_summary_form form_id="ledger-summary-preferences-form" %}
         </div>
 
         <div style="break-inside: avoid; margin-bottom: 1rem;">
-            --- forex features ( default input currency, show forex features checkbox ) ---
+            {% include "base/partials/preferences_form.html" with title="Forex Features" sub_title="Select whether you want forex features and initial input currency for expenses"  form_url_name="accounts:forex_features_preferences" form=forex_features_preferences_form form_id="forex-features-preferences-form" %}
         </div>
 
     </div>

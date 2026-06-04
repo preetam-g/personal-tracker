@@ -8,6 +8,7 @@ from .utils import serialize_form_data
 
 from apps.expenses import forms as expenses_forms
 from apps.ledger import forms as ledger_forms
+from ..forex.forms import ForexFeaturesForm
 
 Profile = get_user_model()
 
@@ -144,3 +145,31 @@ def ledger_summary_defaults_view(request):
 
 
     return redirect("base:preferences")
+
+
+@login_required(login_url='accounts:login')
+def forex_features_preferences_view(request):
+
+    if request.method != 'POST':
+        return redirect('base:preferences')
+
+    preferences = request.user.preferences
+    form = ForexFeaturesForm(
+        request.POST,
+        instance=preferences,
+        user=request.user,
+    )
+
+    if form.is_valid():
+        form.save()
+        messages.success(
+            request,
+            'Forex preferences updated successfully.'
+        )
+    else:
+        messages.error(
+            request,
+            'Unable to update forex preferences.'
+        )
+
+    return redirect('base:preferences')
