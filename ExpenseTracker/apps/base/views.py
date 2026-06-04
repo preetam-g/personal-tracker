@@ -10,6 +10,9 @@ from apps.ledger import (
     models as ledger_models,
     forms as ledger_forms
 )
+from apps.forex import (
+    forms as forex_forms
+)
 
 
 def delete_object_view(request, model, obj_id, final_redirect: str , name: str = None):
@@ -60,6 +63,11 @@ def preferences_view(request):
         user=curr_user,
     )
 
+    forex_features_preferences_form = forex_forms.ForexFeaturesForm(
+        instance=preferences,
+        user=curr_user,
+    )
+
     return render(
         request,
         "base/user_preferences/preferences.html",
@@ -69,6 +77,7 @@ def preferences_view(request):
             "contacts": contacts,
             "expenses_filter_form": expenses_filter_form,
             "ledger_summary_form": ledger_summary_form,
+            "forex_features_preferences_form": forex_features_preferences_form,
         }
     )
 

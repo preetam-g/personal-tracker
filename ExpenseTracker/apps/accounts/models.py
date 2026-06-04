@@ -51,34 +51,84 @@ class UserPreference(SoftDeleteModel):
     def __str__(self):
         return f"{self.user} preferences"
 
+    # generic helpers
+    def _set_preferences(self, field_name: str, **kwargs):
+        preferences = getattr(self, field_name)
+        preferences.update(kwargs)
 
+        setattr(self, field_name, preferences)
+        self.save(update_fields=[field_name])
+
+    def _get_preference(self, field_name: str, key, default=None):
+        return getattr(self, field_name).get(key, default)
+
+
+    # expenses
     def set_expenses_preferences(self, **kwargs):
-        self.expenses_preferences.update(kwargs)
-        self.save(update_fields=['expenses_preferences'])
+        self._set_preferences('expenses_preferences', **kwargs)
 
     def get_expenses_preferences(self, key, default=None):
-        return self.expenses_preferences.get(key, default)
+        return self._get_preference(
+            'expenses_preferences',
+            key,
+            default,
+        )
 
 
+    # ledger
     def set_ledger_preferences(self, **kwargs):
-        self.ledger_preferences.update(kwargs)
-        self.save(update_fields=['ledger_preferences'])
+        self._set_preferences('ledger_preferences', **kwargs)
 
     def get_ledger_preferences(self, key, default=None):
-        return self.ledger_preferences.get(key, default)
+        return self._get_preference(
+            'ledger_preferences',
+            key,
+            default,
+        )
 
 
+    # accounts
     def set_accounts_preferences(self, **kwargs):
-        self.accounts_preferences.update(kwargs)
-        self.save(update_fields=['accounts_preferences'])
+        self._set_preferences('accounts_preferences', **kwargs)
 
     def get_accounts_preferences(self, key, default=None):
-        return self.accounts_preferences.get(key, default)
+        return self._get_preference(
+            'accounts_preferences',
+            key,
+            default,
+        )
 
 
+    # ui
     def set_ui_preferences(self, **kwargs):
-        self.ui_preferences.update(kwargs)
-        self.save(update_fields=['ui_preferences'])
+        self._set_preferences('ui_preferences', **kwargs)
 
     def get_ui_preferences(self, key, default=None):
-        return self.ui_preferences.get(key, default)
+        return self._get_preference(
+            'ui_preferences',
+            key,
+            default,
+        )
+
+
+    def set_forex_preferences(
+            self,
+            preferred_currency: Currency | None = None,
+            show_advanced_currency_features: bool | None = None
+    ):
+        update_fields = []
+
+        if preferred_currency is not None:
+            self.preferred_currency = preferred_currency
+            update_fields.append('preferred_currency')
+
+        if show_advanced_currency_features is not None:
+            self.show_advanced_currency_features = (
+                show_advanced_currency_features
+            )
+            update_fields.append(
+                'show_advanced_currency_features'
+            )
+
+        if update_fields:
+            self.save(update_fields=update_fields)

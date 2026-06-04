@@ -59,5 +59,20 @@
 
     {% include "partials/confirm_delete_modal.html" %}
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.tom-select').forEach((el) => {
+        if (!el.tomselect) {
+            new TomSelect(el, {
+                create: false,
+                maxItems: 1,
+                plugins: ['dropdown_input'],
+                maxOptions: null,
+            });
+        }
+    });
+});
+</script>
+
 </body>
 </html>

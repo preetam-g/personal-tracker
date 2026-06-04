@@ -9,6 +9,7 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
     path("profile/", views.profile_view, name="profile"),
     path("password-change/", views.password_change_view, name="password_change"),
+
     path("password-reset/",
          auth_views.PasswordResetView.as_view(
              template_name="accounts/password_reset/password_reset.html",
@@ -27,6 +28,8 @@ urlpatterns = [
     path("password-reset/complete/", auth_views.PasswordResetCompleteView.as_view(
         template_name="accounts/password_reset/password_reset_complete.html",
     ), name="password_reset_complete"),
+
     path("expense-filter-defaults/", views.expense_filter_defaults_view, name="expenses_filter_defaults"),
     path("ledger-summary-defaults", views.ledger_summary_defaults_view, name="ledger_summary_defaults"),
+    path("forex-features-preferences", views.forex_features_preferences_view, name="forex_features_preferences"),
 ]
