@@ -101,7 +101,7 @@ class ExpenseManager(SoftDeleteManager):
             }
         )
 
-        period_total = qs.aggregate(total=Sum('amount'))['total'] or 0.0
+        period_total = round(qs.aggregate(total=Sum('amount'))['total'] or 0.0, 2)
         category_totals = get_grouped_data(qs, 'category__name')
         type_totals = get_grouped_data(qs, 'type__name')
 
@@ -114,7 +114,7 @@ class ExpenseManager(SoftDeleteManager):
             )
 
             trend_data = [
-                {'date': item['period'].strftime("%b %Y"), 'total': float(item['total'])}
+                {'date': item['period'].strftime("%b %Y"), 'total': round(float(item['total']), 2)}
                 for item in trend_qs if item['period']
             ]
         else:
@@ -125,7 +125,7 @@ class ExpenseManager(SoftDeleteManager):
                 .order_by('period')
             )
 
-            trend_dict = {item['period']: float(item['total']) for item in trend_qs if item['period']}
+            trend_dict = {item['period']: round(float(item['total']), 2) for item in trend_qs if item['period']}
 
             delta_days = (today - start_date).days
             trend_data = [

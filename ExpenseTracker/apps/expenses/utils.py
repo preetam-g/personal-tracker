@@ -17,5 +17,5 @@ def get_grouped_data(qs: models.QuerySet, field: str) -> dict:
     )
     return {
         'labels': [item[field] or 'Others' for item in data],
-        'data': [float(item['total'] or 0.0) for item in data],
+        'data': [round(float(item['total'] or 0.0), 2) for item in data],
     }
