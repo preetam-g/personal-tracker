@@ -27,5 +27,6 @@ urlpatterns = [
     path("password-reset/complete/", auth_views.PasswordResetCompleteView.as_view(
         template_name="accounts/password_reset/password_reset_complete.html",
     ), name="password_reset_complete"),
-    path("expense-filter-defaults/", views.expense_filter_defaults_view, name="expense_app_defaults"),
+    path("expense-filter-defaults/", views.expense_filter_defaults_view, name="expenses_filter_defaults"),
+    path("ledger-summary-defaults", views.ledger_summary_defaults_view, name="ledger_summary_defaults"),
 ]

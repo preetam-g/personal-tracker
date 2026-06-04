@@ -236,3 +236,44 @@ class ExpenseTypeForm(CategoryTypeValidationForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].widget.attrs['placeholder'] = "New Type"
+
+
+class ExpenseFilterDefaultsForm(forms.Form):
+
+    timeframe = forms.ChoiceField(
+        choices=TimeFrame,
+        required=False,
+        initial=TimeFrame.SEVEN_DAYS,
+        label="Timeframe",
+    )
+
+    category = forms.ModelChoiceField(
+        queryset=ExpenseCategory.objects.only_global(),
+        required=False,
+        label="Category",
+        empty_label="All Categories",
+    )
+
+    type = forms.ModelChoiceField(
+        queryset=ExpenseType.objects.only_global(),
+        required=False,
+        label="Type",
+        empty_label="All Types",
+    )
+
+    sort_by = forms.ChoiceField(
+        choices=SortChoices,
+        required=False,
+        label="Sort By",
+    )
+
+    def __init__(self, *args, **kwargs):
+
+        self.user = kwargs.pop('user', None)
+        if not self.user:
+            raise Exception('User is required')
+
+        super().__init__(*args, **kwargs)
+
+        self.fields['category'].queryset = ExpenseCategory.objects.user_items(self.user)
+        self.fields['type'].queryset = ExpenseType.objects.user_items(self.user)

@@ -4,8 +4,10 @@ from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 
 from . import forms
-from .forms import ExpenseFilterDefaultsForm
 from .utils import serialize_form_data
+
+from apps.expenses import forms as expenses_forms
+from apps.ledger import forms as ledger_forms
 
 Profile = get_user_model()
 
@@ -102,7 +104,7 @@ def expense_filter_defaults_view(request):
         return redirect('base:preferences')
 
     preferences = request.user.preferences
-    form = ExpenseFilterDefaultsForm(request.POST, user=request.user)
+    form = expenses_forms.ExpenseFilterDefaultsForm(request.POST, user=request.user)
     if form.is_valid():
 
         preferences.set_expenses_preferences(
@@ -115,5 +117,30 @@ def expense_filter_defaults_view(request):
         )
     else:
         messages.error(request, "Something went wrong. Please try again.")
+
+    return redirect("base:preferences")
+
+
+@login_required(login_url='accounts:login')
+def ledger_summary_defaults_view(request):
+
+
+    if request.method != 'POST':
+        return redirect('base:preferences')
+
+    preferences = request.user.preferences
+    form = ledger_forms.LedgerSummaryDefaultsForm(request.POST, user=request.user)
+    if form.is_valid():
+
+        preferences.set_ledger_preferences(
+            ledger_summary_defaults=serialize_form_data(form.cleaned_data)
+        )
+        messages.success(
+            request,
+            'Ledger summary defaults saved successfully.'
+        )
+    else:
+        messages.error(request, "Something went wrong. Please try again.")
+
 
     return redirect("base:preferences")

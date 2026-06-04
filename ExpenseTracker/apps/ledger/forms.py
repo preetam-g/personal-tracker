@@ -1,5 +1,7 @@
 from django import forms
 from django.utils import timezone
+
+from apps.base.utils import TimeFrame
 from apps.ledger.models import Transaction, Contact
 
 
@@ -103,8 +105,47 @@ class SummaryFilterForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+
+        self.user = kwargs.pop('user', None)
+        if not self.user:
+            raise Exception('User is required')
+
         super().__init__(*args, **kwargs)
 
         today = timezone.localdate().strftime('%Y-%m-%d')
         self.fields['start_date'].widget.attrs['max'] = today
         self.fields['end_date'].widget.attrs['max'] = today
+
+        if not self.is_bound:
+            defaults = self.user.preferences.get_ledger_preferences(
+                'ledger_summary_defaults',
+                {}
+            )
+
+            timeframe = defaults.get('timeframe', TimeFrame.THIRTY_DAYS)
+            if timeframe:
+                self.initial['start_date'] = TimeFrame.get_start_date(
+                    today=timezone.localdate(),
+                    timeframe=timeframe,
+                )
+                self.initial['end_date'] = timezone.localdate()
+
+            self.initial.update(defaults)
+
+
+class LedgerSummaryDefaultsForm(forms.Form):
+
+    timeframe = forms.ChoiceField(
+        choices=TimeFrame,
+        initial=TimeFrame.THIRTY_DAYS,
+        required=False,
+        label="Timeframe",
+    )
+
+    def __init__(self, *args, **kwargs):
+
+        self.user = kwargs.pop('user', None)
+        if not self.user:
+            raise Exception('User is required')
+
+        super().__init__(*args, **kwargs)

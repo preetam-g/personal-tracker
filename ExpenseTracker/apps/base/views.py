@@ -10,9 +10,6 @@ from apps.ledger import (
     models as ledger_models,
     forms as ledger_forms
 )
-from apps.accounts import (
-    forms as accounts_forms,
-)
 
 
 def delete_object_view(request, model, obj_id, final_redirect: str , name: str = None):
@@ -37,21 +34,30 @@ def preferences_view(request):
     curr_user = request.user
     categories = expense_models.ExpenseCategory.objects.user_items(
         user=curr_user,
-        include_global=False
+        include_global=False,
     )
     types = expense_models.ExpenseType.objects.user_items(
         user=curr_user,
-        include_global=False
+        include_global=False,
     )
 
     contacts = ledger_models.Contact.objects.base_for_user(user=request.user)
 
-    expenses_filter_form = accounts_forms.ExpenseFilterDefaultsForm(
-        initial=curr_user.preferences.get_expenses_preferences(
+    preferences = curr_user.preferences
+    expenses_filter_form = expense_forms.ExpenseFilterDefaultsForm(
+        initial=preferences.get_expenses_preferences(
             key='expenses_filter_defaults',
             default={}
         ),
-        user=curr_user
+        user=curr_user,
+    )
+
+    ledger_summary_form = ledger_forms.LedgerSummaryDefaultsForm(
+        initial=preferences.get_ledger_preferences(
+            key='ledger_summary_defaults',
+            default={}
+        ),
+        user=curr_user,
     )
 
     return render(
@@ -62,6 +68,7 @@ def preferences_view(request):
             "types": types,
             "contacts": contacts,
             "expenses_filter_form": expenses_filter_form,
+            "ledger_summary_form": ledger_summary_form,
         }
     )
 

@@ -73,22 +73,16 @@ def delete_transaction_view(request, tran_id):
 @login_required(login_url='login')
 def summary_view(request):
 
-    fallback_data = {
-        'start_date': TimeFrame.get_start_date(timezone.localdate(), TimeFrame.THIS_MONTH),
-        'end_date': timezone.localdate(),
-    }
-
-    data = request.GET.copy()
-    if not data:
-        data = fallback_data
-
-    form = SummaryFilterForm(data)
+    form = SummaryFilterForm(
+        request.GET or None,
+        user=request.user,
+    )
     if form.is_valid():
-        context_data = Transaction.objects.get_contacts_summary(request.user, form.cleaned_data)
+        filters = form.cleaned_data
     else:
-        form = SummaryFilterForm(fallback_data, user=request.user)
-        context_data = Transaction.objects.get_contacts_summary(request.user, form.cleaned_data)
+        filters = form.initial
 
+    context_data = Transaction.objects.get_contacts_summary(request.user, filters)
     return render(
         request,
         template_name='ledger/summary_page.html',
