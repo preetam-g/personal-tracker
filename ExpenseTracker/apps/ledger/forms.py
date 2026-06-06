@@ -90,7 +90,7 @@ class ContactForm(forms.ModelForm):
         return name.strip()
 
 
-class SummaryFilterForm(forms.Form):
+class LedgerFilterForm(forms.Form):
 
     start_date = forms.DateField(
         required=False,
@@ -106,9 +106,13 @@ class SummaryFilterForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
 
-        self.user = kwargs.pop('user', None)
+        self.user = kwargs.pop('user')
         if not self.user:
             raise Exception('User is required')
+
+        self.preference_key = kwargs.pop('preference_key')
+        if not self.preference_key:
+            raise Exception('Preference key is required')
 
         super().__init__(*args, **kwargs)
 
@@ -118,11 +122,16 @@ class SummaryFilterForm(forms.Form):
 
         if not self.is_bound:
             defaults = self.user.preferences.get_ledger_preferences(
-                'ledger_summary_defaults',
-                {}
+                "ledger_defaults",
+                {},
             )
 
-            timeframe = defaults.get('timeframe', TimeFrame.THIRTY_DAYS)
+            timeframe = defaults.get(
+                "timeframe_home"
+                if self.preference_key == "ledger_home_defaults"
+                else "timeframe_summary"
+            ) or TimeFrame.THIRTY_DAYS
+
             if timeframe:
                 self.initial['start_date'] = TimeFrame.get_start_date(
                     today=timezone.localdate(),
@@ -135,11 +144,18 @@ class SummaryFilterForm(forms.Form):
 
 class LedgerSummaryDefaultsForm(forms.Form):
 
-    timeframe = forms.ChoiceField(
+    timeframe_home = forms.ChoiceField(
         choices=TimeFrame,
         initial=TimeFrame.THIRTY_DAYS,
         required=False,
-        label="Timeframe",
+        label="Timeframe (Home Page)",
+    )
+
+    timeframe_summary = forms.ChoiceField(
+        choices=TimeFrame,
+        initial=TimeFrame.THIRTY_DAYS,
+        required=False,
+        label="Timeframe (Summary Page)",
     )
 
     def __init__(self, *args, **kwargs):
@@ -149,3 +165,10 @@ class LedgerSummaryDefaultsForm(forms.Form):
             raise Exception('User is required')
 
         super().__init__(*args, **kwargs)
+
+        defaults = self.user.preferences.get_ledger_preferences(
+            "ledger_defaults",
+            {},
+        )
+
+        self.initial.update(defaults)

@@ -34,15 +34,15 @@
                 {% for info in contacts_info %}
                     <tr>
                         <td data-label="Contact">{{ info.contact_name }}</td>
-                        <td data-label="Lent">₹{{ info.lent|default:0 }}</td>
-                        <td data-label="Sent">₹{{ info.sent|default:0 }}</td>
-                        <td data-label="Borrowed">₹{{ info.borrowed|default:0 }}</td>
-                        <td data-label="Received">₹{{ info.received|default:0 }}</td>
+                        <td data-label="Lent">₹{{ info.lent|default:0|floatformat:2 }}</td>
+                        <td data-label="Sent">₹{{ info.sent|default:0|floatformat:2 }}</td>
+                        <td data-label="Borrowed">₹{{ info.borrowed|default:0|floatformat:2 }}</td>
+                        <td data-label="Received">₹{{ info.received|default:0|floatformat:2 }}</td>
                         <td data-label="Balance">
                             {% if info.balance >= 0 %}
-                                <strong>+₹{{ info.balance|default:0 }}</strong>
+                                <strong>+₹{{ info.balance|floatformat:2 }}</strong>
                             {% else %}
-                                <strong>-₹{{ info.balance|cut:"-" }}</strong>
+                                <strong>-₹{{ info.balance|cut:"-"|floatformat:2 }}</strong>
                             {% endif %}
                         </td>
                     </tr>

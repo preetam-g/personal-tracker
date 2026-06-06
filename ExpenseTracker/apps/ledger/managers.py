@@ -78,22 +78,25 @@ class TransactionManager(SoftDeleteManager):
         )
 
         total_stats = {
-            'owed': sum(
-                item['balance']
-                for item in aggregates
-                if item['balance'] > 0
-            ),
+            'owed': round(
+                sum(
+                    item['balance']
+                    for item in aggregates
+                    if item['balance'] > 0
+            ), 2),
 
-            'owe': abs(sum(
-                item['balance']
-                for item in aggregates
-                if item['balance'] < 0
-            )),
+            'owe': round(
+                abs(sum(
+                    item['balance']
+                    for item in aggregates
+                    if item['balance'] < 0
+            )), 2),
 
-            'net_balance': sum(
-                item['balance']
-                for item in aggregates
-            ),
+            'net_balance': round(
+                sum(
+                    item['balance']
+                    for item in aggregates
+            ), 2),
         }
 
         return {
