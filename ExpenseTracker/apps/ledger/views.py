@@ -15,7 +15,7 @@ def home_view(request):
     form = LedgerFilterForm(
         request.GET or None,
         user=request.user,
-        preference_key='ledger_home_defaults',
+        preference_key='home',
     )
     filters = form.cleaned_data if form.is_valid() else form.initial
     transactions = Transaction.objects.filtered_for_user(
@@ -93,7 +93,7 @@ def summary_view(request):
     form = LedgerFilterForm(
         request.GET or None,
         user=request.user,
-        preference_key="ledger_summary_defaults",
+        preference_key="summary",
     )
     if form.is_valid():
         filters = form.cleaned_data

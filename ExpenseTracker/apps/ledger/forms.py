@@ -127,9 +127,7 @@ class LedgerFilterForm(forms.Form):
             )
 
             timeframe = defaults.get(
-                "timeframe_home"
-                if self.preference_key == "ledger_home_defaults"
-                else "timeframe_summary"
+                f"timeframe_{self.preference_key}",
             ) or TimeFrame.THIRTY_DAYS
 
             if timeframe:
