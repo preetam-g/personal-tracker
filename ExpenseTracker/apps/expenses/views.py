@@ -1,9 +1,9 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
+from django.core.cache import cache
 
-from . import forms, models
+from . import forms, models, cache_keys
 
 from apps.base.utils import TimeFrame
 from apps.base.views import delete_object_view
@@ -11,8 +11,16 @@ from apps.base.views import delete_object_view
 
 @login_required(login_url="accounts:login")
 def home_view(request):
-    qs = models.Expense.objects.all_for_user(request.user)[:10]
-    return render(request, 'expenses/home.html', {"expenses": qs})
+
+    home_key = cache_keys.home(request.user.id)
+    expenses = cache.get_or_set(
+        home_key,
+        lambda: list(
+            models.Expense.objects.all_for_user(request.user)[:10]
+        ),
+    )
+
+    return render(request, 'expenses/home.html', {"expenses": expenses})
 
 
 @login_required(login_url='accounts:login')
