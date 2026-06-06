@@ -149,21 +149,22 @@ EXCHANGE_RATE_API_TIMEOUT = 20
 
 # 14. CACHE
 if IS_PRODUCTION:
-    CACHES = {
-        'default': {
-            'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATION': os.getenv("REDIS_URL"),
-            'OPTIONS': {
-                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            },
-            "TIMEOUT": 60 * 5,
-        }
+    cache_options = {
+        "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        "CONNECTION_POOL_KWARGS": {
+            "ssl_cert_reqs": None,
+        },
     }
 else:
-    CACHES = {
-        'default': {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "local-cache",
-            "TIMEOUT": 60 * 5,
-        }
+    cache_options = {
+        "CLIENT_CLASS": "django_redis.client.DefaultClient",
     }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv("REDIS_URL"),
+        "OPTIONS": cache_options,
+        "TIMEOUT": 60 * 10,
+    }
+}

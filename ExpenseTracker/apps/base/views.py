@@ -15,8 +15,11 @@ from apps.forex import (
 )
 
 
-def delete_object_view(request, model, obj_id, final_redirect: str , name: str = None):
-    """Base template view for deleting an object."""
+def delete_object_view(request, model, obj_id, final_redirect: str , name: str, cache_delete_func = None):
+    """
+    Base template view for deleting an object.
+    Use cache_delete_func if you want to call a function to invalidate cache keys, the object that is being deleted is passed as a parameter.
+    """
     obj = get_object_or_404(model, id=obj_id, user=request.user)
     if not name: name = getattr(obj, 'name', str(obj))
 
@@ -24,6 +27,8 @@ def delete_object_view(request, model, obj_id, final_redirect: str , name: str =
         cnt, _ = obj.delete()
 
         if cnt:
+            if cache_delete_func:
+                cache_delete_func(obj)
             messages.success(request, f'{name} successfully deleted.')
         else:
             messages.error(request, 'Failed to delete. Try again later.')

@@ -4,11 +4,11 @@ EXPENSES_PREFIX = "expenses"
 
 
 def home(user_id: int) -> str:
-    return f"{EXPENSES_PREFIX}:home:{user_id}"
+    return f"{EXPENSES_PREFIX}:user:{user_id}:home"
 
 
-def dashboard(user_id: int, start_date: str, end_date: str) -> str:
+def dashboard(user_id: int, timeframe: str, today_date: str) -> str:
     return (
-        f"{EXPENSES_PREFIX}:dashboard:"
-        f"{user_id}:{start_date}:{end_date}"
+        f"{EXPENSES_PREFIX}:user:{user_id}:"
+        f"dashboard:{timeframe}:{today_date}"
     )
