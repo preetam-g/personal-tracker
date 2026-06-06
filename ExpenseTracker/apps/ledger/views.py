@@ -1,26 +1,48 @@
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.utils import timezone
+from django.utils.timezone import localdate
 
-from .forms import TransactionForm, LedgerFilterForm
+from .forms import TransactionForm, LedgerSummaryForm, LedgerHomeForm
 from .models import Transaction
+from .cache_keys import home as home_cache_key
+from .utils import invalidate_ledger_caches
 
 from apps.base.views import delete_object_view
+from apps.base.utils import TimeFrame
 
 
 @login_required(login_url='login')
 def home_view(request):
 
-    form = LedgerFilterForm(
+    form = LedgerHomeForm(
         request.GET or None,
         user=request.user,
-        preference_key='home',
     )
-    filters = form.cleaned_data if form.is_valid() else form.initial
-    transactions = Transaction.objects.filtered_for_user(
-        user=request.user,
-        filter_form=filters,
+
+    form_data = form.cleaned_data if form.is_valid() else form.initial
+    timeframe = form_data.get('timeframe')
+
+    today = localdate()
+    filters = {
+        'start_date': TimeFrame.get_start_date(today, timeframe),
+        'end_date': today,
+    }
+
+    cache_key = home_cache_key(
+        request.user.id,
+        timeframe,
+        today.isoformat(),
+    )
+    transactions = cache.get_or_set(
+        cache_key,
+        lambda: list(
+            Transaction.objects.filtered_for_user(
+                user=request.user,
+                filter_form=filters,
+            )
+        )
     )
 
     return render(
@@ -45,6 +67,8 @@ def add_transaction_view(request):
             transaction.user = request.user
             transaction.save()
 
+            invalidate_ledger_caches(transaction)
+
             messages.success(request, 'Transaction has been added.')
             return redirect("ledger:home")
 
@@ -64,6 +88,9 @@ def edit_transaction_view(request, tran_id):
         form = TransactionForm(request.POST, instance=transaction, user=request.user)
         if form.is_valid():
             form.save()
+
+            invalidate_ledger_caches(transaction)
+
             messages.success(request, 'Transaction has been updated.')
         else:
             messages.error(request, 'Failed to update. Please try again later.')
@@ -83,17 +110,17 @@ def delete_transaction_view(request, tran_id):
         model=Transaction,
         name="Transaction",
         obj_id=tran_id,
-        final_redirect="ledger:home"
+        final_redirect="ledger:home",
+        cache_delete_func=invalidate_ledger_caches,
     )
 
 
 @login_required(login_url='login')
 def summary_view(request):
 
-    form = LedgerFilterForm(
+    form = LedgerSummaryForm(
         request.GET or None,
         user=request.user,
-        preference_key="summary",
     )
     if form.is_valid():
         filters = form.cleaned_data

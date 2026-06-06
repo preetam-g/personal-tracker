@@ -90,7 +90,7 @@ class ContactForm(forms.ModelForm):
         return name.strip()
 
 
-class LedgerFilterForm(forms.Form):
+class LedgerSummaryForm(forms.Form):
 
     start_date = forms.DateField(
         required=False,
@@ -110,10 +110,6 @@ class LedgerFilterForm(forms.Form):
         if not self.user:
             raise Exception('User is required')
 
-        self.preference_key = kwargs.pop('preference_key')
-        if not self.preference_key:
-            raise Exception('Preference key is required')
-
         super().__init__(*args, **kwargs)
 
         today = timezone.localdate().strftime('%Y-%m-%d')
@@ -127,7 +123,7 @@ class LedgerFilterForm(forms.Form):
             )
 
             timeframe = defaults.get(
-                f"timeframe_{self.preference_key}",
+                f"timeframe_summary",
             ) or TimeFrame.THIRTY_DAYS
 
             if timeframe:
@@ -170,3 +166,35 @@ class LedgerSummaryDefaultsForm(forms.Form):
         )
 
         self.initial.update(defaults)
+
+
+class LedgerHomeForm(forms.Form):
+
+    timeframe = forms.ChoiceField(
+        choices=TimeFrame,
+        initial=TimeFrame.SEVEN_DAYS,
+        required=False,
+        label=None,
+        widget=forms.Select(attrs={
+            'onchange': 'this.form.submit()'
+        })
+    )
+
+    def __init__(self, *args, **kwargs):
+
+        self.user = kwargs.pop('user', None)
+        if not self.user:
+            raise ValueError('User is required')
+
+        super().__init__(*args, **kwargs)
+
+        if not self.is_bound:
+            defaults = self.user.preferences.get_ledger_preferences(
+                'ledger_defaults',
+                {}
+            )
+
+            self.initial['timeframe'] = defaults.get(
+                'timeframe_home',
+                TimeFrame.SEVEN_DAYS,
+            )

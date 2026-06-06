@@ -209,7 +209,7 @@ class DashboardForm(forms.Form):
         choices=TimeFrame,
         required=False,
         initial=TimeFrame.SEVEN_DAYS,
-        label="Timeframe",
+        label=None,
         widget=forms.Select(attrs={
             'onchange': 'this.form.submit()'
         })

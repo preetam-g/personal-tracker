@@ -17,65 +17,25 @@
     </div>
 </div>
 
-<div style="
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05rem;
-    color: var(--pico-muted-color);
-    margin-bottom: 1rem;
-    font-weight: 600;
-">
-    Your Records
-    <p style="
-        text-transform: none;
-        color: var(--pico-muted-color);
-    ">Make sure to save some contacts beforehand
-        <a href="{% url 'base:preferences' %}">(Click Here)</a>
-    </p>
-</div>
+<header class="grid" style="margin-bottom: 2rem; align-items: center;">
 
-<article>
-    <form method="get" action="{% url 'ledger:home' %}">
-        <div class="grid">
+    <hgroup style="margin-bottom: 0;">
+        <h3 style="margin-bottom: 0;">Your Records</h3>
+        <p style="color: var(--pico-muted-color); margin-bottom: 0;">
+            Make sure to save some contacts beforehand
+            <a href="{% url 'base:preferences' %}">(Click Here)</a>
+        </p>
+    </hgroup>
 
-            {% for field in form %}
-                <div>
-                    <label for="{{ field.id_for_label }}">
-                        {{ field.label }}
-                        {{ field }}
-                    </label>
+    <div style="text-align: right;">
+        <form method="get" action="{% url 'ledger:home' %}">
+            <fieldset role="group">
+                {{ form.timeframe }}
+            </fieldset>
+        </form>
+    </div>
 
-                    {% if field.errors %}
-                        <small style="color: var(--pico-form-element-invalid-active-border-color);">
-                            {{ field.errors.0 }}
-                        </small>
-                    {% endif %}
-                </div>
-            {% endfor %}
-
-            <div style="
-                display: flex;
-                gap: 1rem;
-                justify-content: flex-end;
-                align-items: flex-end;
-                padding-bottom: var(--pico-spacing);
-            ">
-                <a href="{% url 'ledger:home' %}"
-                   role="button"
-                   class="secondary outline"
-                   style="flex: 1; margin-bottom: 0;">
-                    Reset
-                </a>
-
-                <button type="submit"
-                        style="flex: 1; margin-bottom: 0;">
-                    Apply
-                </button>
-            </div>
-
-        </div>
-    </form>
-</article>
+</header>
 
 {% include "ledger/ledger_table.html" %}
 

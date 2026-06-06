@@ -1,4 +1,8 @@
 from django.db import models
+from django.core.cache import cache
+
+from apps.ledger.cache_keys import LEDGER_PREFIX
+
 
 class TransactionType(models.TextChoices):
 
@@ -25,3 +29,9 @@ class LinkStatus(models.TextChoices):
     UNLINKED = 'unlinked', 'Unlinked'
     PENDING = 'pending', 'Pending'
     LINKED = 'confirmed', 'Confirmed'
+
+
+def invalidate_ledger_caches(ledger) -> bool:
+    return cache.delete_pattern(
+        f"{LEDGER_PREFIX}:user:{ledger.user_id}:*",
+    )
