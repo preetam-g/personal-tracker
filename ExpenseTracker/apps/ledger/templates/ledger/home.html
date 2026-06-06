@@ -25,7 +25,7 @@
     margin-bottom: 1rem;
     font-weight: 600;
 ">
-    Latest 10 Records.
+    Your Records
     <p style="
         text-transform: none;
         color: var(--pico-muted-color);
@@ -33,6 +33,49 @@
         <a href="{% url 'base:preferences' %}">(Click Here)</a>
     </p>
 </div>
+
+<article>
+    <form method="get" action="{% url 'ledger:home' %}">
+        <div class="grid">
+
+            {% for field in form %}
+                <div>
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                        {{ field }}
+                    </label>
+
+                    {% if field.errors %}
+                        <small style="color: var(--pico-form-element-invalid-active-border-color);">
+                            {{ field.errors.0 }}
+                        </small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <div style="
+                display: flex;
+                gap: 1rem;
+                justify-content: flex-end;
+                align-items: flex-end;
+                padding-bottom: var(--pico-spacing);
+            ">
+                <a href="{% url 'ledger:home' %}"
+                   role="button"
+                   class="secondary outline"
+                   style="flex: 1; margin-bottom: 0;">
+                    Reset
+                </a>
+
+                <button type="submit"
+                        style="flex: 1; margin-bottom: 0;">
+                    Apply
+                </button>
+            </div>
+
+        </div>
+    </form>
+</article>
 
 {% include "ledger/ledger_table.html" %}
 

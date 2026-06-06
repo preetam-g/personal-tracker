@@ -134,7 +134,7 @@ def ledger_summary_defaults_view(request):
     if form.is_valid():
 
         preferences.set_ledger_preferences(
-            ledger_summary_defaults=serialize_form_data(form.cleaned_data)
+            ledger_defaults=serialize_form_data(form.cleaned_data)
         )
         messages.success(
             request,

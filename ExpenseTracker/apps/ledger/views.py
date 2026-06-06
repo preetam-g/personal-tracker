@@ -3,17 +3,34 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 
-from .forms import TransactionForm, SummaryFilterForm
+from .forms import TransactionForm, LedgerFilterForm
 from .models import Transaction
 
 from apps.base.views import delete_object_view
-from apps.base.utils import TimeFrame
 
 
 @login_required(login_url='login')
 def home_view(request):
-    qs = Transaction.objects.all_for_user(request.user)
-    return render(request, 'ledger/home.html', {"transactions": qs})
+
+    form = LedgerFilterForm(
+        request.GET or None,
+        user=request.user,
+        preference_key='ledger_home_defaults',
+    )
+    filters = form.cleaned_data if form.is_valid() else form.initial
+    transactions = Transaction.objects.filtered_for_user(
+        user=request.user,
+        filter_form=filters,
+    )
+
+    return render(
+        request,
+        'ledger/home.html',
+        {
+            "transactions": transactions,
+            "form": form,
+        },
+    )
 
 
 @login_required(login_url='login')
@@ -73,9 +90,10 @@ def delete_transaction_view(request, tran_id):
 @login_required(login_url='login')
 def summary_view(request):
 
-    form = SummaryFilterForm(
+    form = LedgerFilterForm(
         request.GET or None,
         user=request.user,
+        preference_key="ledger_summary_defaults",
     )
     if form.is_valid():
         filters = form.cleaned_data
