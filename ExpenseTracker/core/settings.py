@@ -13,7 +13,7 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-fallback-key")
 
 # Logic: DEBUG should be True locally, False on Render.
-DEBUG = os.getenv("DEBUG", "True").lower() == "true"
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 IS_PRODUCTION = os.getenv("IS_PRODUCTION", "False").lower() == "true"
 
 # 4. NETWORKING
@@ -141,6 +141,7 @@ if IS_PRODUCTION:
 # 12. MISC
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 # 13. FOREX
 EXCHANGE_RATE_API_KEY = os.getenv("EXCHANGE_RATE_API_KEY")
 EXCHANGE_RATE_BASE_URL = os.getenv("EXCHANGE_RATE_BASE_URL")
@@ -155,7 +156,7 @@ if IS_PRODUCTION:
             'OPTIONS': {
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             },
-            "TIMEOUT": 60 * 15,
+            "TIMEOUT": 60 * 5,
         }
     }
 else:
