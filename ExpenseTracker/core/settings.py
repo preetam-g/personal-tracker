@@ -13,7 +13,7 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-fallback-key")
 
 # Logic: DEBUG should be True locally, False on Render.
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 IS_PRODUCTION = os.getenv("IS_PRODUCTION", "False").lower() == "true"
 
 # 4. NETWORKING
@@ -79,7 +79,8 @@ WSGI_APPLICATION = 'core.wsgi.application'
 if IS_PRODUCTION:
     DATABASES = {
         'default': dj_database_url.parse(
-            os.getenv("DATABASE_URL")
+            os.getenv("DATABASE_URL"),
+            conn_max_age=600,
         )
     }
 else:
@@ -140,8 +141,28 @@ if IS_PRODUCTION:
 # 12. MISC
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 # 13. FOREX
 EXCHANGE_RATE_API_KEY = os.getenv("EXCHANGE_RATE_API_KEY")
 EXCHANGE_RATE_BASE_URL = os.getenv("EXCHANGE_RATE_BASE_URL")
 EXCHANGE_RATE_API_TIMEOUT = 20
+
+# 14. CACHE
+if IS_PRODUCTION:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': os.getenv("REDIS_URL"),
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            },
+            "TIMEOUT": 60 * 15,
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "local-cache",
+            "TIMEOUT": 60 * 5,
+        }
+    }

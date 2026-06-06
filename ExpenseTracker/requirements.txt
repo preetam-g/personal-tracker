@@ -3,6 +3,7 @@ python-dotenv>=1.2.2
 sqlparse>=0.5.5
 dj-config-url>=0.1.1
 dj-database-url>=3.1.2
+django-redis>=7.0.0
 
 psycopg2-binary>=2.9.9  # Required for Django to talk to Supabase (PostgreSQL)
 whitenoise>=6.6.0       # Required to serve your static files (CSS/JS)
