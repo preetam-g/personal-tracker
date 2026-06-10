@@ -15,13 +15,14 @@ from apps.forex import (
 )
 
 
-def delete_object_view(request, model, obj_id, final_redirect: str , name: str, cache_delete_func = None):
+def delete_object_view(request, model, obj_id, final_redirect: str , name: str = None, cache_delete_func = None):
     """
     Base template view for deleting an object.
     Use cache_delete_func if you want to call a function to invalidate cache keys, the object that is being deleted is passed as a parameter.
     """
     obj = get_object_or_404(model, id=obj_id, user=request.user)
-    if not name: name = getattr(obj, 'name', str(obj))
+    if not name:
+        name = getattr(obj, 'name', str(obj))
 
     if request.method == 'POST':
         cnt, _ = obj.delete()
