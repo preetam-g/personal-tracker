@@ -51,29 +51,29 @@ class TransactionManager(SoftDeleteManager):
                 contact_name=F('contact__name'),
             )
             .annotate(
-                lent=Coalesce(
-                    Sum('amount', filter=Q(type=TransactionType.LENT)),
-                    Decimal('0.00'),
-                    output_field=DecimalField(),
-                ),
-                borrowed=Coalesce(
-                    Sum('amount', filter=Q(type=TransactionType.BORROWED)),
-                    Decimal('0.00'),
-                    output_field=DecimalField(),
-                ),
+                # lent=Coalesce(
+                #     Sum('amount', filter=Q(type=TransactionType.LENT)),
+                #     Decimal('0.00'),
+                #     output_field=DecimalField(),
+                # ),
+                # borrowed=Coalesce(
+                #     Sum('amount', filter=Q(type=TransactionType.BORROWED)),
+                #     Decimal('0.00'),
+                #     output_field=DecimalField(),
+                # ),
                 sent=Coalesce(
-                    Sum('amount', filter=Q(type=TransactionType.PAYMENT_SENT)),
+                    Sum('amount', filter=Q(type=TransactionType.MONEY_SENT)),
                     Decimal('0.00'),
                     output_field=DecimalField(),
                 ),
                 received=Coalesce(
-                    Sum('amount', filter=Q(type=TransactionType.PAYMENT_RECEIVED)),
+                    Sum('amount', filter=Q(type=TransactionType.MONEY_RECEIVED)),
                     Decimal('0.00'),
                     output_field=DecimalField(),
                 ),
             )
             .annotate(
-                balance=F('lent') + F('sent')  - F('borrowed') - F('received')
+                balance=F('sent') - F('received')
             )
         )
 

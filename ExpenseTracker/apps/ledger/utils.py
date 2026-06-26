@@ -6,23 +6,23 @@ from apps.ledger.cache_keys import LEDGER_PREFIX
 
 class TransactionType(models.TextChoices):
 
-    BORROWED = 'BORROWED', 'Borrowed'
-    LENT = 'LENT', 'Lent'
-    PAYMENT_SENT = 'PAYMENT_SENT', 'Payment Sent'
-    PAYMENT_RECEIVED = 'PAYMENT_RECEIVED', 'Payment Received'
+    # BORROWED = 'BORROWED', 'Borrowed'
+    # LENT = 'LENT', 'Lent'
+    MONEY_SENT = 'MONEY_SENT', 'Money Sent'
+    MONEY_RECEIVED = 'MONEY_RECEIVED', 'Money Received'
 
     @classmethod
     def outgoing_types(cls):
         return (
-            cls.PAYMENT_SENT,
-            cls.LENT
+            cls.MONEY_SENT,
+            # cls.LENT
         )
 
     @classmethod
     def incoming_types(cls):
         return (
-            cls.PAYMENT_RECEIVED,
-            cls.BORROWED,
+            cls.MONEY_RECEIVED,
+            # cls.BORROWED,
         )
 
 class LinkStatus(models.TextChoices):
