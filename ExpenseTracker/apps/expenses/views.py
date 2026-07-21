@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, reverse, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.utils.timezone import localdate
@@ -8,6 +8,7 @@ from . import forms, models, cache_keys, utils
 
 from apps.base.utils import TimeFrame
 from apps.base.views import delete_object_view
+from apps.base.navigation import redirect_to_next
 
 
 @login_required(login_url="accounts:login")
@@ -39,7 +40,10 @@ def add_expense_view(request):
             utils.invalidate_expenses_caches(new_expense)
 
             messages.success(request, 'Expense successfully added.')
-            return redirect("expenses:home")
+        else:
+            messages.error(request, 'Failed to add. Please try again later.')
+
+        return redirect_to_next(request, reverse("expenses:home"))
 
     else:
         form = forms.ExpenseForm(user=request.user)
@@ -63,7 +67,7 @@ def edit_expense_view(request, exp_id):
         else:
             messages.error(request, 'Failed to update. Please try again later.')
 
-        return redirect("expenses:home")
+        return redirect_to_next(request, reverse("expenses:home"))
     else:
         form = forms.ExpenseForm(instance=expense, user=request.user)
 

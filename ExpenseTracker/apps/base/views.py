@@ -1,7 +1,8 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
+from apps.base.navigation import redirect_to_next
 from apps.expenses import (
     models as expense_models,
     forms as expense_forms
@@ -34,7 +35,10 @@ def delete_object_view(request, model, obj_id, final_redirect: str , name: str =
         else:
             messages.error(request, 'Failed to delete. Try again later.')
 
-    return redirect(final_redirect)
+    return redirect_to_next(
+        request,
+        fallback=reverse(final_redirect)
+    )
 
 
 @login_required(login_url='accounts:login')

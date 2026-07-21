@@ -14,7 +14,7 @@
     <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
         <a href="{% url 'expenses:dashboard' %}" role="button" class="secondary">📊 Dashboard</a>
         <a href="{% url 'expenses:summary' %}" role="button" class="secondary outline">📜 Activity</a>
-        <a href="{% url 'expenses:add' %}" role="button">+ Add Expense</a>
+        <a href="{% url 'expenses:add' %}?next={{ request.get_full_path|urlencode }}" role="button">+ Add Expense</a>
     </div>
 </div>
 
