@@ -54,13 +54,8 @@ from apps.base.models import TimeStampedModel
 class Habit(TimeStampedModel):
     """
         Permanent habit owned by a user.
-
-        Think of this as the user's habit library.
-
-        This model stores the DEFAULT configuration used whenever a new WeeklyGoal is created.
-
+        This model stores the DEFAULT configuration used whenever a new Goal is created.
         Editing this model only affects future weeks.
-        Existing WeeklyGoals remain unchanged.
     """
 
     user = models.ForeignKey(
