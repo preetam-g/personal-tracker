@@ -1,19 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <article style="text-align: center; max-width: 600px; margin: 2rem auto;">
-
-        <header>
-            <h2 style="margin-bottom: 0;">Welcome to the Home Page</h2>
-        </header>
+    <article style="text-align: center; max-width: 700px; margin: 2rem auto;">
 
         {% if user.is_authenticated %}
 
-            <p>Hello, <strong>{{ user.username }}</strong>! You are officially logged in.</p>
-            <p>Your email is: {{ user.email }}</p>
-
-            <p>Track your personal expenses here: <a href={% url 'expenses:home' %}>Expenses Page</a></p>
-            <p>Track your shared expenses here: <a href="{% url 'ledger:home' %}">Ledger Page</a></p>
+            <header style="margin-top: 0.5vh">
+                <h2>Welcome back, {{ user.username }}!</h2>
+                <p style="color: var(--pico-muted-color);"> Everything you need to stay on top of your money and goals, all in one place. </p>
+            </header>
+           <p>
+               Keep track of your spending and understand where your money goes.
+               <a href="{% url 'expenses:home' %}">
+                   <strong>Expenses</strong>
+               </a>💰
+           </p>
+            <p>
+                Manage shared expenses and keep track of who owes whom.
+                <a href="{% url 'ledger:home' %}">
+                   <strong>Ledger</strong>
+               </a>🤝
+            </p>
+            <p>
+                Set goals, build habits, and track your progress.
+                <a href="{% url 'habits:home' %}">
+                   <strong>Habits</strong>
+               </a>🎯
+            </p>
 
         {% else %}
 

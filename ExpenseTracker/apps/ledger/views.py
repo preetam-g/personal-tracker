@@ -13,7 +13,7 @@ from apps.base.views import delete_object_view
 from apps.base.utils import TimeFrame
 
 
-@login_required(login_url='login')
+@login_required(login_url='accounts:login')
 def home_view(request):
 
     form = LedgerHomeForm(
@@ -55,7 +55,7 @@ def home_view(request):
     )
 
 
-@login_required(login_url='login')
+@login_required(login_url='accounts:login')
 def add_transaction_view(request):
 
     if request.method == "POST":
@@ -78,7 +78,7 @@ def add_transaction_view(request):
     return render(request, "ledger/ledger_form.html", {"form": form})
 
 
-@login_required(login_url='login')
+@login_required(login_url='accounts:login')
 def edit_transaction_view(request, tran_id):
 
     transaction = get_object_or_404(Transaction, id=tran_id, user=request.user)
@@ -103,7 +103,7 @@ def edit_transaction_view(request, tran_id):
     return render(request, "ledger/ledger_form.html", {"form": form})
 
 
-@login_required(login_url='login')
+@login_required(login_url='accounts:login')
 def delete_transaction_view(request, tran_id):
     return delete_object_view(
         request=request,
@@ -115,7 +115,7 @@ def delete_transaction_view(request, tran_id):
     )
 
 
-@login_required(login_url='login')
+@login_required(login_url='accounts:login')
 def summary_view(request):
 
     form = LedgerSummaryForm(

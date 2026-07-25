@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="grid" style="align-items: center; margin-top: 2rem; margin-bottom: 2rem;">
+
+    <div>
+        <h2 style="margin-bottom: 0;">Your Goals</h2>
+        <p style="color: var(--pico-muted-color);">
+            Build better habits, one goal at a time.
+        </p>
+    </div>
+
+{#    <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">#}
+{#        <a href="{% url 'expenses:dashboard' %}" role="button" class="secondary">📊 Dashboard</a>#}
+{#        <a href="{% url 'expenses:summary' %}" role="button" class="secondary outline">📜 Activity</a>#}
+{#        <a href="{% url 'expenses:add' %}?next={{ request.get_full_path|urlencode }}" role="button">+ Add Expense</a>#}
+{#    </div>#}
+</div>
+
+<div style="
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    color: var(--pico-muted-color);
+    margin-bottom: 1rem;
+    font-weight: 600;
+">Today's Goals</div>
+
+{% endblock content %}

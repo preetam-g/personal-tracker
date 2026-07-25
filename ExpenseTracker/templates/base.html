@@ -20,12 +20,13 @@
         <nav>
             <ul>
                 <li>
-                    <a href="{% url 'home' %}"><strong>Expense Tracker</strong></a>
+                    <a href="{% url 'home' %}"><strong>Personal Tracker</strong></a>
                 </li>
             </ul>
             <ul>
                 <li><a href="{% url 'expenses:home' %}">Expenses</a></li>
                 <li><a href="{% url 'ledger:home' %}">Ledger</a></li>
+                <li><a href="{% url 'habits:home' %}">Habits</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'accounts:profile' %}">{{ user.username|slice:":1"|upper }}</a></li>
                 {% else %}
@@ -70,6 +71,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 maxOptions: null,
             });
         }
+    });
+
+    document.querySelectorAll('form').forEach((form) => {
+        form.addEventListener('reset', function () {
+            setTimeout(() => {
+                form.querySelectorAll('.tom-select').forEach((el) => {
+                    if (el.tomselect) {
+                        el.tomselect.setValue(el.value, true);
+                    }
+                });
+            });
+        });
     });
 });
 </script>

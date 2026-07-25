@@ -7,15 +7,18 @@ class ForexFeaturesForm(forms.ModelForm):
 
     class Meta:
         model = UserPreference
-        fields = ['preferred_currency', 'show_advanced_currency_features']
+        fields = [
+            'preferred_currency',
+            # 'show_advanced_currency_features'
+        ]
         widgets = {
-            'show_advanced_currency_features': forms.CheckboxInput(),
+            # 'show_advanced_currency_features': forms.CheckboxInput(),
             'preferred_currency': forms.Select(
                 attrs={'class': 'tom-select'}
             ),
         }
         labels = {
-            'show_advanced_currency_features': 'Show forex features',
+            # 'show_advanced_currency_features': 'Show forex features',
             'preferred_currency': 'Preferred currency',
         }
 

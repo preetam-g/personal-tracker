@@ -23,9 +23,13 @@ def home_view(request):
 
 urlpatterns = [
     path("", home_view, name="home"),
-    path("", include('apps.base.urls')),
-    path('admin/', admin.site.urls),
-    path('user/', include('apps.accounts.urls')),
+    
     path('expenses/', include('apps.expenses.urls')),
     path('ledger/', include('apps.ledger.urls')),
+    path('goals/', include('apps.habits.urls')),
+
+    path('user/', include('apps.accounts.urls')),
+    path("settings/", include('apps.base.urls')),
+
+    path('admin/', admin.site.urls),
 ]
