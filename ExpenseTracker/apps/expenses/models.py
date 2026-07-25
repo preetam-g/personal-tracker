@@ -4,8 +4,6 @@ from django.utils import timezone
 from django.db.models.functions import Lower
 from django.core.exceptions import ValidationError
 
-from babel.numbers import format_currency
-
 from .managers import ExpenseManager, CategoryTypeManager
 
 from apps.base.models import SoftDeleteModel, TimeStampedModel

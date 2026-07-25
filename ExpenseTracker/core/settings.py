@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'apps.base',
     'apps.ledger',
     'apps.forex',
+    'apps.habits',
+
 ]
 
 MIDDLEWARE = [
