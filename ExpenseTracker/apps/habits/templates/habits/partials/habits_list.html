@@ -8,7 +8,7 @@
             padding: 1% 2%;
         ">
         <strong>{{ title }}</strong>
-        <a href="{% url add_url_name %}?next={{ request.get_full_path|urlencode }}"
+        <a href="{{ add_url }}"
            role="button"
            class="btn-sm contrast outline"
            style="
@@ -31,7 +31,7 @@
             <span style="display: flex; gap: 0.5rem; align-items: center;">
 
                 <!-- Edit -->
-                <a href="{% url edit_url_name item.id %}?next={{ request.get_full_path|urlencode }}"
+                <a href="{{ edit_url }}"
                    title="Edit"
                    style="
                        text-decoration: none;
@@ -45,7 +45,7 @@
                     type="button"
                     class="delete-btn"
                     title="Delete"
-                    data-action="{% url delete_url_name item.id %}?next={{ request.get_full_path|urlencode }}"
+                    data-action="{{ delete_url }}"
                     data-message="
                         Are you sure you want to delete
                         <strong>{{ item.name }}</strong>?

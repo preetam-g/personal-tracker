@@ -110,7 +110,7 @@ def delete_transaction_view(request, tran_id):
         model=Transaction,
         name="Transaction",
         obj_id=tran_id,
-        final_redirect="ledger:home",
+        final_redirect_fallback="ledger:home",
         cache_delete_func=invalidate_ledger_caches,
     )
 

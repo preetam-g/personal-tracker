@@ -49,6 +49,7 @@ from django.db.models.functions import Lower
 from django.conf import settings
 
 from apps.base.models import TimeStampedModel
+from .managers import HabitManager, HabitPlanManager, DailyProgressManager
 
 
 class Habit(TimeStampedModel):
@@ -68,12 +69,15 @@ class Habit(TimeStampedModel):
 
     default_target_value = models.PositiveIntegerField(default=1)
 
-    unit = models.CharField(
+    default_unit = models.CharField(
         max_length=50,
         default='times',
         help_text='Display unit (glasses, tablets, pages, minutes...)',
     )
 
+    is_active = models.BooleanField(default=True)
+
+    objects = HabitManager()
     class Meta:
         ordering = ['name']
 
@@ -123,6 +127,7 @@ class HabitPlan(TimeStampedModel):
         help_text='Display unit for this tracking period. (glasses, tablets, pages, minutes...)',
     )
 
+    objects = HabitPlanManager()
     class Meta:
         ordering = ["-start_date", "-id"]
 
@@ -188,6 +193,7 @@ class DailyProgress(TimeStampedModel):
     value = models.PositiveIntegerField(default=0)
     completed_at = models.DateTimeField(null=True, blank=True)
 
+    objects = DailyProgressManager()
     class Meta:
         ordering = ["date"]
 

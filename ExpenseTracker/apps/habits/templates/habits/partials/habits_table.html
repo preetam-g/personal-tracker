@@ -1,0 +1,88 @@
+<article>
+    <h3 style="margin-bottom: 0.5rem;">Habits List</h3>
+    {% if habits %}
+        <figure class="app-table-wrapper">
+            <table role="grid" class="app-table">
+                <thead>
+                <tr>
+                    <th scope="col" style="width: 10%;">Name</th>
+                    <th scope="col" style="width: 20%;">Default Target (per day)</th>
+                    <th scope="col" style="width: 10%;">Status</th>
+                    <th scope="col" style="width: 10%;">Modify</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for habit in habits %}
+                    <tr>
+                        <td data-label="Name">{{ habit.name }}</td>
+                        <td data-label="Default Target">{{ habit.default_target_value }} {{habit.default_unit }}</td>
+                        <td data-label="Status">
+                            {% if not habit.is_active %}
+                                <span class="amount-badge amount-badge--danger" title="inactive">
+                                    Inactive
+                                </span>
+                            {% else %}
+                                <span class="amount-badge amount-badge--success" title="active">
+                                    Active
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td data-label="Modify" class="app-table-actions">
+                            <!-- Edit -->
+                            <a href="{% url 'habits:edit_habit' habit.id %}?next={{ request.get_full_path|urlencode }}" class="app-btn-icon" title="Edit">
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </a>
+                            <!-- Delete -->
+                            <button type="button"
+                                class="
+                                    app-btn-icon
+                                    app-btn-danger
+                                    delete-btn
+                                "
+                                title="Delete"
+                                data-action="{% url 'habits:delete_habit' habit.id %}?next={{ request.get_full_path|urlencode }}"
+                                data-message="
+                                    Are you sure you want to delete this expense for
+                                    <strong>{{ expense.formatted_amount_entered }}</strong>?
+                                    This action can't be reversed.
+                                ">
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </figure>
+    {% else %}
+        <div class="app-empty-state">
+            <h3 class="app-empty-title">No habits yet!</h3>
+            <p>Get up and do something.</p>
+        </div>
+    {% endif %}
+</article>

@@ -1,3 +1,4 @@
+from django.db.models import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -16,7 +17,7 @@ from apps.forex import (
 )
 
 
-def delete_object_view(request, model, obj_id, final_redirect: str , name: str = None, cache_delete_func = None):
+def delete_object_view(request, model, obj_id, final_redirect_fallback: str , name: str = None, cache_delete_func = None):
     """
     Base template view for deleting an object.
     Use cache_delete_func if you want to call a function to invalidate cache keys, the object that is being deleted is passed as a parameter.
@@ -26,18 +27,24 @@ def delete_object_view(request, model, obj_id, final_redirect: str , name: str =
         name = getattr(obj, 'name', str(obj))
 
     if request.method == 'POST':
-        cnt, _ = obj.delete()
+        try:
+            cnt, _ = obj.delete()
 
-        if cnt:
-            if cache_delete_func:
-                cache_delete_func(obj)
-            messages.success(request, f'{name} successfully deleted.')
-        else:
-            messages.error(request, 'Failed to delete. Try again later.')
+            if cnt:
+                if cache_delete_func:
+                    cache_delete_func(obj)
+                messages.success(request, f'{name} successfully deleted.')
+            else:
+                messages.error(request, 'Failed to delete. Try again later.')
+        except ProtectedError:
+            messages.error(
+                request,
+                f"{name} cannot be deleted because it is currently in use.",
+            )
 
     return redirect_to_next(
         request,
-        fallback=reverse(final_redirect)
+        fallback=reverse(final_redirect_fallback),
     )
 
 
@@ -154,7 +161,7 @@ def delete_category_view(request, cat_id):
         request,
         model=expense_models.ExpenseCategory,
         obj_id=cat_id,
-        final_redirect="base:preferences", # preferences
+        final_redirect_fallback="base:preferences", # preferences
     )
 
 
@@ -220,7 +227,7 @@ def delete_type_view(request, type_id):
         request=request,
         model=expense_models.ExpenseType,
         obj_id=type_id,
-        final_redirect="base:preferences", # preferences
+        final_redirect_fallback="base:preferences", # preferences
     )
 
 
@@ -285,5 +292,5 @@ def delete_contact_view(request, cont_id):
         request=request,
         model=ledger_models.Contact,
         obj_id=cont_id,
-        final_redirect="base:preferences",
+        final_redirect_fallback="base:preferences",
     )
