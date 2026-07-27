@@ -1,19 +1,22 @@
 from django.db import models
 
 
-class HabitManager(models.Manager):
+class HabitQuerySet(models.QuerySet):
 
     def all_for_user(self, user):
-        return self.get_queryset().filter(user=user)
+        return self.filter(user=user)
+
+    def active(self):
+        return self.filter(is_active=True)
 
 
-class HabitPlanManager(models.Manager):
-
-    def all_for_user(self, user):
-        return self.get_queryset().filter(user=user)
-
-
-class DailyProgressManager(models.Manager):
+class HabitPlanQuerySet(models.QuerySet):
 
     def all_for_user(self, user):
-        return self.get_queryset().filter(user=user)
+        return self.filter(user=user)
+
+
+class DailyProgressQuerySet(models.QuerySet):
+
+    def all_for_user(self, user):
+        return self.filter(user=user)

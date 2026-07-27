@@ -16,6 +16,13 @@ textarea {
     padding: 0.4rem 0.6rem;
 }
 
+input:disabled,
+select:disabled,
+textarea:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    filter: grayscale(1);
+}
 
 /* =========================================
    GENERIC TABLE SYSTEM

@@ -48,7 +48,15 @@ def add_expense_view(request):
     else:
         form = forms.ExpenseForm(user=request.user)
 
-    return render(request, "expenses/expense_form.html", {"form": form})
+    return render(
+        request,
+        template_name="expenses/expense_form.html",
+        context={
+            "form": form,
+            "form_id": 'add-expense-form',
+            "item_name": 'Expense',
+        },
+    )
 
 
 @login_required(login_url='accounts:login')
@@ -71,7 +79,15 @@ def edit_expense_view(request, exp_id):
     else:
         form = forms.ExpenseForm(instance=expense, user=request.user)
 
-    return render(request, "expenses/expense_form.html", {"form": form})
+    return render(
+        request,
+        template_name="expenses/expense_form.html",
+        context={
+            "form": form,
+            "form_id": 'edit-expense-form',
+            "item_name": 'Expense',
+        }
+    )
 
 
 @login_required(login_url='accounts:login')

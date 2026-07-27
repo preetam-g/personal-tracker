@@ -1,0 +1,69 @@
+{% extends "generic_form.html" %}
+
+
+{% block sub_header %}
+    <p style="
+        color: var(--pico-muted-color);
+    ">Make sure to save the habit beforehand
+        <a href="{% url 'habits:add_habit' %}?next={{ request.get_full_path|urlencode }}">(Click Here)</a>
+    </p>
+{% endblock sub_header %}
+
+
+{% block form_scripts %}
+
+{{ form.habit_defaults|json_script:"habit-defaults" }}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const habitField = document.getElementById("id_habit");
+        const targetField = document.getElementById("id_target_value");
+        const unitField = document.getElementById("id_unit");
+
+        const startDateField = document.getElementById("id_start_date");
+        const endDateField = document.getElementById("id_end_date");
+
+        const habitDefaults = JSON.parse(
+            document.getElementById("habit-defaults").textContent
+        );
+
+
+        function updateEndDateMin() {
+            endDateField.min = startDateField.value;
+
+            if (
+                endDateField.value &&
+                endDateField.value < startDateField.value
+            ) {
+                endDateField.value = "";
+            }
+        }
+
+        startDateField.addEventListener("change", updateEndDateMin);
+        updateEndDateMin();
+
+        function updateHabitFields() {
+            const defaults = habitDefaults[habitField.value];
+            const disabled = !defaults;
+
+            targetField.disabled = disabled;
+            unitField.disabled = disabled;
+
+            if (disabled) {
+                targetField.value = "";
+                unitField.value = "";
+                return;
+            }
+
+            targetField.value = defaults.target;
+            unitField.value = defaults.unit;
+        }
+
+        habitField.addEventListener("change", updateHabitFields);
+        if (!habitField.value) {
+            targetField.disabled = true;
+            unitField.disabled = true;
+        }
+    });
+</script>
+
+{% endblock form_scripts %}

@@ -17,8 +17,8 @@
     </div>
 
     <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
-        <a href="{% url 'expenses:dashboard' %}" role="button" class="secondary">🎯 Create Goal</a>
-        <a href="{% url 'habits:manage_habits' %}" role="button">+ Add Habit</a>
+        <a href="{% url 'habits:add_goal' %}?next={{ request.get_full_path|urlencode }}" role="button" class="secondary">🎯 Create Goal</a>
+        <a href="{% url 'habits:add_habit' %}?next={{ request.get_full_path|urlencode }}" role="button">+ Add Habit</a>
     </div>
 </div>
 

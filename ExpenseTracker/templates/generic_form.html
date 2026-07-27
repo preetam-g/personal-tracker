@@ -12,6 +12,8 @@
             {% endif %}
             {{ item_name|default:"Item" }}
         </h2>
+        {% block sub_header %}
+        {% endblock sub_header %}
     </header>
 
     <form method="POST" id="{{ form_id|default:'generic-form' }}">
@@ -19,6 +21,7 @@
 
         {{ form.as_p }}
 
+        <small>Fields marked with * are required.</small>
         <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
             <div style="display: flex; gap: 1rem;">
                 <a href="{{ request.GET.next }}"
@@ -31,38 +34,7 @@
     </form>
 </article>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const form = document.getElementById(
-            "{{ form_id|default:'generic-form' }}"
-        );
+{% block form_scripts %}
+{% endblock form_scripts %}
 
-        if (!form) return;
-
-        form.querySelectorAll("textarea[maxlength]").forEach((field) => {
-            const maxLength = field.maxLength;
-
-            const counter = document.createElement("small");
-            counter.style.display = "block";
-            counter.style.textAlign = "right";
-            counter.style.color = "var(--pico-muted-color)";
-            counter.style.marginTop = "-0.5rem";
-
-            const updateCounter = () => {
-                const currentLength = field.value.length;
-
-                counter.textContent = `${currentLength} / ${maxLength}`;
-                counter.style.color =
-                    currentLength >= maxLength
-                        ? "var(--pico-form-element-invalid-active-border-color)"
-                        : "var(--pico-muted-color)";
-            };
-
-            field.insertAdjacentElement("afterend", counter);
-
-            updateCounter();
-            field.addEventListener("input", updateCounter);
-        });
-    });
-</script>
 {% endblock content %}
