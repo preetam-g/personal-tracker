@@ -47,9 +47,11 @@ NULL end_date means the HabitPlan is currently active.
 from django.db import models
 from django.db.models.functions import Lower
 from django.conf import settings
+from django.utils import timezone
 
 from apps.base.models import TimeStampedModel
 from .managers import HabitQuerySet, HabitPlanQuerySet, DailyProgressQuerySet
+from .utils import HabitPlanStatus
 
 
 class Habit(TimeStampedModel):
@@ -144,6 +146,17 @@ class HabitPlan(TimeStampedModel):
                 name="habit_plan_valid_date_range",
             ),
         ]
+
+    @property
+    def status(self):
+
+        today = timezone.localdate()
+        if self.start_date > today:
+            return HabitPlanStatus.UPCOMING
+        elif self.end_date and self.end_date < today:
+            return HabitPlanStatus.ENDED
+
+        return HabitPlanStatus.ACTIVE
 
     def __str__(self) -> str:
         return f"{self.habit.name} ({self.start_date})"

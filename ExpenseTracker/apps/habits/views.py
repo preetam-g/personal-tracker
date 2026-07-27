@@ -5,7 +5,7 @@ from django.shortcuts import render, reverse, get_object_or_404
 from apps.base.navigation import redirect_to_next, get_safe_next_url
 from apps.base.views import delete_object_view
 from apps.habits.forms import HabitForm, HabitPlanForm
-from apps.habits.models import Habit
+from apps.habits.models import Habit, HabitPlan
 
 
 @login_required(login_url="accounts:login")
@@ -15,11 +15,13 @@ def home_view(request):
 
 def manage_habits_view(request):
     habits = Habit.objects.all_for_user(request.user)
+    goals = HabitPlan.objects.all_for_user(request.user).with_habit()
     return render(
         request,
         template_name='habits/pages/manage_habits.html',
         context={
             "habits": habits,
+            "goals": goals,
         }
     )
 

@@ -132,6 +132,16 @@ textarea:disabled {
     color: #991b1b;
 }
 
+.amount-badge--info {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.amount-badge--muted {
+    background-color: #e5e7eb;
+    color: #4b5563;
+}
+
 
 /* =========================================
    MOBILE CARD TABLES

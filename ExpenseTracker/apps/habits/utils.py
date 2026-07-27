@@ -1,0 +1,15 @@
+from django.db.models import TextChoices
+
+
+class HabitPlanStatus(TextChoices):
+    ACTIVE = 'ACTIVE', 'Active'
+    ENDED = 'ENDED', 'Ended'
+    UPCOMING = 'UPCOMING', 'Upcoming'
+
+    @property
+    def badge_class(self):
+        return {
+            self.UPCOMING: "amount-badge--info",
+            self.ACTIVE: "amount-badge--success",
+            self.ENDED: "amount-badge--muted",
+        }[self]
