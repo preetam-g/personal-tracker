@@ -26,7 +26,7 @@
             <ul>
                 <li><a href="{% url 'expenses:home' %}">Expenses</a></li>
                 <li><a href="{% url 'ledger:home' %}">Ledger</a></li>
-                <li><a href="{% url 'habits:home' %}">Habits</a></li>
+                <li><a href="{% url 'habits:home' %}">Goals</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'accounts:profile' %}">{{ user.username|slice:":1"|upper }}</a></li>
                 {% else %}

@@ -12,6 +12,9 @@
             {% endif %}
             {{ item_name|default:"Item" }}
         </h2>
+        {% if sub_title %}
+            <small>{{ sub_title }}</small>
+        {% endif %}
         {% block sub_header %}
         {% endblock sub_header %}
     </header>

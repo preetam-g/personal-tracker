@@ -13,7 +13,7 @@
                 {% for habit in habits %}
                     <tr>
                         <td data-label="Name">{{ habit.name }}</td>
-                        <td data-label="Default Target">{{ habit.default_target_value }} {{habit.default_unit }}</td>
+                        <td data-label="Default Target">{{ habit.target_str }}</td>
                         <td data-label="Status">
                             {% if not habit.is_active %}
                                 <span class="amount-badge amount-badge--danger" title="inactive">

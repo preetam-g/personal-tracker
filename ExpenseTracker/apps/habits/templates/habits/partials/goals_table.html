@@ -15,10 +15,10 @@
                 {% for goal in goals %}
                     <tr>
                         <td data-label="Habit">
-                            {{ goal.habit.name }}
+                            {{ goal.habit }}
                         </td>
                         <td data-label="Target">
-                            {{ goal.target_value }} {{ goal.unit }}
+                            {{ goal.target_str }}
                         </td>
                         <td data-label="Duration">
                             {{ goal.start_date|date:"M j, Y" }}

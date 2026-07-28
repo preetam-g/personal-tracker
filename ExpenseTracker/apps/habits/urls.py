@@ -10,6 +10,6 @@ urlpatterns = [
     path('habit/<int:habit_id>/edit/', views.edit_habit_view, name='edit_habit'),
     path('habit/<int:habit_id>/delete/', views.delete_habit_view, name='delete_habit'),
     path('goal/add/', views.add_habit_plan_view, name='add_goal'),
-    path('goal/add/<int:pk>', views.add_habit_plan_view, name='edit_goal'),
-    path('goal/add/<int:pk>', views.add_habit_plan_view, name='delete_goal'),
+    path('goal/<int:habit_id>/edit/', views.edit_habit_plan_view, name='edit_goal'),
+    path('goal/<int:habit_id>/delete/', views.delete_habit_plan_view, name='delete_goal'),
 ]

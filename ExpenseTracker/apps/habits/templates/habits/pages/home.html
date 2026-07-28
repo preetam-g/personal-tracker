@@ -5,25 +5,19 @@
 <div class="grid" style="align-items: center; margin-top: 2rem; margin-bottom: 2rem;">
 
     <div>
-        <h2 style="margin-bottom: 0;">Goals</h2>
+        <h2 style="margin-bottom: 0;">Your Goals</h2>
         <p style="color: var(--pico-muted-color);">
             Build better habits, one goal at a time.
         </p>
     </div>
 
     <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
-        <a href="{% url 'expenses:dashboard' %}" role="button" class="secondary">📈 Progress</a>
+{#        <a href="{% url 'habits:progress' %}" role="button" class="secondary">📈 Progress</a>#}
         <a href="{% url 'habits:manage_habits' %}" role="button">Manage</a>
     </div>
 </div>
 
-<div style="
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05rem;
-    color: var(--pico-muted-color);
-    margin-bottom: 1rem;
-    font-weight: 600;
-">Today's Goals</div>
+{# section with today's progress and updating them ( option to choose a date and update that day's goals?? ) #}
+{# section with visualizing this week/month/year progress, completion rate and other stuff   #}
 
 {% endblock content %}

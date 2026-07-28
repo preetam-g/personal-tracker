@@ -98,6 +98,10 @@ class Habit(TimeStampedModel):
     def __str__(self):
         return self.name
 
+    @property
+    def target_str(self):
+        return f"{self.default_target_value} {self.default_unit}"
+
 
 class HabitPlan(TimeStampedModel):
     """
@@ -120,14 +124,17 @@ class HabitPlan(TimeStampedModel):
         related_name='plans',
     )
 
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='plan_users',
+    )
+
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
 
     target_value = models.PositiveIntegerField()
-    unit = models.CharField(
-        max_length=50,
-        help_text='Display unit for this tracking period. (glasses, tablets, pages, minutes...)',
-    )
+    unit = models.CharField(max_length=50)
 
     objects = HabitPlanQuerySet.as_manager()
     class Meta:
@@ -147,6 +154,9 @@ class HabitPlan(TimeStampedModel):
             ),
         ]
 
+    def __str__(self) -> str:
+        return f"{self.habit.name}, {self.target_str} ({self.start_date})"
+
     @property
     def status(self):
 
@@ -158,8 +168,9 @@ class HabitPlan(TimeStampedModel):
 
         return HabitPlanStatus.ACTIVE
 
-    def __str__(self) -> str:
-        return f"{self.habit.name} ({self.start_date})"
+    @property
+    def target_str(self):
+        return f"{self.target_value} {self.unit}"
 
     def applies_on(self, date) -> bool:
         """
@@ -197,6 +208,12 @@ class DailyProgress(TimeStampedModel):
 
     plan = models.ForeignKey(
         HabitPlan,
+        on_delete=models.CASCADE,
+        related_name='daily_progress',
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='daily_progress',
     )

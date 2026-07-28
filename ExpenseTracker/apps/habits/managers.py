@@ -16,7 +16,7 @@ class HabitPlanQuerySet(models.QuerySet):
         return self.select_related('habit')
 
     def all_for_user(self, user):
-        return self.filter(habit__user=user)
+        return self.filter(user=user)
 
 
 class DailyProgressQuerySet(models.QuerySet):
