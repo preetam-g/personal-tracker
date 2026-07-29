@@ -1,5 +1,17 @@
 {% extends "generic_form.html" %}
 
+{% block sub_header %}
+    <p style="
+        color: var(--pico-muted-color);
+    ">
+        You can always add custom
+        <a href="{% url 'base:add_category' %}?next={{ request.get_full_path|urlencode }}">Category</a>
+        or
+        <a href="{% url 'base:add_type' %}?next={{ request.get_full_path|urlencode }}">Type</a>
+    </p>
+{% endblock sub_header %}
+
+
 {% block form_scripts %}
 <script>
 document.addEventListener("DOMContentLoaded", function() {

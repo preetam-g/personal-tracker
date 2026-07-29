@@ -1,37 +1,14 @@
-{% extends "base.html" %}
+{% extends "generic_form.html" %}
 
-{% block content %}
-<article style="max-width: 600px; margin: 2rem auto;">
+{% block sub_header %}
+    <p style="
+        color: var(--pico-muted-color);
+    ">Make sure to save the contact beforehand
+        <a href="{% url 'base:add_contact' %}?next={{ request.get_full_path|urlencode }}">(Click Here)</a>
+    </p>
+{% endblock sub_header %}
 
-    <header>
-        <h2 style="margin-bottom: 0;">
-            {% if form.instance.pk %}
-                Edit Ledger
-            {% else %}
-                Add New Ledger
-            {% endif %}
-        </h2>
-        <p style="
-            color: var(--pico-muted-color);
-        ">Make sure to save the contact beforehand
-            <a href="{% url 'base:preferences' %}">(Click Here)</a>
-        </p>
-    </header>
-
-    <form method="POST" id="ledger-form">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
-            <div style="display: flex; gap: 1rem;">
-                <a href="{% url 'ledger:home' %}" role="button" class="secondary outline" style="margin-bottom: 0;">Cancel</a>
-                <button type="submit" style="margin-bottom: 0;">
-                    {% if form.instance.pk %}Update{% else %}Save{% endif %} Ledger
-                </button>
-            </div>
-        </div>
-    </form>
-</article>
-
+{% block form_scripts %}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 
@@ -59,4 +36,4 @@
 
     });
 </script>
-{% endblock content %}
+{% endblock form_scripts %}

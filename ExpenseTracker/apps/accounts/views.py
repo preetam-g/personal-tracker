@@ -8,7 +8,7 @@ from .utils import serialize_form_data
 
 from apps.expenses import forms as expenses_forms
 from apps.ledger import forms as ledger_forms
-from ..forex.forms import ForexFeaturesForm
+from apps.forex.forms import ForexFeaturesForm
 
 Profile = get_user_model()
 

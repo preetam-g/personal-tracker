@@ -1,9 +1,9 @@
 from django.db.models import ProtectedError
-from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.shortcuts import get_object_or_404, render, reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from apps.base.navigation import redirect_to_next
+from .navigation import redirect_to_next
 from apps.expenses import (
     models as expense_models,
     forms as expense_forms
@@ -111,19 +111,18 @@ def add_category_view(request):
             instance.save()
 
             messages.success(request, f'"{instance.name}" successfully added.')
-            return redirect("base:preferences")
+            return redirect_to_next(request, reverse("base:preferences"))
 
     else:
         form = expense_forms.ExpenseCategoryForm()
 
     return render(
         request=request,
-        template_name="base/user_preferences/common_base_form.html",
+        template_name="generic_form.html",
         context={
             "form": form,
-            "title": "Category",
-            "form_id": "expense-category-form",
-            "cancel_url_name": "base:preferences",
+            "item_name": "Expense Category",
+            "form_id": "add-expense-category-form",
         },
     )
 
@@ -139,18 +138,17 @@ def edit_category_view(request, cat_id):
         if form.is_valid():
             new_cat = form.save()
             messages.success(request, f'"{old_name}" successfully updated as "{new_cat.name}".')
-            return redirect("base:preferences") # must change to preferences page
+            return redirect_to_next(request, reverse("base:preferences")) # must change to preferences page
     else:
         form = expense_forms.ExpenseCategoryForm(instance=cat, user=request.user)
 
     return render(
         request=request,
-        template_name="base/user_preferences/common_base_form.html",
+        template_name="generic_form.html",
         context={
             "form": form,
-            "title": "Category",
-            "form_id": "expense-category-form",
-            "cancel_url_name": "base:preferences",
+            "item_name": "Expense Category",
+            "form_id": "edit-expense-category-form",
         },
     )
 
@@ -177,19 +175,18 @@ def add_type_view(request):
             instance.save()
 
             messages.success(request, f'"{instance.name}" successfully added.')
-            return redirect("base:preferences") # must change to preferences page
+            return redirect_to_next(request, reverse("base:preferences")) # must change to preferences page
 
     else:
         form = expense_forms.ExpenseTypeForm()
 
     return render(
         request=request,
-        template_name="base/user_preferences/common_base_form.html",
+        template_name="generic_form.html",
         context={
             "form": form,
-            "title": "Type",
-            "form_id": "expense-type-form",
-            "cancel_url_name": "base:preferences",
+            "item_name": "Expense Type",
+            "form_id": "add-expense-type-form",
         },
     )
 
@@ -205,18 +202,17 @@ def edit_type_view(request, type_id):
         if form.is_valid():
             new_cat = form.save()
             messages.success(request, f'"{old_name}" successfully updated as "{new_cat.name}".')
-            return redirect("base:preferences") # must change to preferences page
+            return redirect_to_next(request, reverse("base:preferences")) # must change to preferences page
     else:
         form = expense_forms.ExpenseTypeForm(instance=type, user=request.user)
 
     return render(
         request=request,
-        template_name="base/user_preferences/common_base_form.html",
+        template_name="generic_form.html",
         context={
             "form": form,
-            "title": "Type",
-            "form_id": "expense-type-form",
-            "cancel_url_name": "base:preferences",
+            "item_name": "Expense Type",
+            "form_id": "edit-expense-type-form",
         },
     )
 
@@ -243,18 +239,17 @@ def add_contact_view(request):
             instance.save()
 
             messages.success(request, f'"{instance.name}" successfully added.')
-            return redirect("base:preferences")
+            return redirect_to_next(request, reverse("base:preferences"))
     else:
         form = ledger_forms.ContactForm(user=request.user)
 
     return render(
         request=request,
-        template_name="base/user_preferences/common_base_form.html",
+        template_name="generic_form.html",
         context={
             "form": form,
-            "title": "Contact",
-            "form_id": "ledger-contact-form",
-            "cancel_url_name": "base:preferences",
+            "item_name": "Contact",
+            "form_id": "add-contact-form",
         },
     )
 
@@ -270,18 +265,17 @@ def edit_contact_view(request, cont_id):
         if form.is_valid():
             new_item = form.save()
             messages.success(request, f'"{old}" successfully updated as "{new_item.name}".')
-            return redirect("base:preferences")
+            return redirect_to_next(request, reverse("base:preferences"))
     else:
         form = ledger_forms.ContactForm(instance=contact, user=request.user)
 
     return render(
         request=request,
-        template_name="base/user_preferences/common_base_form.html",
+        template_name="generic_form.html",
         context={
             "form": form,
-            "title": "Contact",
-            "form_id": "expense-contact-form",
-            "cancel_url_name": "base:preferences",
+            "item_name": "Contact",
+            "form_id": "edit-contact-form",
         },
     )
 

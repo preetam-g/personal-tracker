@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404, reverse
 from django.contrib import messages
 from django.utils.timezone import localdate
 
@@ -11,6 +11,7 @@ from .utils import invalidate_ledger_caches
 
 from apps.base.views import delete_object_view
 from apps.base.utils import TimeFrame
+from ..base.navigation import redirect_to_next
 
 
 @login_required(login_url='accounts:login')
@@ -70,12 +71,20 @@ def add_transaction_view(request):
             invalidate_ledger_caches(transaction)
 
             messages.success(request, 'Transaction has been added.')
-            return redirect("ledger:home")
+            return redirect_to_next(request, reverse('ledger:home'))
 
     else:
         form = TransactionForm(user=request.user)
 
-    return render(request, "ledger/ledger_form.html", {"form": form})
+    return render(
+        request,
+        template_name="ledger/ledger_form.html",
+        context={
+            "form": form,
+            "form-id": 'add-transaction-form',
+            "item_name": 'Transaction',
+        }
+    )
 
 
 @login_required(login_url='accounts:login')
@@ -95,7 +104,7 @@ def edit_transaction_view(request, tran_id):
         else:
             messages.error(request, 'Failed to update. Please try again later.')
 
-        return redirect("ledger:home")
+        return redirect_to_next(request, reverse("ledger:home"))
 
     else:
         form = TransactionForm(instance=transaction, user=request.user)
