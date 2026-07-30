@@ -14,23 +14,7 @@
             <form method="POST" action="{% url 'accounts:profile' %}" id="profile-form">
                 {% csrf_token %}
 
-                {% for field in form %}
-                    <label for="{{ field.id_for_label }}">
-                        {{ field.label }}
-                        {{ field }}
-
-                        {% if field.errors %}
-                            <small style="color: var(--pico-form-element-invalid-active-border-color);">
-                                {{ field.errors.0 }}
-                            </small>
-                        {% endif %}
-
-                        {% if field.help_text %}
-                            <small style="color: var(--pico-muted-color);">{{ field.help_text }}</small>
-                        {% endif %}
-                    </label>
-                {% endfor %}
-
+                {{ form.as_p }}
                 <div style="margin-top: 1.5rem;">
                     <button type="button" id="edit-btn" class="secondary">Edit Profile</button>
 
@@ -61,25 +45,25 @@
                 </a>
             </article>
 
-            <article style="margin-bottom: var(--pico-block-spacing-vertical);">
-                <h3 style="margin-bottom: 0.5rem;">Security</h3>
-                <p style="color: var(--pico-muted-color); font-size: 0.9rem;">
-                    Update your current password, or send a reset link to your email if you've forgotten it.
-                </p>
-                <div style="display: flex; gap: 1rem;">
-                    <a href="{% url 'accounts:password_change' %}"
-                       role="button"
-                       class="secondary outline"
-                       style="flex: 1; text-align: center; padding-left: 0; padding-right: 0;"
-                    >Change Password</a>
-                    <a href="{% url 'accounts:password_reset' %}"
-                       role="button"
-                       class="outline"
-                       style="flex: 1; text-align: center; padding-left: 0; padding-right: 0;"
-                    >Reset Password</a>
-                </div>
-            </article>
-            </article>
+{#            <article style="margin-bottom: var(--pico-block-spacing-vertical);">#}
+{#                <h3 style="margin-bottom: 0.5rem;">Security</h3>#}
+{#                <p style="color: var(--pico-muted-color); font-size: 0.9rem;">#}
+{#                    Update your current password, or send a reset link to your email if you've forgotten it.#}
+{#                </p>#}
+{#                <div style="display: flex; gap: 1rem;">#}
+{#                    <a href="{% url 'accounts:password_change' %}"#}
+{#                       role="button"#}
+{#                       class="secondary outline"#}
+{#                       style="flex: 1; text-align: center; padding-left: 0; padding-right: 0;"#}
+{#                    >Change Password</a>#}
+{#                    <a href="{% url 'accounts:password_reset' %}"#}
+{#                       role="button"#}
+{#                       class="outline"#}
+{#                       style="flex: 1; text-align: center; padding-left: 0; padding-right: 0;"#}
+{#                    >Reset Password</a>#}
+{#                </div>#}
+{#            </article>#}
+{#            </article>#}
 
             <article>
                 <h3 style="margin-bottom: 0.5rem;">Log Out</h3>

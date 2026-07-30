@@ -23,7 +23,7 @@
         <h3 style="margin-bottom: 0;">Your Records</h3>
         <p style="color: var(--pico-muted-color); margin-bottom: 0;">
             Make sure to save some contacts beforehand
-            <a href="{% url 'base:preferences' %}">(Click Here)</a>
+            <a href="{% url 'base:add_contact' %}?next={{ request.get_full_path|urlencode }}">(Click Here)</a>
         </p>
     </hgroup>
 
