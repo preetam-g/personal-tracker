@@ -107,16 +107,6 @@ class TransactionManager(SoftDeleteManager):
 
 class ContactManager(SoftDeleteManager):
 
-    def base_for_user(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
+    def for_user(self, user:AbstractBaseUser):
         return self.get_queryset().filter(user=user)
-
-    def all_for_user(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
-        return (
-            self.base_for_user(user)
-            .select_related('linked_user')
-            # .only(
-            #     'id', 'name', 'link_status',
-            #     'linked_user', 'linked_user__username',
-            # )
-        )
 

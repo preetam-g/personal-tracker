@@ -50,8 +50,8 @@ class ExpenseForm(forms.ModelForm):
             self.fields['note'].widget.attrs['rows'] = str(note_max_len//10 + 1)
 
         # categories, types
-        self.fields['category'].queryset = ExpenseCategory.objects.user_items(self.user)
-        self.fields['type'].queryset = ExpenseType.objects.user_items(self.user)
+        self.fields['category'].queryset = ExpenseCategory.objects.available_for_user(self.user)
+        self.fields['type'].queryset = ExpenseType.objects.available_for_user(self.user)
 
         # currency
         self.fields['currency'].initial = self.user.preferences.preferred_currency
@@ -174,8 +174,8 @@ class ExpenseFilterForm(forms.Form):
         self.fields['start_date'].widget.attrs['max'] = today
         self.fields['end_date'].widget.attrs['max'] = today
 
-        self.fields['category'].queryset = ExpenseCategory.objects.user_items(self.user)
-        self.fields['type'].queryset = ExpenseType.objects.user_items(self.user)
+        self.fields['category'].queryset = ExpenseCategory.objects.available_for_user(self.user)
+        self.fields['type'].queryset = ExpenseType.objects.available_for_user(self.user)
 
         if not self.is_bound:
             defaults = self.user.preferences.get_expenses_preferences(
@@ -275,5 +275,5 @@ class ExpenseFilterDefaultsForm(forms.Form):
 
         super().__init__(*args, **kwargs)
 
-        self.fields['category'].queryset = ExpenseCategory.objects.user_items(self.user)
-        self.fields['type'].queryset = ExpenseType.objects.user_items(self.user)
+        self.fields['category'].queryset = ExpenseCategory.objects.available_for_user(self.user)
+        self.fields['type'].queryset = ExpenseType.objects.available_for_user(self.user)

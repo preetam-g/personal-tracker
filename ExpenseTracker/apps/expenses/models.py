@@ -44,7 +44,6 @@ class BaseCategoryType(SoftDeleteModel, TimeStampedModel):
         is_exists = self.__class__.objects.filter(
             models.Q(user__isnull=True) | models.Q(user=self.user),
             name__iexact=name,
-            is_deleted=False
         ).exclude(pk=self.pk).exists()
 
         if is_exists:

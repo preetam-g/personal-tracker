@@ -22,7 +22,10 @@ def delete_object_view(request, model, obj_id, final_redirect_fallback: str , na
     Base template view for deleting an object.
     Use cache_delete_func if you want to call a function to invalidate cache keys, the object that is being deleted is passed as a parameter.
     """
-    obj = get_object_or_404(model, id=obj_id, user=request.user)
+    obj = get_object_or_404(
+        model.objects.for_user(request.user),
+        id=obj_id
+    )
     if not name:
         name = getattr(obj, 'name', str(obj))
 
@@ -33,7 +36,7 @@ def delete_object_view(request, model, obj_id, final_redirect_fallback: str , na
             if cnt:
                 if cache_delete_func:
                     cache_delete_func(obj)
-                messages.success(request, f'{name} successfully deleted.')
+                messages.success(request, f'"{name}" successfully deleted.')
             else:
                 messages.error(request, 'Failed to delete. Try again later.')
         except ProtectedError:
@@ -52,16 +55,10 @@ def delete_object_view(request, model, obj_id, final_redirect_fallback: str , na
 def preferences_view(request):
 
     curr_user = request.user
-    categories = expense_models.ExpenseCategory.objects.user_items(
-        user=curr_user,
-        include_global=False,
-    )
-    types = expense_models.ExpenseType.objects.user_items(
-        user=curr_user,
-        include_global=False,
-    )
+    categories = expense_models.ExpenseCategory.objects.for_user(user=curr_user)
+    types = expense_models.ExpenseType.objects.for_user(user=curr_user)
 
-    contacts = ledger_models.Contact.objects.base_for_user(user=request.user)
+    contacts = ledger_models.Contact.objects.for_user(user=request.user)
 
     preferences = curr_user.preferences
     expenses_filter_form = expense_forms.ExpenseFilterDefaultsForm(
@@ -130,15 +127,18 @@ def add_category_view(request):
 @login_required(login_url='accounts:login')
 def edit_category_view(request, cat_id):
 
-    cat = get_object_or_404(expense_models.ExpenseCategory, id=cat_id, user=request.user)
-    old_name = cat.name
+    cat = get_object_or_404(
+        expense_models.ExpenseCategory.objects.for_user(request.user),
+        id=cat_id,
+    )
+
     if request.method == 'POST':
         form = expense_forms.ExpenseCategoryForm(request.POST, instance=cat, user=request.user)
 
         if form.is_valid():
             new_cat = form.save()
-            messages.success(request, f'"{old_name}" successfully updated as "{new_cat.name}".')
-            return redirect_to_next(request, reverse("base:preferences")) # must change to preferences page
+            messages.success(request, f'"{cat}" successfully updated as "{new_cat}".')
+            return redirect_to_next(request, reverse("base:preferences"))
     else:
         form = expense_forms.ExpenseCategoryForm(instance=cat, user=request.user)
 
@@ -159,7 +159,7 @@ def delete_category_view(request, cat_id):
         request,
         model=expense_models.ExpenseCategory,
         obj_id=cat_id,
-        final_redirect_fallback="base:preferences", # preferences
+        final_redirect_fallback="base:preferences",
     )
 
 
@@ -175,7 +175,7 @@ def add_type_view(request):
             instance.save()
 
             messages.success(request, f'"{instance.name}" successfully added.')
-            return redirect_to_next(request, reverse("base:preferences")) # must change to preferences page
+            return redirect_to_next(request, reverse("base:preferences"))
 
     else:
         form = expense_forms.ExpenseTypeForm()
@@ -194,15 +194,18 @@ def add_type_view(request):
 @login_required(login_url='accounts:login')
 def edit_type_view(request, type_id):
 
-    type = get_object_or_404(expense_models.ExpenseType, id=type_id, user=request.user)
-    old_name = type.name
+    type = get_object_or_404(
+        expense_models.ExpenseType.objects.for_user(request.user),
+        id=type_id
+    )
+
     if request.method == 'POST':
         form = expense_forms.ExpenseTypeForm(request.POST, instance=type, user=request.user)
 
         if form.is_valid():
-            new_cat = form.save()
-            messages.success(request, f'"{old_name}" successfully updated as "{new_cat.name}".')
-            return redirect_to_next(request, reverse("base:preferences")) # must change to preferences page
+            new_type = form.save()
+            messages.success(request, f'"{type}" successfully updated as "{new_type}".')
+            return redirect_to_next(request, reverse("base:preferences"))
     else:
         form = expense_forms.ExpenseTypeForm(instance=type, user=request.user)
 
@@ -223,7 +226,7 @@ def delete_type_view(request, type_id):
         request=request,
         model=expense_models.ExpenseType,
         obj_id=type_id,
-        final_redirect_fallback="base:preferences", # preferences
+        final_redirect_fallback="base:preferences",
     )
 
 
@@ -231,14 +234,15 @@ def delete_type_view(request, type_id):
 def add_contact_view(request):
 
     if request.method == 'POST':
-        form = ledger_forms.ContactForm(request.POST, user=request.user)
+        form = ledger_forms.ContactForm(
+            request.POST,
+            user=request.user,
+        )
 
         if form.is_valid():
-            instance = form.save(commit=False)
-            instance.user = request.user
-            instance.save()
+            instance = form.save()
 
-            messages.success(request, f'"{instance.name}" successfully added.')
+            messages.success(request, f'"{instance}" successfully added.')
             return redirect_to_next(request, reverse("base:preferences"))
     else:
         form = ledger_forms.ContactForm(user=request.user)
@@ -257,14 +261,17 @@ def add_contact_view(request):
 @login_required(login_url='accounts:login')
 def edit_contact_view(request, cont_id):
 
-    contact = get_object_or_404(ledger_models.Contact, id=cont_id, user=request.user)
-    old = contact.name
+    contact = get_object_or_404(
+        ledger_models.Contact.objects.for_user(request.user),
+        id=cont_id
+    )
+
     if request.method == 'POST':
         form = ledger_forms.ContactForm(request.POST, instance=contact, user=request.user)
 
         if form.is_valid():
             new_item = form.save()
-            messages.success(request, f'"{old}" successfully updated as "{new_item.name}".')
+            messages.success(request, f'"{contact}" successfully updated as "{new_item}".')
             return redirect_to_next(request, reverse("base:preferences"))
     else:
         form = ledger_forms.ContactForm(instance=contact, user=request.user)

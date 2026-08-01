@@ -36,7 +36,7 @@ class TransactionForm(forms.ModelForm):
             self.fields['note'].widget.attrs['maxlength'] = str(note_max_len)
             self.fields['note'].widget.attrs['rows'] = str(note_max_len//30 + 1)
 
-        self.fields['contact'].queryset = Contact.objects.base_for_user(self.user)
+        self.fields['contact'].queryset = Contact.objects.for_user(self.user)
 
     def clean_date(self):
 
@@ -47,15 +47,6 @@ class TransactionForm(forms.ModelForm):
             raise forms.ValidationError('You cannot log an expense for a future date!')
 
         return self.cleaned_data['date']
-
-    def clean_note(self):
-        note = self.cleaned_data.get('note', '')
-        max_len = self.Meta.model._meta.get_field('note').max_length
-
-        if note and len(note) > max_len:
-            raise forms.ValidationError(f'Keep it short! Notes cannot exceed {max_len} characters.')
-
-        return note
 
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
@@ -72,22 +63,14 @@ class ContactForm(forms.ModelForm):
         model = Contact
         fields = ['name']
 
-    def __init__(self, *args, **kwargs):
-
-        self.user = kwargs.pop('user', None)
-        if not self.user: raise Exception('User is required')
-
+    def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
+
         self.fields['name'].widget.attrs['placeholder'] = "New Contact (Dad, Mom)"
 
-    def clean_name(self):
-        name = self.cleaned_data.get('name', '')
-        max_len = self.Meta.model._meta.get_field('name').max_length
-
-        if name and len(name) > max_len:
-            raise forms.ValidationError(f'Keep it short! Name cannot exceed {max_len} characters.')
-
-        return name.strip()
+        if not self.instance.pk:
+            self.instance.user = self.user
 
 
 class LedgerSummaryForm(forms.Form):
@@ -104,13 +87,9 @@ class LedgerSummaryForm(forms.Form):
         label='End Date',
     )
 
-    def __init__(self, *args, **kwargs):
-
-        self.user = kwargs.pop('user')
-        if not self.user:
-            raise Exception('User is required')
-
+    def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
 
         today = timezone.localdate().strftime('%Y-%m-%d')
         self.fields['start_date'].widget.attrs['max'] = today
@@ -152,13 +131,9 @@ class LedgerSummaryDefaultsForm(forms.Form):
         label="Timeframe (Summary Page)",
     )
 
-    def __init__(self, *args, **kwargs):
-
-        self.user = kwargs.pop('user', None)
-        if not self.user:
-            raise Exception('User is required')
-
+    def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
 
         defaults = self.user.preferences.get_ledger_preferences(
             "ledger_defaults",
@@ -180,13 +155,9 @@ class LedgerHomeForm(forms.Form):
         })
     )
 
-    def __init__(self, *args, **kwargs):
-
-        self.user = kwargs.pop('user', None)
-        if not self.user:
-            raise ValueError('User is required')
-
+    def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
 
         if not self.is_bound:
             defaults = self.user.preferences.get_ledger_preferences(

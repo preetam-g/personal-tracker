@@ -124,12 +124,6 @@ class HabitPlan(TimeStampedModel):
         related_name='plans',
     )
 
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='plan_users',
-    )
-
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
 
@@ -208,12 +202,6 @@ class DailyProgress(TimeStampedModel):
 
     plan = models.ForeignKey(
         HabitPlan,
-        on_delete=models.CASCADE,
-        related_name='daily_progress',
-    )
-
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='daily_progress',
     )

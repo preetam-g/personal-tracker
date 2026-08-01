@@ -20,20 +20,6 @@ class Contact(SoftDeleteModel, TimeStampedModel):
         related_name="contacts",
     )
 
-    linked_user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="contact_as"
-    )
-
-    link_status = models.CharField(
-        max_length=20,
-        choices=LinkStatus.choices,
-        default=LinkStatus.UNLINKED,
-    )
-
     class Meta:
         ordering = ('name', 'user')
         constraints = [
@@ -47,6 +33,21 @@ class Contact(SoftDeleteModel, TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        super().clean()
+        if not self.name: return
+
+        name = self.name.strip()
+        is_exists = self.__class__.objects.filter(
+            user=self.user,
+            name__iexact=name,
+        ).exclude(pk=self.pk).exists()
+
+        if is_exists:
+            raise ValidationError({
+                'name': f"A similar contact with name '{name}' already exists.",
+            })
 
 
 class Transaction(SoftDeleteModel, TimeStampedModel):
@@ -71,11 +72,6 @@ class Transaction(SoftDeleteModel, TimeStampedModel):
 
     class Meta:
         ordering = ('-date', '-created_at')
-
-    def clean(self):
-        super().clean()
-        if self.amount and self.amount <= 0:
-            raise ValidationError({"amount": "Amount must be strictly positive."})
 
     @property
     def signed_amount(self):

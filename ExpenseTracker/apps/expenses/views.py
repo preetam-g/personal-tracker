@@ -18,7 +18,7 @@ def home_view(request):
     expenses = cache.get_or_set(
         home_key,
         lambda: list(
-            models.Expense.objects.all_for_user(request.user)[:10]
+            models.Expense.objects.for_user(request.user)[:10]
         ),
     )
     return render(request, 'expenses/home.html', {"expenses": expenses})
@@ -62,7 +62,10 @@ def add_expense_view(request):
 @login_required(login_url='accounts:login')
 def edit_expense_view(request, exp_id):
 
-    expense = get_object_or_404(models.Expense, id=exp_id, user=request.user)
+    expense = get_object_or_404(
+        models.Expense.objects.for_user(request.user),
+        id=exp_id,
+    )
 
     if request.method == 'POST':
         form = forms.ExpenseForm(request.POST, instance=expense, user=request.user)

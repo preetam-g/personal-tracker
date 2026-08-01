@@ -15,8 +15,8 @@ def home_view(request):
 
 @login_required(login_url="accounts:login")
 def manage_habits_view(request):
-    habits = Habit.objects.all_for_user(request.user)
-    goals = HabitPlan.objects.all_for_user(request.user).with_habit()
+    habits = Habit.objects.for_user(request.user)
+    goals = HabitPlan.objects.for_user(request.user).with_habit()
     return render(
         request,
         template_name='habits/pages/manage_habits.html',
@@ -39,7 +39,7 @@ def add_habit_view(request):
             instance.user = request.user
             instance.save()
 
-            messages.success(request, f'Created a new habit, "{instance.name}"')
+            messages.success(request, f'Created a new habit, "{instance}"')
         else:
             messages.error(request, 'Failed to add. Please try again later.')
 
@@ -63,15 +63,17 @@ def add_habit_view(request):
 @login_required(login_url="accounts:login")
 def edit_habit_view(request, habit_id):
 
-    habit = get_object_or_404(Habit, pk=habit_id, user=request.user)
+    habit = get_object_or_404(
+        Habit.objects.for_user(request.user),
+        pk=habit_id
+    )
 
     if request.method == 'POST':
         form = HabitForm(request.POST, user=request.user, instance=habit)
 
         if form.is_valid():
             form.save()
-
-            messages.success(request, f'Updated habit, "{habit.name}"')
+            messages.success(request, f'Updated "{habit}"')
         else:
             messages.error(request, 'Failed to update. Please try again later.')
 
@@ -110,10 +112,7 @@ def add_habit_plan_view(request):
         form = HabitPlanForm(request.POST, user=request.user)
 
         if form.is_valid():
-            instance = form.save(commit=False)
-            instance.user = request.user
-            instance.save()
-
+            instance = form.save()
             messages.success(request, f"""{instance} is all set. Time to get started!""")
         else:
             messages.error(request, 'Failed to create. Please try again later.')
@@ -135,9 +134,12 @@ def add_habit_plan_view(request):
 
 
 @login_required(login_url="accounts:login")
-def edit_habit_plan_view(request, habit_id):
+def edit_habit_plan_view(request, plan_id):
 
-    goal = get_object_or_404(HabitPlan, pk=habit_id, user=request.user)
+    goal = get_object_or_404(
+        HabitPlan.objects.for_user(request.user),
+        pk=plan_id
+    )
 
     if request.method == 'POST':
         form = HabitPlanForm(request.POST, user=request.user, instance=goal)
@@ -165,10 +167,10 @@ def edit_habit_plan_view(request, habit_id):
 
 
 @login_required(login_url="accounts:login")
-def delete_habit_plan_view(request, habit_id):
+def delete_habit_plan_view(request, plan_id):
     return delete_object_view(
         request=request,
         model=HabitPlan,
-        obj_id=habit_id,
+        obj_id=plan_id,
         final_redirect_fallback="habits:home",
     )

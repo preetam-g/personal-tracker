@@ -15,11 +15,11 @@ class ExpenseManager(SoftDeleteManager):
     def get_queryset(self) -> SoftDeleteQuerySet:
         return super().get_queryset()
 
-    def all_for_user(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
+    def for_user(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
         return self.get_queryset().filter(user=user).select_related('category', 'type')
 
     def filtered_for_user(self, user:AbstractBaseUser, filter_form:dict) -> SoftDeleteQuerySet:
-        qs = self.all_for_user(user)
+        qs = self.for_user(user)
 
         field_mapping = {
             'start_date': 'date__gte',
@@ -147,13 +147,11 @@ class ExpenseManager(SoftDeleteManager):
 
 class CategoryTypeManager(SoftDeleteManager):
 
-    def user_items(self, user:AbstractBaseUser, include_global=True) -> SoftDeleteQuerySet:
-        query = Q(user=user)
+    def for_user(self, user):
+        return self.filter(user=user)
 
-        if include_global:
-            query |= Q(user__isnull=True)
+    def only_global(self):
+        return self.filter(user__isnull=True)
 
-        return super().get_queryset().filter(query)
-
-    def only_global(self) -> SoftDeleteQuerySet:
-        return super().get_queryset().filter(user__isnull=True)
+    def available_for_user(self, user):
+        return self.filter(Q(user__isnull=True) | Q(user=user))

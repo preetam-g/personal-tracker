@@ -19,12 +19,9 @@ class HabitForm(ModelForm):
             'default_unit' : 'Unit*',
         }
 
-    def __init__(self, *args, **kwargs):
-
-        self.user = kwargs.pop('user')
-        if not self.user: raise Exception('User is required')
-
+    def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
 
 
 class HabitPlanForm(ModelForm):
@@ -49,14 +46,12 @@ class HabitPlanForm(ModelForm):
             "end_date": DateInput(attrs={"type": "date"}),
         }
 
-    def __init__(self, *args, **kwargs):
-
-        self.user = kwargs.pop('user')
-        if not self.user: raise Exception('User is required')
-
+    def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
 
-        self.fields['habit'].queryset = Habit.objects.active().all_for_user(user=self.user)
+        # only active ones for addition
+        self.fields['habit'].queryset = Habit.objects.for_user(user=self.user).active()
         today = timezone.localdate()
         today_str = today.isoformat()
 
