@@ -1,7 +1,8 @@
-from django.forms import ModelForm, DateInput
+from django.forms import ModelForm, DateInput, Form, ChoiceField, Select
 from django.utils import timezone
 
-from apps.habits.models import Habit, HabitPlan
+from apps.base.utils import TimeFrame
+from apps.habits.models import Habit, HabitPlan, DailyProgress
 
 
 class HabitForm(ModelForm):
@@ -22,6 +23,9 @@ class HabitForm(ModelForm):
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
+
+        if not self.instance.pk:
+            self.instance.user = user
 
 
 class HabitPlanForm(ModelForm):
@@ -133,3 +137,27 @@ class HabitPlanForm(ModelForm):
             )
 
         return cleaned_data
+
+
+class DailyProgressForm(ModelForm):
+
+    class Meta:
+        model = DailyProgress
+        fields = (
+            'value',
+        )
+        labels = {
+            'value' : 'Amount Completed*',
+        }
+
+
+class ProgressTrendForm(Form):
+    timeFrame = ChoiceField(
+        choices=TimeFrame,
+        required=False,
+        initial=TimeFrame.SEVEN_DAYS,
+        label='',
+        widget=Select(attrs={
+            'onchange': 'this.form.submit()'
+        })
+    )

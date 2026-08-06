@@ -1,0 +1,63 @@
+{% extends "generic_form.html" %}
+
+{% block sub_header %}
+
+    <p style="margin-bottom: 0.25rem; margin-top: 0.5rem">
+        <strong>Habit:</strong> {{ form.instance.plan.habit }}
+    </p>
+    <p style="margin-bottom: 0.25rem;">
+        <strong>Date:</strong> {{ form.instance.date|date:"F j, Y" }}
+    </p>
+    <p style="margin-bottom: 1rem;">
+        <strong>Target:</strong> {{ form.instance.plan.target_str }}
+    </p>
+
+    <div id="live-progress-container">
+    {% include "habits/partials/progress_bar_with_progress.html" with obj=form.instance %}
+    </div>
+
+{% endblock sub_header %}
+
+{% block form_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const valueInput = document.getElementById("id_value");
+        const container = document.getElementById("live-progress-container");
+
+        if (!valueInput || !container) return;
+
+        const fillElement = container.querySelector(".app-progress-bar-fill");
+        const textElement = container.querySelector(".app-progress-text");
+
+        const targetValue = parseInt("{{ form.instance.plan.target_value }}", 10);
+        const unit = "{{ form.instance.plan.unit }}";
+
+        function updateProgress() {
+            let currentValue = parseInt(valueInput.value, 10);
+            if (isNaN(currentValue) || currentValue < 0) {
+                currentValue = 0;
+            }
+
+            let truePercentage = Math.round((currentValue / targetValue) * 100);
+
+            textElement.textContent = `${currentValue}/${targetValue} ${unit} (${truePercentage}%)`;
+
+            let cssWidth = truePercentage > 100 ? 100 : truePercentage;
+            fillElement.style.width = `${cssWidth}%`;
+
+            fillElement.classList.remove("overachieved");
+
+            if (truePercentage > 100) {
+                fillElement.classList.add("overachieved");
+                fillElement.style.backgroundColor = "";
+            } else {
+                let hue = truePercentage * 1.2;
+                fillElement.style.backgroundColor = `hsl(${hue}, 80%, 45%)`;
+            }
+        }
+
+        valueInput.addEventListener("input", updateProgress);
+        updateProgress();
+    });
+</script>
+{% endblock form_scripts %}

@@ -1,3 +1,5 @@
+{% if goals %}
+
 <article>
     <figure class="app-table-wrapper">
         <table role="grid" class="app-table">
@@ -89,3 +91,21 @@
         </table>
     </figure>
 </article>
+
+{% else %}
+
+ <article style="text-align: center;">
+    <p style="margin-bottom: 0;">
+        <strong>No goals yet</strong>
+    </p>
+    <p style="color: var(--pico-muted-color);">
+        Create a goal to set a target for one of your habits.
+    </p>
+    <a href="{% url 'habits:add_goal' %}?next={{ request.get_full_path|urlencode }}"
+       role="button"
+       class="secondary">
+        🎯 Create your first goal
+    </a>
+</article>
+
+{% endif %}

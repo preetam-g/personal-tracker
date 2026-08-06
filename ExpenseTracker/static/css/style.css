@@ -192,12 +192,26 @@ textarea:disabled {
         text-align: left;
         margin-right: 1rem;
     }
+
+    .app-progress-wrapper {
+        flex-direction: row;
+        max-width: none;
+        gap: 12px;
+    }
+
+    .app-progress-text {
+        white-space: nowrap;
+    }
+
+    .app-progress-bar-bg {
+        width: 120px;
+        flex-shrink: 0;
+    }
 }
 
 /* =========================================
    LEDGER TABLE STICKY HEADER
 ========================================= */
-
 
 .app-table--ledger {
     border-collapse: separate;
@@ -259,4 +273,40 @@ textarea:disabled {
 .ts-control input {
     cursor: pointer;
     height: auto;
+}
+
+/* =========================================
+   DAILY PROGRESS STYLES
+========================================= */
+
+.app-progress-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    max-width: 150px;
+}
+
+.app-progress-text {
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.app-progress-bar-bg {
+    width: 100%;
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.app-progress-bar-fill {
+    height: 100%;
+    background-color: #3b82f6;
+    border-radius: 9999px;
+    transition: width 0.5s ease-in-out;
+}
+
+.app-progress-bar-fill.overachieved {
+    background-color: #8252f1;
 }

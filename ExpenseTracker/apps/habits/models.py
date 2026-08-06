@@ -1,49 +1,4 @@
-"""
-Habit Tracker Models
-
-The habit tracker is designed around four models:
-
-Habit
-    Permanent habit library owned by a user.
-
-HabitPlan
-    Represents a period during which a Habit is actively tracked.
-
-    Stores the configuration used during that period, such as the
-    daily target and unit.
-
-    A Habit can have multiple HabitPlans over time, allowing the user
-    to stop tracking it, restart it later, or change how it is tracked
-    without modifying historical data.
-
-DailyProgress
-    Stores the actual progress made for one HabitPlan on one day.
-
-Relationship diagram
-        User
-        ▼
-        Habit
-        ▼
-        WeeklyGoal
-        ▼
-        DailyProgress
-
-Example
-
-    Habit
-        Water
-
-        HabitPlan
-            Jul 1 -> Jul 20
-            8 glasses/day
-
-        HabitPlan
-            Aug 5 -> NULL
-            4 litres/day
-
-NULL end_date means the HabitPlan is currently active.
-"""
-
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.functions import Lower
 from django.conf import settings
@@ -149,7 +104,8 @@ class HabitPlan(TimeStampedModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.habit.name}, {self.target_str} ({self.start_date})"
+        end = self.end_date or "Ongoing"
+        return f"{self.habit} - {self.target_str} ({self.start_date} → {end})"
 
     @property
     def status(self):
@@ -179,25 +135,38 @@ class HabitPlan(TimeStampedModel):
             )
         )
 
+    def clean(self):
+        super().clean()
+
+        overlapping_plans = HabitPlan.objects.filter(
+            habit=self.habit,
+        ).exclude(pk=self.pk)
+
+        if self.end_date:
+            overlapping_plans = overlapping_plans.filter(
+                start_date__lte=self.end_date,
+            )
+
+        overlapping_plans = overlapping_plans.filter(
+            models.Q(end_date__isnull=True)
+            | models.Q(end_date__gte=self.start_date)
+        )
+
+        if overlapping_plans.exists():
+            raise ValidationError(
+                f"{self.habit} already has a goal during this period. "
+                "Choose dates that don't overlap with the existing goal."
+            )
+
 
 class DailyProgress(TimeStampedModel):
     """
         Progress for one HabitPlan on one calendar day.
-        The target and unit for the progress are determined by the
-        associated HabitPlan.
-        Example:
-            HabitPlan:
-                Water
-                target_value = 8
-                unit = "glasses"
-            DailyProgress:
-                date = 2026-07-25
-                value = 6
-            Result:
-                6 / 8 glasses
-        A missing DailyProgress row can be treated as zero progress.
-        Therefore, rows do not need to be created in advance for every
-        day that a HabitPlan is active.
+
+        A DailyProgress row is maintained for each elapsed day covered by
+        the HabitPlan. Future progress rows are not created.
+
+        The target and unit are determined by the associated HabitPlan.
     """
 
     plan = models.ForeignKey(
@@ -205,11 +174,8 @@ class DailyProgress(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name='daily_progress',
     )
-
     date = models.DateField()
-
     value = models.PositiveIntegerField(default=0)
-    completed_at = models.DateTimeField(null=True, blank=True)
 
     objects = DailyProgressQuerySet.as_manager()
     class Meta:
@@ -222,8 +188,8 @@ class DailyProgress(TimeStampedModel):
             ),
         ]
 
-    def __str__(self):
-        return f"{self.plan.habit.name} - {self.date}"
+    def __str__(self) -> str:
+        return f"{self.plan.habit} - {self.date}"
 
     @property
     def completed(self) -> bool:
@@ -231,12 +197,13 @@ class DailyProgress(TimeStampedModel):
         return self.value >= self.plan.target_value
 
     @property
+    def progress_str(self):
+        return f"{self.value}/{self.plan.target_value} {self.plan.unit}"
+
+    @property
     def percentage(self) -> int:
-        """Return completion percentage"""
-        return min(
-            100,
-            round(100 * self.value / self.plan.target_value),
-        )
+        """Return completion percentage ( can exceed 100 )"""
+        return round(100 * self.value / self.plan.target_value)
 
     @property
     def remaining(self) -> int:
@@ -253,3 +220,11 @@ class DailyProgress(TimeStampedModel):
             0,
             self.value - self.plan.target_value,
         )
+
+    def clean(self):
+        super().clean()
+
+        if self.plan_id and not self.plan.applies_on(self.date):
+            raise ValidationError({
+                "date": "Progress date must fall within the plan's date range."
+            })

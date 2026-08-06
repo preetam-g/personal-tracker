@@ -1,3 +1,5 @@
+{% if habits %}
+
 <article>
         <figure class="app-table-wrapper">
             <table role="grid" class="app-table">
@@ -78,3 +80,17 @@
             </table>
         </figure>
 </article>
+
+{% else %}
+
+<article style="text-align: center;">
+    <p style="color: var(--pico-muted-color);">
+        You haven't created any habits yet.
+    </p>
+    <a href="{% url 'habits:add_habit' %}?next={{ request.get_full_path|urlencode }}"
+       role="button">
+        + Add your first habit
+    </a>
+</article>
+
+{% endif %}

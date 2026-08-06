@@ -12,4 +12,5 @@ urlpatterns = [
     path('goal/add/', views.add_habit_plan_view, name='add_goal'),
     path('goal/<int:plan_id>/edit/', views.edit_habit_plan_view, name='edit_goal'),
     path('goal/<int:plan_id>/delete/', views.delete_habit_plan_view, name='delete_goal'),
+    path('progress/<int:prog_id>/edit/', views.edit_daily_progress_view, name='edit_daily_progress'),
 ]

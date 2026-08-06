@@ -31,19 +31,7 @@
         </small>
     </header>
 
-    {% if habits %}
-        {% include "habits/partials/habits_table.html" %}
-    {% else %}
-        <article style="text-align: center;">
-            <p style="color: var(--pico-muted-color);">
-                You haven't created any habits yet.
-            </p>
-            <a href="{% url 'habits:add_habit' %}?next={{ request.get_full_path|urlencode }}"
-               role="button">
-                + Add your first habit
-            </a>
-        </article>
-    {% endif %}
+    {% include "habits/partials/habits_table.html" %}
 
 </section>
 
@@ -64,25 +52,7 @@
         </div>
     </header>
 
-    {% if goals %}
-        {% include "habits/partials/goals_table.html" %}
-    {% else %}
-
-        <article style="text-align: center;">
-            <p style="margin-bottom: 0;">
-                <strong>No goals yet</strong>
-            </p>
-            <p style="color: var(--pico-muted-color);">
-                Create a goal to set a target for one of your habits.
-            </p>
-            <a href="{% url 'habits:add_goal' %}?next={{ request.get_full_path|urlencode }}"
-               role="button"
-               class="secondary">
-                🎯 Create your first goal
-            </a>
-        </article>
-
-    {% endif %}
+    {% include "habits/partials/goals_table.html" %}
 
 </section>
 

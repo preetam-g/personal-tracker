@@ -1,0 +1,23 @@
+<div class="app-progress-wrapper">
+    <span class="app-progress-text" id="live-progress-text">
+        {{ obj.progress_str }} ({{ obj.percentage }}%)
+    </span>
+    <div class="app-progress-bar-bg">
+        <div
+            id="live-progress-fill"
+            class="
+                app-progress-bar-fill
+                {% if obj.percentage > 100 %}
+                overachieved
+                {% endif %}
+            "
+            style="
+                width: {{ obj.percentage }}%;
+                {% if obj.percentage <= 100 %}
+                    background-color: hsl(calc(min(100, {{ obj.percentage }}) * 1.2), 80%, 45%);
+                {% endif %}
+            "
+        >
+        </div>
+    </div>
+</div>

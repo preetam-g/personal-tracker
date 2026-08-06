@@ -8,12 +8,17 @@ from apps.forex.models import Currency
 
 class UserProfile(AbstractUser, SoftDeleteModel):
     SOFT_DELETE_CASCADES = (
+
         'expenses',
         'expensecategory_items',
         'expensetype_items',
+
         'transactions',
         'contacts',
+
         'preferences',
+
+        'habits',
     )
 
     class Meta:

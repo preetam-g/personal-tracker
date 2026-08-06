@@ -1,5 +1,7 @@
 from django.db.models import TextChoices
 
+from datetime import timedelta
+
 
 class HabitPlanStatus(TextChoices):
     ACTIVE = 'ACTIVE', 'Active'
@@ -13,3 +15,10 @@ class HabitPlanStatus(TextChoices):
             self.ACTIVE: "amount-badge--success",
             self.ENDED: "amount-badge--muted",
         }[self]
+
+
+def dates_between(start_date, end_date):
+    return (
+        start_date + timedelta(days=offset)
+        for offset in range((end_date - start_date).days + 1)
+    )

@@ -1,0 +1,102 @@
+<section style="margin-bottom: 3rem;">
+    <header class="grid" style="margin-bottom: 1rem; align-items: baseline;">
+        <hgroup style="margin-bottom: 0;">
+            <h3 style="margin-bottom: 0.25rem;">Consistency Trend</h3>
+            <p style="color: var(--pico-muted-color);">
+                Your overall completion rate over recent days.
+            </p>
+        </hgroup>
+
+        <div style="text-align: right;">
+            <form method="GET" action="{% url 'habits:home' %}">
+                {{ form.as_p }}
+            </form>
+        </div>
+    </header>
+
+    {% if trend_data %}
+        {{ trend_data|json_script:"trend-data" }}
+
+        <article>
+            <div id="trendWrapper" style="height: 320px; display:flex; align-items:center; justify-content:center;">
+                <canvas id="trendChart"></canvas>
+                <p id="trendEmpty" style="display:none; color: var(--pico-muted-color);">
+                    No data available.
+                </p>
+            </div>
+        </article>
+    {% else %}
+        <article>
+            <p style="text-align: center; color: var(--pico-muted-color); margin: 2rem 0;">
+                Keep tracking your habits to see your trends!
+            </p>
+        </article>
+    {% endif %}
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const trendEl = document.getElementById('trend-data');
+    if (!trendEl) return;
+
+    const trendData = JSON.parse(trendEl.textContent);
+
+    const hasData = trendData.length > 0 && trendData.some(i => i.completion_rate !== null);
+
+    if (!hasData) {
+        document.getElementById('trendChart').style.display = 'none';
+        document.getElementById('trendEmpty').style.display = 'block';
+        document.getElementById('trendEmpty').textContent = "No goals existed during this timeframe.";
+        return;
+    }
+
+    const labels = trendData.map(i => i.date);
+    const rates = trendData.map(i => i.completion_rate);
+
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Completion Rate (%)',
+                data: rates,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                spanGaps: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            if (context.raw === null) {
+                                return 'No goals set';
+                            }
+                            return context.raw + '% completed';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>

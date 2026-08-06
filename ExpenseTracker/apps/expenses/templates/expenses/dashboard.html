@@ -21,9 +21,7 @@
 
         <div style="text-align: right;">
             <form method="GET" action="{% url 'expenses:dashboard' %}">
-                <fieldset role="group">
-                    {{ form.timeFrame }}
-                </fieldset>
+                {{ form.as_p }}
             </form>
         </div>
     </header>

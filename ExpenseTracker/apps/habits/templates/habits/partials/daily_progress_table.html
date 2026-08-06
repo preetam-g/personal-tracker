@@ -1,0 +1,87 @@
+<section style="margin-bottom: 3rem;">
+
+    <header style="margin-bottom: 1rem;">
+        <h3 style="margin-bottom: 0.25rem;">Today's Goals</h3>
+        <small style="color: var(--pico-muted-color);">
+            Small steps every day. Check off your targets for today.
+        </small>
+    </header>
+
+    {% if progresses %}
+
+    <article>
+        <figure class="app-table-wrapper">
+            <table role="grid" class="app-table">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 40%;">Plan</th>
+                        <th scope="col" style="width: 20%;">Completion</th>
+                        <th scope="col" style="width: 5%;">Update</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for progress in progresses %}
+                        <tr>
+                            <td data-label="Plan">
+                                {{ progress.plan }}
+                            </td>
+                            <td data-label="Progress">
+                                {% include "habits/partials/progress_bar_with_progress.html" with obj=progress %}
+                            </td>
+                            <td data-label="Modify" class="app-table-actions">
+                                <a
+                                    href="{% url 'habits:edit_daily_progress' progress.id %}?next={{ request.get_full_path|urlencode }}"
+                                    class="app-btn-icon"
+                                    title="Edit"
+                                >
+                                    <svg
+                                        width="18"
+                                        height="18"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </figure>
+    </article>
+
+    {% else %}
+
+    <article style="text-align: center;">
+        <div style="margin-bottom: 1rem; color: var(--pico-muted-color);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="1"
+                 stroke-linecap="round" stroke-linejoin="round"
+            >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        </div>
+
+        <p style="color: var(--pico-muted-color); margin-bottom: 1.5rem;">
+            You don't have anything for today.
+        </p>
+
+        <a href="{% url 'habits:add_goal' %}?next={{ request.get_full_path|urlencode }}"
+           role="button">
+            + Add a goal for today
+        </a>
+    </article>
+
+    {% endif %}
+
+</section>
