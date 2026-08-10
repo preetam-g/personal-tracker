@@ -5,11 +5,11 @@
         <table role="grid" class="app-table">
             <thead>
                 <tr>
-                    <th scope="col" style="width: 20%;">Habit</th>
-                    <th scope="col" style="width: 20%;">Target (per day)</th>
-                    <th scope="col" style="width: 20%;">Duration</th>
-                    <th scope="col" style="width: 10%;">Status</th>
-                    <th scope="col" style="width: 10%;">Modify</th>
+                    <th scope="col" style="width: 25%;">Habit</th>
+                    <th scope="col" style="width: 25%;">Target (per day)</th>
+                    <th scope="col" style="width: 25%;">Duration</th>
+                    <th scope="col" style="width: 15%;">Status</th>
+                    <th scope="col" style="width: 10%;">Action</th>
                 </tr>
             </thead>
 
@@ -17,7 +17,7 @@
                 {% for goal in goals %}
                     <tr>
                         <td data-label="Habit">
-                            {{ goal.habit }}
+                            <strong>{{ goal.habit.name }}</strong>
                         </td>
                         <td data-label="Target">
                             {{ goal.target_str }}
@@ -36,28 +36,24 @@
                                 {{ goal.status.label }}
                             </span>
                         </td>
-                        <td data-label="Modify" class="app-table-actions">
+                        <td data-label="Action" class="app-table-actions">
+
+                            <a
+                                href="{% url "habits:detail_goal" goal.id %}"
+                                class="app-btn-icon"
+                                title="Manage Daily Progress"
+                            >
+                                {% include 'partials/icons/calendar_icon.html' %}
+                            </a>
+
                             <a
                                 href="{% url 'habits:edit_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
                                 class="app-btn-icon"
-                                title="Edit"
+                                title="Edit Goal Details"
                             >
-                                {% include "partials/icons/edit_icon.html" %}
+                                {% include 'partials/icons/edit_icon.html' %}
                             </a>
 
-                            <button
-                                type="button"
-                                class="app-btn-icon app-btn-danger delete-btn"
-                                title="Delete"
-                                data-action="{% url 'habits:delete_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
-                                data-message="
-                                    Are you sure you want to delete the goal for
-                                    <strong>{{ goal.habit.name }}</strong>?
-                                    This action can't be reversed.
-                                "
-                            >
-                                {% include "partials/icons/delete_icon.html" %}
-                            </button>
                         </td>
                     </tr>
                 {% endfor %}
@@ -73,7 +69,7 @@
         <strong>No goals yet</strong>
     </p>
     <p style="color: var(--pico-muted-color);">
-        Create a goal to set a target for one of your habits.
+        You don't have any active or past goals to track.
     </p>
     <a href="{% url 'habits:add_goal' %}?next={{ request.get_full_path|urlencode }}"
        role="button"
