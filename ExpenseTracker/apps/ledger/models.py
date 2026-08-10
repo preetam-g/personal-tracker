@@ -1,15 +1,14 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Sum, Case, When, F, DecimalField
 from django.db.models.functions import Lower
 
-from apps.base.models import SoftDeleteModel, TimeStampedModel
+from apps.base.models import TimeStampedModel
 from core import settings
 from .managers import TransactionManager, ContactManager
-from .utils import LinkStatus, TransactionType
+from .utils import TransactionType
 
 
-class Contact(SoftDeleteModel, TimeStampedModel):
+class Contact(TimeStampedModel):
 
     objects = ContactManager()
 
@@ -26,7 +25,6 @@ class Contact(SoftDeleteModel, TimeStampedModel):
             models.UniqueConstraint(
                 Lower('name'),
                 'user',
-                condition=models.Q(is_deleted=False),
                 name='unique_%(class)s_per_user_insensitive',
             )
         ]
@@ -50,7 +48,7 @@ class Contact(SoftDeleteModel, TimeStampedModel):
             })
 
 
-class Transaction(SoftDeleteModel, TimeStampedModel):
+class Transaction(TimeStampedModel):
 
     objects = TransactionManager()
 

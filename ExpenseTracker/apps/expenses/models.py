@@ -6,12 +6,12 @@ from django.core.exceptions import ValidationError
 
 from .managers import ExpenseManager, CategoryTypeManager
 
-from apps.base.models import SoftDeleteModel, TimeStampedModel
+from apps.base.models import TimeStampedModel
 from apps.base.utils import DEFAULT_BASE_CURRENCY_CODE, DEFAULT_BASE_CURRENCY_SYMBOL
 from apps.forex.models import Currency
 
 
-class BaseCategoryType(SoftDeleteModel, TimeStampedModel):
+class BaseCategoryType(TimeStampedModel):
 
     name = models.CharField(max_length=50)
     user = models.ForeignKey(
@@ -31,7 +31,6 @@ class BaseCategoryType(SoftDeleteModel, TimeStampedModel):
             models.UniqueConstraint(
                 Lower('name'),
                 'user',
-                condition=models.Q(is_deleted=False),
                 name='unique_%(class)s_per_user_case_insensitive'
             )
         ]
@@ -72,23 +71,27 @@ class ExpenseType(BaseCategoryType):
         verbose_name_plural = "Expense Types"
 
 
-class Expense(SoftDeleteModel, TimeStampedModel):
+class Expense(TimeStampedModel):
 
     objects = ExpenseManager()
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='expenses')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='expenses'
+    )
 
     date = models.DateTimeField(null=False, blank=False)
     amount = models.DecimalField(max_digits=18, decimal_places=8)
     note = models.CharField(blank=True, max_length=50)
 
-    category = models.ForeignKey(ExpenseCategory, on_delete=models.SET_NULL, null=True, blank=True)
-    type = models.ForeignKey(ExpenseType, on_delete=models.SET_NULL, null=True, blank=True)
+    category = models.ForeignKey(ExpenseCategory, on_delete=models.PROTECT, null=True, blank=True)
+    type = models.ForeignKey(ExpenseType, on_delete=models.PROTECT, null=True, blank=True)
 
-    # forex extra fields
-    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, related_name='+') # currency of entered amount
-    exchange_rate = models.DecimalField(max_digits=18, decimal_places=8) # rate used
-    amount_entered = models.DecimalField(max_digits=18, decimal_places=2) # amount entered by user
+    # forex
+    currency = models.ForeignKey(Currency, on_delete=models.PROTECT, related_name='+')
+    exchange_rate = models.DecimalField(max_digits=18, decimal_places=8)
+    amount_entered = models.DecimalField(max_digits=18, decimal_places=2)
 
     @property
     def formatted_amount_entered(self):
@@ -111,7 +114,6 @@ class Expense(SoftDeleteModel, TimeStampedModel):
         ordering = ['-date', '-created_at']
         indexes = [
             models.Index(fields=['user', '-date']),
-            models.Index(fields=['is_deleted']),
         ]
         constraints = [
             models.CheckConstraint(

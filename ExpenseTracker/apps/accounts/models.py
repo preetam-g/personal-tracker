@@ -2,24 +2,11 @@ from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from django.db import models
 
-from apps.base.models import SoftDeleteModel
+from apps.base.models import TimeStampedModel
 from apps.forex.models import Currency
 
 
-class UserProfile(AbstractUser, SoftDeleteModel):
-    SOFT_DELETE_CASCADES = (
-
-        'expenses',
-        'expensecategory_items',
-        'expensetype_items',
-
-        'transactions',
-        'contacts',
-
-        'preferences',
-
-        'habits',
-    )
+class UserProfile(AbstractUser):
 
     class Meta:
         ordering = ['-date_joined']
@@ -28,11 +15,10 @@ class UserProfile(AbstractUser, SoftDeleteModel):
         return self.username
 
 
-class UserPreference(SoftDeleteModel):
+class UserPreference(models.Model):
     """
-    Preferences and custom settings for users. Rows are populated using signals ( in accounts/signals.py ) whenever a new user is created.
+    Preferences and custom settings for users. Rows are populated using signals whenever a new user is created.
     """
-
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -50,13 +36,12 @@ class UserPreference(SoftDeleteModel):
     accounts_preferences = models.JSONField(default=dict, blank=True)
     expenses_preferences = models.JSONField(default=dict, blank=True)
     ledger_preferences = models.JSONField(default=dict, blank=True)
+    habits_preferences = models.JSONField(default=dict, blank=True)
 
-    ui_preferences = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return f"{self.user} preferences"
 
-    # generic helpers
     def _set_preferences(self, field_name: str, **kwargs):
         preferences = getattr(self, field_name)
         preferences.update(kwargs)
@@ -104,13 +89,13 @@ class UserPreference(SoftDeleteModel):
         )
 
 
-    # ui
-    def set_ui_preferences(self, **kwargs):
-        self._set_preferences('ui_preferences', **kwargs)
+    # habits
+    def set_habits_preferences(self, **kwargs):
+        self._set_preferences('habits_preferences', **kwargs)
 
-    def get_ui_preferences(self, key, default=None):
+    def get_habits_preferences(self, key, default=None):
         return self._get_preference(
-            'ui_preferences',
+            'habits_preferences',
             key,
             default,
         )

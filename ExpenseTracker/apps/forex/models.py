@@ -1,7 +1,5 @@
 from django.db import models
 
-from apps.base.models import SoftDeleteModel
-
 
 class Currency(models.Model):
 

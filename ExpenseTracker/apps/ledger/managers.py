@@ -1,31 +1,26 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models.functions import Coalesce
-from django.db.models import Sum, Q, F, DecimalField
+from django.db.models import Sum, Q, F, DecimalField, Manager
 from django.utils import timezone
 
-from apps.base.models import SoftDeleteManager, SoftDeleteQuerySet
 from .utils import TransactionType
 
 from datetime import timedelta, time, datetime
 from decimal import Decimal
 
 
-class TransactionManager(SoftDeleteManager):
+class TransactionManager(Manager):
 
-    def base_for_user(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
+    def base_for_user(self, user:AbstractBaseUser):
         return self.get_queryset().filter(user=user)
 
-    def all_for_user(self, user:AbstractBaseUser) -> SoftDeleteQuerySet:
+    def all_for_user(self, user:AbstractBaseUser):
         return (
             self.base_for_user(user)
             .select_related('contact')
-            # .only(
-            #     'id', 'amount', 'type', 'date', 'note',
-            #     'contact', 'contact__name',
-            # )
         )
 
-    def filtered_for_user(self, user:AbstractBaseUser, filter_form: dict) -> SoftDeleteQuerySet:
+    def filtered_for_user(self, user:AbstractBaseUser, filter_form: dict):
 
         qs = self.all_for_user(user)
 
@@ -51,16 +46,6 @@ class TransactionManager(SoftDeleteManager):
                 contact_name=F('contact__name'),
             )
             .annotate(
-                # lent=Coalesce(
-                #     Sum('amount', filter=Q(type=TransactionType.LENT)),
-                #     Decimal('0.00'),
-                #     output_field=DecimalField(),
-                # ),
-                # borrowed=Coalesce(
-                #     Sum('amount', filter=Q(type=TransactionType.BORROWED)),
-                #     Decimal('0.00'),
-                #     output_field=DecimalField(),
-                # ),
                 sent=Coalesce(
                     Sum('amount', filter=Q(type=TransactionType.MONEY_SENT)),
                     Decimal('0.00'),
@@ -105,8 +90,7 @@ class TransactionManager(SoftDeleteManager):
         }
 
 
-class ContactManager(SoftDeleteManager):
+class ContactManager(Manager):
 
     def for_user(self, user:AbstractBaseUser):
         return self.get_queryset().filter(user=user)
-

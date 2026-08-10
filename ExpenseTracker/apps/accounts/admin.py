@@ -1,16 +1,15 @@
 from django.contrib import admin
 from .models import UserProfile, UserPreference
-from apps.base.admin import SoftDeleteAdmin
 
 
-class UserProfileAdmin(SoftDeleteAdmin):
+class UserProfileAdmin(admin.ModelAdmin):
 
     list_display = ['username', 'first_name', 'last_name', 'email']
     search_fields = ['username', 'email']
     list_filter = ['username']
 
 
-class UserPreferenceAdmin(SoftDeleteAdmin):
+class UserPreferenceAdmin(admin.ModelAdmin):
 
     list_display = [
         'user',
@@ -19,7 +18,6 @@ class UserPreferenceAdmin(SoftDeleteAdmin):
         'accounts_preferences',
         'expenses_preferences',
         'ledger_preferences',
-        'ui_preferences',
     ]
 
     class Meta:
