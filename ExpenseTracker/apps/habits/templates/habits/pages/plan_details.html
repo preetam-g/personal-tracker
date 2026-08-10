@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+    <a href="{% url "habits:history" %}" class="secondary" style="text-decoration: none;">
+        &larr; Back
+    </a>
+</div>
+
+<section style="margin-bottom: 3rem;">
+
+    <header class="grid" style="margin-bottom: 1.5rem; align-items: center;">
+        <hgroup style="margin-bottom: 0;">
+            <h2 style="margin-bottom: 0.25rem;">{{ plan.habit }}</h2>
+            <small style="color: var(--pico-muted-color);">
+                <strong>Target:</strong> {{ plan.target_str }} daily
+                <br />
+                <strong>Duration:</strong> {{ plan.start_date|date:"M j, Y" }} &ndash;
+                {% if plan.end_date %}
+                    {{ plan.end_date|date:"M j, Y" }}
+                {% else %}
+                    Ongoing
+                {% endif %}
+            </small>
+        </hgroup>
+
+        <div style="text-align: right;">
+            <span class="amount-badge {{ plan.status.badge_class }}">
+                {{ plan.status.label }}
+            </span>
+        </div>
+    </header>
+
+{% include "habits/partials/daily_progress_table.html" %}
+
+</section>
+
+<section style="margin-bottom: 3rem;">
+    <header class="grid" style="margin-bottom: 1rem; align-items: baseline;">
+      <hgroup style="margin-bottom: 0;">
+        <h3 style="margin-bottom: 0.25rem;">Progress Trend</h3>
+        <small style="color: var(--pico-muted-color);">
+            Your daily logged progress compared to your target.
+        </small>
+      </hgroup>
+    </header>
+    {% include "habits/partials/plan_trend_chart.html" %}
+</section>
+
+{% endblock %}

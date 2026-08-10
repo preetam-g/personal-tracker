@@ -26,7 +26,15 @@ class HabitForm(ModelForm):
 
         if not self.instance.pk:
             self.instance.user = user
-
+        else:
+            self.fields['name'].disabled = True
+            has_history = self.instance.plans.exists()
+            if has_history:
+                self.fields['name'].disabled = True
+                self.fields['name'].help_text = f"""
+                    You cannot rename a habit once it has active plans. <br />
+                    Please archive it and create a new one instead.
+                """
 
 class HabitPlanForm(ModelForm):
 

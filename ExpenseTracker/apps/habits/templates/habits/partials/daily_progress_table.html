@@ -1,20 +1,13 @@
-<section style="margin-bottom: 3rem;">
 
-    <header style="margin-bottom: 1rem;">
-        <h3 style="margin-bottom: 0.25rem;">Today's Goals</h3>
-        <small style="color: var(--pico-muted-color);">
-            Small steps every day. Check off your targets for today.
-        </small>
-    </header>
-
-    {% if progresses %}
+{% if progresses %}
 
     <article>
         <figure class="app-table-wrapper">
             <table role="grid" class="app-table">
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 40%;">Plan</th>
+                        <th scope="col" style="width: 30%;">Plan</th>
+                        <th scope="col" style="width: 20%">Date</th>
                         <th scope="col" style="width: 20%;">Completion</th>
                         <th scope="col" style="width: 5%;">Update</th>
                     </tr>
@@ -25,6 +18,9 @@
                         <tr>
                             <td data-label="Plan">
                                 {{ progress.plan }}
+                            </td>
+                            <td>
+                                {{ progress.date }}
                             </td>
                             <td data-label="Progress">
                                 {% include "habits/partials/progress_bar_with_progress.html" with obj=progress %}
@@ -57,7 +53,7 @@
         </figure>
     </article>
 
-    {% else %}
+{% else %}
 
     <article style="text-align: center;">
         <div style="margin-bottom: 1rem; color: var(--pico-muted-color);">
@@ -82,6 +78,4 @@
         </a>
     </article>
 
-    {% endif %}
-
-</section>
+{% endif %}

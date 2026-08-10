@@ -8,6 +8,7 @@ from apps.base.views import delete_object_view
 from apps.base.utils import TimeFrame
 from apps.habits.forms import HabitForm, HabitPlanForm, DailyProgressForm, ProgressTrendForm
 from apps.habits.models import Habit, HabitPlan, DailyProgress
+from apps.habits.utils import HabitPlanStatus
 
 
 @login_required(login_url="accounts:login")
@@ -31,11 +32,12 @@ def home_view(request):
     if form.is_valid():
         selected_timeframe = form.cleaned_data.get('timeFrame') or TimeFrame.SEVEN_DAYS
 
+    start_date = TimeFrame.get_start_date(today, selected_timeframe)
     data = (
         DailyProgress.objects
         .for_user(request.user)
         .with_habit()
-        .get_trend_data(selected_timeframe)
+        .get_trend_data(start_date, today)
     )
 
     return render(
@@ -52,7 +54,12 @@ def home_view(request):
 @login_required(login_url="accounts:login")
 def manage_habits_view(request):
     habits = Habit.objects.for_user(request.user)
-    goals = HabitPlan.objects.for_user(request.user).with_habit()
+    goals = (
+        HabitPlan.objects
+        .for_user(request.user)
+        .by_status(HabitPlanStatus.UPCOMING, HabitPlanStatus.ACTIVE)
+        .with_habit()
+    )
     return render(
         request,
         template_name='habits/pages/manage_habits.html',
@@ -233,5 +240,51 @@ def edit_daily_progress_view(request, prog_id):
             'form': form,
             'form_id': 'edit-daily-progress-form',
             'item_name': 'Daily Progress',
+        }
+    )
+
+
+@login_required(login_url="accounts:login")
+def history_view(request):
+
+    goals = (
+        HabitPlan.objects
+        .for_user(request.user)
+        .by_status(HabitPlanStatus.ACTIVE, HabitPlanStatus.ENDED)
+    )
+
+    return render(
+        request,
+        template_name="habits/pages/history.html",
+        context={
+            'goals': goals,
+        }
+    )
+
+
+@login_required(login_url="accounts:login")
+def plan_details_view(request, plan_id):
+
+    plan = get_object_or_404(
+        HabitPlan.objects.for_user(request.user).with_habit(),
+        pk=plan_id,
+    )
+    progresses = plan.daily_progress.all()
+
+    chart_data = [
+        {
+            'date': p.date.strftime('%b %d'),
+            'value': p.value,
+        }
+        for p in reversed(progresses)
+    ]
+
+    return render(
+        request,
+        template_name="habits/pages/plan_details.html",
+        context={
+            "progresses": progresses,
+            "plan": plan,
+            "chart_data": chart_data,
         }
     )

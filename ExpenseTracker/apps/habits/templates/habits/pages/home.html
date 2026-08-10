@@ -12,12 +12,40 @@
     </div>
 
     <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
+        <a href="{% url 'habits:history' %}" role="button" class="secondary outline">History</a>
         <a href="{% url 'habits:manage_habits' %}" role="button">Manage</a>
     </div>
 </div>
 
+<section style="margin-bottom: 3rem;">
+
+    <header style="margin-bottom: 1rem;">
+        <h3 style="margin-bottom: 0.25rem;">Today's Goals</h3>
+        <small style="color: var(--pico-muted-color);">
+            Small steps every day. Check off your targets for today.
+        </small>
+    </header>
+
 {% include "habits/partials/daily_progress_table.html" %}
 
+</section>
+
+<section style="margin-bottom: 3rem;">
+    <header class="grid" style="margin-bottom: 1rem; align-items: baseline;">
+        <hgroup style="margin-bottom: 0;">
+            <h3 style="margin-bottom: 0.25rem;">Consistency Trend</h3>
+            <small style="color: var(--pico-muted-color);">
+                Your overall completion rate over recent days.
+            </small>
+        </hgroup>
+
+        <div style="text-align: right;">
+            <form method="GET" action="{% url 'habits:home' %}">
+                {{ form.as_p }}
+            </form>
+        </div>
+    </header>
 {% include "habits/partials/progress_trend.html" %}
+</section>
 
 {% endblock content %}

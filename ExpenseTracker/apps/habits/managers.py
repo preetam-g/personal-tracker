@@ -6,7 +6,7 @@ from django.utils import timezone
 from datetime import timedelta, date as datetime_date
 
 from apps.base.utils import TimeFrame
-from apps.habits.utils import dates_between
+from apps.habits.utils import dates_between, HabitPlanStatus
 
 
 class HabitQuerySet(models.QuerySet):
@@ -74,6 +74,21 @@ class HabitPlanQuerySet(models.QuerySet):
             ignore_conflicts=True,
         )
 
+    def by_status(self, *statuses):
+        """
+        Filter HabitPlans by one or more HabitPlanStatus values.
+        """
+        if not statuses:
+            return self.none()
+
+        query = Q()
+        for status in statuses:
+            if isinstance(status, str):
+                status = HabitPlanStatus(status)
+            query |= status.query
+
+        return self.filter(query)
+
 
 class DailyProgressQuerySet(models.QuerySet):
 
@@ -89,13 +104,11 @@ class DailyProgressQuerySet(models.QuerySet):
     def in_range(self, start, end):
         return self.filter(date__range=(start, end))
 
-    def get_trend_data(self, timeframe):
-        today = timezone.localdate()
-        start_date = TimeFrame.get_start_date(today, timeframe)
+    def get_trend_data(self, start_date, end_date):
+        qs = self.in_range(start_date, end_date)
 
-        qs = self.in_range(start_date, today)
-
-        if timeframe == TimeFrame.THIS_YEAR:
+        delta_days = (end_date - start_date).days
+        if delta_days > 60:
             stats = (
                 qs.annotate(period=TruncMonth('date'))
                 .values('period')
@@ -103,21 +116,27 @@ class DailyProgressQuerySet(models.QuerySet):
                     total_habits=Count('id'),
                     completed_habits=Count('id', filter=Q(value__gte=models.F('plan__target_value')))
                 )
-                .order_by('period')
             )
 
-            trend_dict = {
-                item['period'].month: round((item['completed_habits'] / item['total_habits']) * 100)
-                for item in stats if item['total_habits'] > 0
-            }
+            trend_dict = {}
+            for item in stats:
+                if item['total_habits'] > 0 and item['period']:
+                    period_date = item['period'].date() if hasattr(item['period'], 'date') else item['period']
+                    trend_dict[period_date] = round((item['completed_habits'] / item['total_habits']) * 100)
 
-            trend_data = [
-                {
-                    'date': datetime_date(today.year, month, 1).strftime("%b %Y"),
-                    'completion_rate': trend_dict.get(month, None)
-                }
-                for month in range(1, today.month + 1)
-            ]
+            trend_data = []
+            current_month = datetime_date(start_date.year, start_date.month, 1)
+            end_month = datetime_date(end_date.year, end_date.month, 1)
+
+            while current_month <= end_month:
+                trend_data.append({
+                    'date': current_month.strftime("%b %Y"),
+                    'completion_rate': trend_dict.get(current_month, None)
+                })
+                if current_month.month == 12:
+                    current_month = datetime_date(current_month.year + 1, 1, 1)
+                else:
+                    current_month = datetime_date(current_month.year, current_month.month + 1, 1)
 
         else:
             stats = qs.values('date').annotate(
@@ -135,12 +154,11 @@ class DailyProgressQuerySet(models.QuerySet):
                     'date': d.strftime('%b %d'),
                     'completion_rate': trend_dict.get(d, None)
                 }
-                for d in dates_between(start_date, today)
+                for d in dates_between(start_date, end_date)
             ]
 
         return {
             'trend_data': trend_data,
             'start_date': start_date.isoformat(),
-            'end_date': today.isoformat(),
-            'timeframe': timeframe,
+            'end_date': end_date.isoformat(),
         }

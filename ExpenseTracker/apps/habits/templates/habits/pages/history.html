@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="margin-bottom: 1.5rem; margin-top: 2rem;">
+    <a href="{% url "habits:home" %}" class="secondary" style="text-decoration: none;">
+        &larr; Back
+    </a>
+</div>
+
+<div style="margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 0;">Past & Active Goals</h2>
+    <p style="color: var(--pico-muted-color); margin-bottom: 0;">
+        Select a goal to manage its daily progress history.
+    </p>
+</div>
+
+{% if goals %}
+
+<article>
+    <figure class="app-table-wrapper">
+        <table role="grid" class="app-table">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 25%;">Habit</th>
+                    <th scope="col" style="width: 25%;">Target (per day)</th>
+                    <th scope="col" style="width: 25%;">Duration</th>
+                    <th scope="col" style="width: 15%;">Status</th>
+                    <th scope="col" style="width: 10%;">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for goal in goals %}
+                    <tr>
+                        <td data-label="Habit">
+                            <strong>{{ goal.habit.name }}</strong>
+                        </td>
+                        <td data-label="Target">
+                            {{ goal.target_str }}
+                        </td>
+                        <td data-label="Duration">
+                            {{ goal.start_date|date:"M j, Y" }}
+                            &ndash;
+                            {% if goal.end_date %}
+                                {{ goal.end_date|date:"M j, Y" }}
+                            {% else %}
+                                Ongoing
+                            {% endif %}
+                        </td>
+                        <td data-label="Status">
+                             <span class="amount-badge {{ goal.status.badge_class }}">
+                                {{ goal.status.label }}
+                            </span>
+                        </td>
+                        <td data-label="Action" class="app-table-actions">
+
+                            <!-- Manage Progress Icon -->
+                            <a
+                                href="{% url "habits:detail_goal" goal.id %}"
+                                class="app-btn-icon"
+                                title="Manage Daily Progress"
+                            >
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </a>
+
+                            <!-- Edit Goal Icon -->
+                            <a
+                                href="{% url 'habits:edit_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
+                                class="app-btn-icon"
+                                title="Edit Goal Details"
+                            >
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </a>
+
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </figure>
+</article>
+
+{% else %}
+
+ <article style="text-align: center;">
+    <p style="margin-bottom: 0;">
+        <strong>No goals yet</strong>
+    </p>
+    <p style="color: var(--pico-muted-color);">
+        You don't have any active or past goals to track.
+    </p>
+    <a href="{% url 'habits:add_goal' %}?next={{ request.get_full_path|urlencode }}"
+       role="button"
+       class="secondary">
+        🎯 Create your first goal
+    </a>
+</article>
+
+{% endif %}
+{% endblock content %}

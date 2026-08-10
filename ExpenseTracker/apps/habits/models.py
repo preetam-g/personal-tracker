@@ -179,7 +179,7 @@ class DailyProgress(TimeStampedModel):
 
     objects = DailyProgressQuerySet.as_manager()
     class Meta:
-        ordering = ["date"]
+        ordering = ["-date", "-id"]
 
         constraints = [
             models.UniqueConstraint(

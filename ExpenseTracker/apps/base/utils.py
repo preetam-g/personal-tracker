@@ -17,10 +17,10 @@ class TimeFrame(models.TextChoices):
         if timeframe == cls.SEVEN_DAYS:
             return today - datetime.timedelta(days=6)
 
-        if timeframe == cls.THIRTY_DAYS:
+        elif timeframe == cls.THIRTY_DAYS:
             return today - datetime.timedelta(days=29)
 
-        if timeframe == cls.THIS_MONTH:
+        elif timeframe == cls.THIS_MONTH:
             return today.replace(day=1)
 
         return today.replace(day=1, month=1)

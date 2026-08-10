@@ -1,0 +1,95 @@
+{% if chart_data %}
+    {{ chart_data|json_script:"plan-chart-data" }}
+
+    <article>
+        <div id="planChartWrapper" style="height: 320px; display:flex; align-items:center; justify-content:center;">
+            <canvas id="planProgressChart"></canvas>
+            <p id="planChartEmpty" style="display:none; color: var(--pico-muted-color);">
+                No data available.
+            </p>
+        </div>
+    </article>
+{% else %}
+    <article>
+        <p style="text-align: center; color: var(--pico-muted-color); margin: 2rem 0;">
+            No daily progress data available yet.
+        </p>
+    </article>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const dataEl = document.getElementById('plan-chart-data');
+    if (!dataEl) return;
+
+    const rawData = JSON.parse(dataEl.textContent);
+
+    if (rawData.length === 0) {
+        document.getElementById('planProgressChart').style.display = 'none';
+        document.getElementById('planChartEmpty').style.display = 'block';
+        return;
+    }
+
+    const labels = rawData.map(i => i.date);
+    const values = rawData.map(i => i.value);
+
+    const targetValue = {{ plan.target_value }};
+    const targetLine = rawData.map(() => targetValue);
+
+    new Chart(document.getElementById('planProgressChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Logged Progress',
+                    data: values,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    order: 1
+                },
+                {
+                    label: 'Daily Target',
+                    data: targetLine,
+                    borderColor: '#f59e0b',
+                    borderDash: [5, 5],
+                    borderWidth: 2,
+                    fill: false,
+                    pointRadius: 0,
+                    pointHitRadius: 0,
+                    order: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    suggestedMax: targetValue + Math.ceil(targetValue * 0.2),
+                    ticks: {
+                        callback: function(value) {
+                            return value + ' {{ plan.unit }}';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.raw + ' {{ plan.unit }}';
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>

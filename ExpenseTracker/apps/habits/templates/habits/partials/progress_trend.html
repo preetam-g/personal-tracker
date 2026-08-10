@@ -1,18 +1,3 @@
-<section style="margin-bottom: 3rem;">
-    <header class="grid" style="margin-bottom: 1rem; align-items: baseline;">
-        <hgroup style="margin-bottom: 0;">
-            <h3 style="margin-bottom: 0.25rem;">Consistency Trend</h3>
-            <p style="color: var(--pico-muted-color);">
-                Your overall completion rate over recent days.
-            </p>
-        </hgroup>
-
-        <div style="text-align: right;">
-            <form method="GET" action="{% url 'habits:home' %}">
-                {{ form.as_p }}
-            </form>
-        </div>
-    </header>
 
     {% if trend_data %}
         {{ trend_data|json_script:"trend-data" }}
@@ -32,7 +17,6 @@
             </p>
         </article>
     {% endif %}
-</section>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
