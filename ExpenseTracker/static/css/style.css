@@ -29,7 +29,8 @@ textarea:disabled {
 ========================================= */
 
 .app-table-wrapper {
-    overflow-y: auto;
+    /*overflow-y: auto;*/
+    overflow: visible !important;
     margin: 0;
     max-height: 100vh;
 }
@@ -80,6 +81,11 @@ textarea:disabled {
 
 .app-btn-icon svg {
     pointer-events: none;
+}
+
+.app-btn-icon[data-tooltip] {
+    border-bottom: none !important;
+    text-decoration: none !important; /* Just in case Pico uses text-decoration in your version */
 }
 
 .app-btn-danger {

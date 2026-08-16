@@ -20,5 +20,6 @@ urlpatterns = [
     path('goal/<int:plan_id>/detail/', views.plan_details_view, name='detail_goal'),
 
     path('progress/<int:prog_id>/edit/', views.edit_daily_progress_view, name='edit_daily_progress'),
+    path('progress/<int:prog_id>/mark_completed/', views.mark_progress_completed_view, name='mark_progress_completed'),
 
 ]

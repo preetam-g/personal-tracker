@@ -28,7 +28,11 @@
                             {% endif %}
                         </td>
                         <td data-label="Modify" class="app-table-actions">
-                            <a href="{% url 'habits:edit_habit' habit.id %}?next={{ request.get_full_path|urlencode }}" class="app-btn-icon" title="Edit">
+                            <a href="{% url 'habits:edit_habit' habit.id %}?next={{ request.get_full_path|urlencode }}"
+                               class="app-btn-icon"
+                               data-tooltip="Edit"
+                               data-placement="left"
+                            >
                                 {% include "partials/icons/edit_icon.html" %}
                             </a>
                             <button type="button"
@@ -37,11 +41,12 @@
                                     app-btn-danger
                                     delete-btn
                                 "
-                                title="Delete"
+                                data-tooltip="Delete"
+                                data-placement="right"
                                 data-action="{% url 'habits:delete_habit' habit.id %}?next={{ request.get_full_path|urlencode }}"
                                 data-message="
                                     Are you sure you want to delete this habit,
-                                    <strong>{{ habit.name }}</strong>?
+                                    <strong>{{ habit }}</strong>?
                                     This action can't be reversed.
                                 ">
                                 {% include "partials/icons/delete_icon.html" %}

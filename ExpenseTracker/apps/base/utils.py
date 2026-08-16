@@ -9,21 +9,24 @@ class TimeFrame(models.TextChoices):
     THIS_YEAR = 'this_year', 'This year'
 
     @classmethod
-    def get_start_date(cls, today: datetime.date, timeframe: str) -> datetime.date:
+    def get_start_date(cls, today: datetime.date, timeframe) -> datetime.date:
         """
         Returns the start date for the selected timeframe.
         The range is inclusive of today.
         """
-        if timeframe == cls.SEVEN_DAYS:
-            return today - datetime.timedelta(days=6)
+        date_mapping = {
+            cls.SEVEN_DAYS: lambda t: t - datetime.timedelta(days=6),
+            cls.THIRTY_DAYS: lambda t: t - datetime.timedelta(days=29),
+            cls.THIS_MONTH: lambda t: t.replace(day=1),
+            cls.THIS_YEAR: lambda t: t.replace(day=1, month=1),
+        }
 
-        elif timeframe == cls.THIRTY_DAYS:
-            return today - datetime.timedelta(days=29)
+        calculation_func = date_mapping.get(
+            timeframe,
+            date_mapping[cls.THIS_YEAR]
+        )
 
-        elif timeframe == cls.THIS_MONTH:
-            return today.replace(day=1)
-
-        return today.replace(day=1, month=1)
+        return calculation_func(today)
 
 
 DEFAULT_BASE_CURRENCY_CODE = 'INR'

@@ -26,10 +26,8 @@
             document.getElementById("habit-defaults").textContent
         );
 
-
         function updateEndDateMin() {
             endDateField.min = startDateField.value;
-
             if (
                 endDateField.value &&
                 endDateField.value < startDateField.value
@@ -37,32 +35,34 @@
                 endDateField.value = "";
             }
         }
-
         startDateField.addEventListener("change", updateEndDateMin);
         updateEndDateMin();
 
-        function updateHabitFields() {
-            const defaults = habitDefaults[habitField.value];
-            const disabled = !defaults;
 
-            targetField.disabled = disabled;
-            unitField.disabled = disabled;
-
-            if (disabled) {
-                targetField.value = "";
-                unitField.value = "";
+        function updateHabitDefaults() {
+            if (habitField.disabled) {
                 return;
             }
 
+            if (!habitField.value) {
+                targetField.value = "";
+                unitField.value = "";
+                targetField.disabled = true;
+                unitField.disabled = true;
+                return;
+            }
+
+            const defaults = habitDefaults[habitField.value];
+            targetField.disabled = false;
+            unitField.disabled = false;
             targetField.value = defaults.target;
             unitField.value = defaults.unit;
-        }
+    }
 
-        habitField.addEventListener("change", updateHabitFields);
-        if (!habitField.value) {
-            targetField.disabled = true;
-            unitField.disabled = true;
-        }
+    habitField.addEventListener("change", updateHabitDefaults);
+    updateHabitDefaults();
+
+
     });
 </script>
 

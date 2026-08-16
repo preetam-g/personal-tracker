@@ -40,7 +40,8 @@
                             <a
                                 href="{% url 'habits:edit_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
                                 class="app-btn-icon"
-                                title="Edit"
+                                data-tooltip="Edit"
+                                data-placement="left"
                             >
                                 {% include "partials/icons/edit_icon.html" %}
                             </a>
@@ -48,12 +49,13 @@
                             <button
                                 type="button"
                                 class="app-btn-icon app-btn-danger delete-btn"
-                                title="Delete"
+                                data-tooltip="Delete"
+                                data-placement="right"
                                 data-action="{% url 'habits:delete_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
                                 data-message="
-                                    Are you sure you want to delete the goal for
-                                    <strong>{{ goal.habit.name }}</strong>?
-                                    This action can't be reversed.
+                                    Are you sure you want to delete
+                                    <strong>{{ goal }}</strong>?
+                                    Your progress will be erased and can not be reversed.
                                 "
                             >
                                 {% include "partials/icons/delete_icon.html" %}

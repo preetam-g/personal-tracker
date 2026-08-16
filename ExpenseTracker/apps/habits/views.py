@@ -1,5 +1,8 @@
+from logging import exception
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.shortcuts import render, reverse, get_object_or_404
 from django.utils import timezone
 
@@ -288,3 +291,25 @@ def plan_details_view(request, plan_id):
             "chart_data": chart_data,
         }
     )
+
+
+@login_required(login_url="accounts:login")
+def mark_progress_completed_view(request, prog_id):
+
+    if request.method == 'POST':
+        progress = get_object_or_404(
+            DailyProgress.objects.for_user(request.user),
+            pk=prog_id,
+        )
+
+        try:
+            with transaction.atomic():
+                progress.value = progress.plan.target_value
+                progress.save(update_fields=["value", "updated_at"])
+
+            messages.success(request, f"{progress} successfully marked as completed!")
+
+        except exception:
+            messages.error(request, "Something went wrong. Please try again later.")
+
+    return redirect_to_next(request, reverse('habits:home'))

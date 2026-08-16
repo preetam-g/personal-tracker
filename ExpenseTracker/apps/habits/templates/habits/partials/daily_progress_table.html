@@ -26,10 +26,40 @@
                                 {% include "habits/partials/progress_bar_with_progress.html" with obj=progress %}
                             </td>
                             <td data-label="Modify" class="app-table-actions">
+                                {% if not progress.completed %}
+                                    <form
+                                        method="post"
+                                        action="{% url 'habits:mark_progress_completed' progress.id %}?next={{ request.get_full_path|urlencode }}"
+                                        style="display: inline;"
+                                    >
+                                        {% csrf_token %}
+                                        <button
+                                            type="submit"
+                                            class="app-btn-icon"
+                                            data-placement="left"
+                                            data-tooltip="Mark completed"
+                                            aria-label="Mark {{ progress }} as completed"
+                                        >
+                                            {% include "partials/icons/check_circle_icon.html" %}
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span
+                                        class="app-btn-icon"
+                                        data-tooltip="Completed"
+                                        data-placement="left"
+                                        aria-label="Completed"
+                                        aria-disabled="true"
+                                        style="opacity: 0.5; cursor: default;"
+                                    >
+                                        {% include "partials/icons/check_circle_icon.html" %}
+                                    </span>
+                                {% endif %}
                                 <a
                                     href="{% url 'habits:edit_daily_progress' progress.id %}?next={{ request.get_full_path|urlencode }}"
                                     class="app-btn-icon"
-                                    title="Edit"
+                                    data-tooltip="Edit"
+                                    data-placement="right"
                                 >
                                     {% include "partials/icons/edit_icon.html" %}
                                 </a>

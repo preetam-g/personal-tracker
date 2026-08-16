@@ -33,10 +33,10 @@ class UserPreference(models.Model):
     show_advanced_currency_features = models.BooleanField(default=True)
 
     # app wise preferences
-    accounts_preferences = models.JSONField(default=dict, blank=True)
-    expenses_preferences = models.JSONField(default=dict, blank=True)
-    ledger_preferences = models.JSONField(default=dict, blank=True)
-    habits_preferences = models.JSONField(default=dict, blank=True)
+    accounts_preferences = models.JSONField(default=dict)
+    expenses_preferences = models.JSONField(default=dict)
+    ledger_preferences = models.JSONField(default=dict)
+    habits_preferences = models.JSONField(default=dict)
 
 
     def __str__(self):
