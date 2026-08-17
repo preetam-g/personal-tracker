@@ -199,6 +199,9 @@ def edit_habit_plan_view(request, plan_id):
         HabitPlan.objects.for_user(request.user),
         pk=plan_id
     )
+    if goal.is_ended:
+        messages.error(request, 'An ended goal can not be modified')
+        raise PermissionDenied
 
     if request.method == 'POST':
         form = HabitPlanForm(request.POST, user=request.user, instance=goal)
@@ -248,9 +251,8 @@ def end_habit_plan_view(request, plan_id):
         HabitPlan.objects.for_user(request.user),
         pk=plan_id,
     )
-
-    if goal.is_ended:
-        messages.error(request, 'Plan already ended.')
+    if not goal.is_active:
+        messages.error(request, 'Only active goals can be ended.')
         raise PermissionDenied
 
     if request.method == 'POST':
@@ -301,9 +303,8 @@ def restart_habit_plan_view(request, plan_id):
         HabitPlan.objects.for_user(request.user),
         pk=plan_id,
     )
-
     if not plan.is_ended:
-        messages.error(request, 'Only ended plans can be started again.')
+        messages.error(request, 'Only ended goals can be started again.')
         raise PermissionDenied
 
     form = HabitPlanForm(
