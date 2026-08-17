@@ -2,6 +2,7 @@ from logging import exception
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import render, reverse, get_object_or_404
 from django.utils import timezone
@@ -69,6 +70,24 @@ def manage_habits_view(request):
         context={
             "habits": habits,
             "goals": goals,
+        }
+    )
+
+
+@login_required(login_url="accounts:login")
+def history_view(request):
+
+    goals = (
+        HabitPlan.objects
+        .for_user(request.user)
+        .by_status(HabitPlanStatus.ACTIVE, HabitPlanStatus.ENDED)
+    )
+
+    return render(
+        request,
+        template_name="habits/pages/history.html",
+        context={
+            'goals': goals,
         }
     )
 
@@ -187,7 +206,7 @@ def edit_habit_plan_view(request, plan_id):
         if form.is_valid():
             form.save()
             messages.success(request,f'Updated goal, "{goal}"')
-        return redirect_to_next(request, reverse('habits:home'))
+            return redirect_to_next(request, reverse('habits:home'))
 
     else:
         form = HabitPlanForm(user=request.user, instance=goal)
@@ -205,11 +224,69 @@ def edit_habit_plan_view(request, plan_id):
 
 @login_required(login_url="accounts:login")
 def delete_habit_plan_view(request, plan_id):
+
+    plan = get_object_or_404(
+        HabitPlan.objects.for_user(request.user),
+        pk=plan_id,
+    )
+    if not plan.is_upcoming:
+        messages.error(request, 'Only upcoming plans can be deleted.')
+        raise PermissionDenied
+
     return delete_object_view(
         request=request,
         model=HabitPlan,
         obj_id=plan_id,
         final_redirect_fallback="habits:home",
+    )
+
+
+@login_required(login_url="accounts:login")
+def end_habit_plan_view(request, plan_id):
+
+    goal = get_object_or_404(
+        HabitPlan.objects.for_user(request.user),
+        pk=plan_id,
+    )
+
+    if request.method == 'POST':
+
+        try:
+            with transaction.atomic():
+                goal.end_date = timezone.localdate()
+                goal.save()
+            messages.success(request,f'Ended "{goal}"')
+        except exception:
+            messages.error(request, 'Failed to end goal. Please try again later.')
+
+    return redirect_to_next(request, reverse('habits:home'))
+
+
+@login_required(login_url="accounts:login")
+def detail_habit_plan_view(request, plan_id):
+
+    plan = get_object_or_404(
+        HabitPlan.objects.for_user(request.user).with_habit(),
+        pk=plan_id,
+    )
+    progresses = plan.daily_progress.all()
+
+    chart_data = [
+        {
+            'date': p.date.strftime('%b %d'),
+            'value': p.value,
+        }
+        for p in reversed(progresses)
+    ]
+
+    return render(
+        request,
+        template_name="habits/pages/plan_details.html",
+        context={
+            "progresses": progresses,
+            "plan": plan,
+            "chart_data": chart_data,
+        }
     )
 
 
@@ -248,53 +325,7 @@ def edit_daily_progress_view(request, prog_id):
 
 
 @login_required(login_url="accounts:login")
-def history_view(request):
-
-    goals = (
-        HabitPlan.objects
-        .for_user(request.user)
-        .by_status(HabitPlanStatus.ACTIVE, HabitPlanStatus.ENDED)
-    )
-
-    return render(
-        request,
-        template_name="habits/pages/history.html",
-        context={
-            'goals': goals,
-        }
-    )
-
-
-@login_required(login_url="accounts:login")
-def plan_details_view(request, plan_id):
-
-    plan = get_object_or_404(
-        HabitPlan.objects.for_user(request.user).with_habit(),
-        pk=plan_id,
-    )
-    progresses = plan.daily_progress.all()
-
-    chart_data = [
-        {
-            'date': p.date.strftime('%b %d'),
-            'value': p.value,
-        }
-        for p in reversed(progresses)
-    ]
-
-    return render(
-        request,
-        template_name="habits/pages/plan_details.html",
-        context={
-            "progresses": progresses,
-            "plan": plan,
-            "chart_data": chart_data,
-        }
-    )
-
-
-@login_required(login_url="accounts:login")
-def mark_progress_completed_view(request, prog_id):
+def mark_completed_daily_progress_view(request, prog_id):
 
     if request.method == 'POST':
         progress = get_object_or_404(
@@ -305,10 +336,8 @@ def mark_progress_completed_view(request, prog_id):
         try:
             with transaction.atomic():
                 progress.value = progress.plan.target_value
-                progress.save(update_fields=["value", "updated_at"])
-
+                progress.save()
             messages.success(request, f"{progress} successfully marked as completed!")
-
         except exception:
             messages.error(request, "Something went wrong. Please try again later.")
 

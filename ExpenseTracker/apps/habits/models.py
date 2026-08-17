@@ -119,6 +119,18 @@ class HabitPlan(TimeStampedModel):
         return HabitPlanStatus.ACTIVE
 
     @property
+    def is_upcoming(self):
+        return self.status == HabitPlanStatus.UPCOMING
+
+    @property
+    def is_active(self):
+        return self.status == HabitPlanStatus.ACTIVE
+
+    @property
+    def is_ended(self):
+        return self.status == HabitPlanStatus.ENDED
+
+    @property
     def target_str(self):
         return f"{self.target_value} {self.unit}"
 

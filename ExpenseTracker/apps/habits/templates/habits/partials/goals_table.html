@@ -1,5 +1,6 @@
 {% if goals %}
 
+{% now "Y-m-d" as today %}
 <article>
     <figure class="app-table-wrapper">
         <table role="grid" class="app-table">
@@ -42,24 +43,48 @@
                                 class="app-btn-icon"
                                 data-tooltip="Edit"
                                 data-placement="left"
-                            >
-                                {% include "partials/icons/edit_icon.html" %}
-                            </a>
-
-                            <button
-                                type="button"
-                                class="app-btn-icon app-btn-danger delete-btn"
-                                data-tooltip="Delete"
-                                data-placement="right"
-                                data-action="{% url 'habits:delete_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
-                                data-message="
-                                    Are you sure you want to delete
-                                    <strong>{{ goal }}</strong>?
-                                    Your progress will be erased and can not be reversed.
-                                "
-                            >
-                                {% include "partials/icons/delete_icon.html" %}
-                            </button>
+                            >{% include "partials/icons/edit.html" %}</a>
+                            {% if goal.is_upcoming %}
+                                <button
+                                    type="button"
+                                    class="app-btn-icon app-btn-danger delete-btn"
+                                    data-tooltip="Delete"
+                                    data-placement="right"
+                                    data-action="{% url 'habits:delete_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
+                                    data-message="
+                                        Are you sure you want to delete
+                                        <strong>{{ goal }}</strong>?
+                                        Your progress will be erased and can not be reversed.
+                                    "
+                                >{% include "partials/icons/delete.html" %}</button>
+                            {% elif goal.is_active %}
+                                    {% if goal.end_date|date:"Y-m-d" != today %}
+                                        <form
+                                            method="post"
+                                            action="{% url "habits:end_goal" goal.id %}?next={{ request.get_full_path|urlencode }}"
+                                            style="display: inline;"
+                                        >
+                                            {%  csrf_token %}
+                                            <button
+                                                type="submit"
+                                                class="app-btn-icon"
+                                                data-tooltip="End Today"
+                                                data-placement="right"
+                                            >{% include "partials/icons/stop_circle.html" %}</button>
+                                        </form>
+                                    {% else %}
+                                        <span
+                                        class="app-btn-icon"
+                                        data-tooltip="Ending Today"
+                                        data-placement="right"
+                                        aria-label="Ending"
+                                        aria-disabled="true"
+                                        style="opacity: 0.5; cursor: default;"
+                                    >
+                                        {% include "partials/icons/stop_circle.html" %}
+                                    </span>
+                                    {% endif %}
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

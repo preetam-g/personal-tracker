@@ -16,10 +16,11 @@ urlpatterns = [
 
     path('goal/add/', views.add_habit_plan_view, name='add_goal'),
     path('goal/<int:plan_id>/edit/', views.edit_habit_plan_view, name='edit_goal'),
+    path('goal/<int:plan_id>/end/', views.end_habit_plan_view, name='end_goal'),
     path('goal/<int:plan_id>/delete/', views.delete_habit_plan_view, name='delete_goal'),
-    path('goal/<int:plan_id>/detail/', views.plan_details_view, name='detail_goal'),
+    path('goal/<int:plan_id>/detail/', views.detail_habit_plan_view, name='detail_goal'),
 
     path('progress/<int:prog_id>/edit/', views.edit_daily_progress_view, name='edit_daily_progress'),
-    path('progress/<int:prog_id>/mark_completed/', views.mark_progress_completed_view, name='mark_progress_completed'),
+    path('progress/<int:prog_id>/mark_completed/', views.mark_completed_daily_progress_view, name='mark_progress_completed'),
 
 ]

@@ -37,7 +37,6 @@
                             </span>
                         </td>
                         <td data-label="Action" class="app-table-actions">
-
                             <a
                                 href="{% url "habits:detail_goal" goal.id %}"
                                 class="app-btn-icon"
@@ -45,19 +44,33 @@
                                 data-tooltip="Plan History"
                                 data-placement="left"
                             >
-                                {% include 'partials/icons/calendar_icon.html' %}
+                                {% include 'partials/icons/calendar.html' %}
                             </a>
-
-                            <a
-                                href="{% url 'habits:edit_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
-                                class="app-btn-icon"
-                                title="Edit Goal Details"
-                                data-tooltip="Edit"
-                                data-placement="right"
-                            >
-                                {% include 'partials/icons/edit_icon.html' %}
-                            </a>
-
+                            {% if goal.is_active %}
+                                <a
+                                    href="{% url 'habits:edit_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
+                                    class="app-btn-icon"
+                                    title="Edit Goal Details"
+                                    data-tooltip="Edit"
+                                    data-placement="right"
+                                >
+                                    {% include 'partials/icons/edit.html' %}
+                                </a>
+                            {% elif goal.is_ended %}
+                                <form
+                                    method="post"
+                                    action="{% url "habits:end_goal" goal.id %}?next={{ request.get_full_path|urlencode }}"
+                                    style="display: inline;"
+                                >
+                                    {%  csrf_token %}
+                                    <button
+                                        type="submit"
+                                        class="app-btn-icon"
+                                        data-tooltip="Restart Today"
+                                        data-placement="right"
+                                    >{% include "partials/icons/repeat.html" %}</button>
+                                </form>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

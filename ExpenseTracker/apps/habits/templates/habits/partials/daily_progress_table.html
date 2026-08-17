@@ -9,7 +9,7 @@
                         <th scope="col" style="width: 30%;">Plan</th>
                         <th scope="col" style="width: 20%">Date</th>
                         <th scope="col" style="width: 20%;">Completion</th>
-                        <th scope="col" style="width: 5%;">Update</th>
+                        <th scope="col" style="width: 5%;">Modify</th>
                     </tr>
                 </thead>
 
@@ -40,7 +40,7 @@
                                             data-tooltip="Mark completed"
                                             aria-label="Mark {{ progress }} as completed"
                                         >
-                                            {% include "partials/icons/check_circle_icon.html" %}
+                                            {% include "partials/icons/check_circle.html" %}
                                         </button>
                                     </form>
                                 {% else %}
@@ -52,7 +52,7 @@
                                         aria-disabled="true"
                                         style="opacity: 0.5; cursor: default;"
                                     >
-                                        {% include "partials/icons/check_circle_icon.html" %}
+                                        {% include "partials/icons/check_circle.html" %}
                                     </span>
                                 {% endif %}
                                 <a
@@ -61,7 +61,7 @@
                                     data-tooltip="Edit"
                                     data-placement="right"
                                 >
-                                    {% include "partials/icons/edit_icon.html" %}
+                                    {% include "partials/icons/edit.html" %}
                                 </a>
                             </td>
                         </tr>
