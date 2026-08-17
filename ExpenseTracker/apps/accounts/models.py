@@ -30,7 +30,6 @@ class UserPreference(models.Model):
         on_delete=models.PROTECT,
         related_name='preferred_by_users',
     )
-    show_advanced_currency_features = models.BooleanField(default=True)
 
     # app wise preferences
     accounts_preferences = models.JSONField(default=dict)

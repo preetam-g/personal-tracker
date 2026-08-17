@@ -9,7 +9,7 @@
                     <th scope="col" style="width: 25%;">Target (per day)</th>
                     <th scope="col" style="width: 25%;">Duration</th>
                     <th scope="col" style="width: 15%;">Status</th>
-                    <th scope="col" style="width: 10%;">Action</th>
+                    <th scope="col" style="width: 10%;">Modify</th>
                 </tr>
             </thead>
 
@@ -36,7 +36,7 @@
                                 {{ goal.status.label }}
                             </span>
                         </td>
-                        <td data-label="Action" class="app-table-actions">
+                        <td class="app-table-actions">
                             <a
                                 href="{% url "habits:detail_goal" goal.id %}"
                                 class="app-btn-icon"

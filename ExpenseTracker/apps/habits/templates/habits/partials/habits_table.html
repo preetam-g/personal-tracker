@@ -27,7 +27,7 @@
                                 </span>
                             {% endif %}
                         </td>
-                        <td data-label="Modify" class="app-table-actions">
+                        <td class="app-table-actions">
                             <a href="{% url 'habits:edit_habit' habit.id %}?next={{ request.get_full_path|urlencode }}"
                                class="app-btn-icon"
                                data-tooltip="Edit"

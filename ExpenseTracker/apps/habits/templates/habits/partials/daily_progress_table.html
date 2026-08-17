@@ -19,13 +19,13 @@
                             <td data-label="Plan">
                                 {{ progress.plan }}
                             </td>
-                            <td>
+                            <td data-label="Date">
                                 {{ progress.date }}
                             </td>
                             <td data-label="Progress">
                                 {% include "habits/partials/progress_bar_with_progress.html" with obj=progress %}
                             </td>
-                            <td data-label="Modify" class="app-table-actions">
+                            <td class="app-table-actions">
                                 {% if not progress.completed %}
                                     <form
                                         method="post"
