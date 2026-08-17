@@ -249,6 +249,10 @@ def end_habit_plan_view(request, plan_id):
         pk=plan_id,
     )
 
+    if goal.is_ended:
+        messages.error(request, 'Plan already ended.')
+        raise PermissionDenied
+
     if request.method == 'POST':
 
         try:
@@ -289,6 +293,51 @@ def detail_habit_plan_view(request, plan_id):
         }
     )
 
+
+@login_required(login_url="accounts:login")
+def restart_habit_plan_view(request, plan_id):
+
+    plan = get_object_or_404(
+        HabitPlan.objects.for_user(request.user),
+        pk=plan_id,
+    )
+
+    if not plan.is_ended:
+        messages.error(request, 'Only ended plans can be started again.')
+        raise PermissionDenied
+
+    form = HabitPlanForm(
+        request.POST or None,
+        user=request.user,
+        initial={
+            "habit": plan.habit_id,
+            "target_value": plan.target_value,
+            "unit": plan.unit,
+            "start_date": timezone.localdate(),
+        },
+    )
+
+    if request.method == "POST" and form.is_valid():
+        instance = form.save()
+        messages.success(
+            request,
+            f"{instance} is all set. Time to get started!",
+        )
+
+        return redirect_to_next(
+            request,
+            reverse("habits:home"),
+        )
+
+    return render(
+        request,
+        template_name="habits/pages/habit_plan_form.html",
+        context={
+            "form": form,
+            "form_id": "restart-habit-plan-form",
+            "item_name": "Goal",
+        },
+    )
 
 @login_required(login_url="accounts:login")
 def edit_daily_progress_view(request, prog_id):

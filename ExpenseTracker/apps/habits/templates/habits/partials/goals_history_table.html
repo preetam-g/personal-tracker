@@ -41,7 +41,7 @@
                                 href="{% url "habits:detail_goal" goal.id %}"
                                 class="app-btn-icon"
                                 title="Manage Daily Progress"
-                                data-tooltip="Plan History"
+                                data-tooltip="History"
                                 data-placement="left"
                             >
                                 {% include 'partials/icons/calendar.html' %}
@@ -50,26 +50,18 @@
                                 <a
                                     href="{% url 'habits:edit_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
                                     class="app-btn-icon"
-                                    title="Edit Goal Details"
                                     data-tooltip="Edit"
                                     data-placement="right"
                                 >
                                     {% include 'partials/icons/edit.html' %}
                                 </a>
                             {% elif goal.is_ended %}
-                                <form
-                                    method="post"
-                                    action="{% url "habits:end_goal" goal.id %}?next={{ request.get_full_path|urlencode }}"
-                                    style="display: inline;"
-                                >
-                                    {%  csrf_token %}
-                                    <button
-                                        type="submit"
-                                        class="app-btn-icon"
-                                        data-tooltip="Restart Today"
-                                        data-placement="right"
-                                    >{% include "partials/icons/repeat.html" %}</button>
-                                </form>
+                                <a
+                                    href="{% url "habits:restart_goal" goal.id %}?next={{ request.get_full_path|urlencode }}"
+                                    class="app-btn-icon"
+                                    data-tooltip="Start Again"
+                                    data-placement="right"
+                                >{% include "partials/icons/repeat.html" %}</a>
                             {% endif %}
                         </td>
                     </tr>

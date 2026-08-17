@@ -27,10 +27,18 @@
         );
 
         function updateEndDateMin() {
-            endDateField.min = startDateField.value;
+            const startDate = startDateField.value;
+            const currentMin = endDateField.min;
+            if (!startDate) {
+                return;
+            }
+            const minDate = startDate > currentMin
+                ? startDate
+                : currentMin;
+            endDateField.min = minDate;
             if (
                 endDateField.value &&
-                endDateField.value < startDateField.value
+                endDateField.value < minDate
             ) {
                 endDateField.value = "";
             }
