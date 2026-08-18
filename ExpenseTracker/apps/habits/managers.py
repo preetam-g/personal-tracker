@@ -17,6 +17,15 @@ class HabitQuerySet(models.QuerySet):
     def active(self):
         return self.filter(is_active=True)
 
+    def inactive(self):
+        return self.filter(is_active=False)
+
+    def active_or(self, habit):
+        """Returns active habits along with the provided habit"""
+        return self.filter(
+            models.Q(is_active=True) | models.Q(pk=habit.pk)
+        )
+
 
 class HabitPlanQuerySet(models.QuerySet):
 

@@ -13,6 +13,8 @@ urlpatterns = [
     path('habit/add/', views.add_habit_view, name='add_habit'),
     path('habit/<int:habit_id>/edit/', views.edit_habit_view, name='edit_habit'),
     path('habit/<int:habit_id>/delete/', views.delete_habit_view, name='delete_habit'),
+    path('habit/<int:habit_id>/archive/', views.archive_habit_view, name='archive_habit'),
+    path('habit/<int:habit_id>/unarchive/', views.unarchive_habit_view, name='unarchive_habit'),
 
     path('goal/add/', views.add_habit_plan_view, name='add_goal'),
     path('goal/<int:plan_id>/edit/', views.edit_habit_plan_view, name='edit_goal'),

@@ -57,7 +57,11 @@ def home_view(request):
 
 @login_required(login_url="accounts:login")
 def manage_habits_view(request):
-    habits = Habit.objects.for_user(request.user)
+    habits = (
+        Habit.objects
+        .for_user(request.user)
+        .order_by('-is_active', 'name')
+    )
     goals = (
         HabitPlan.objects
         .for_user(request.user)
@@ -151,6 +155,50 @@ def edit_habit_view(request, habit_id):
 
 
 @login_required(login_url="accounts:login")
+def archive_habit_view(request, habit_id):
+    habit = get_object_or_404(
+        Habit.objects.for_user(request.user).active(),
+        pk=habit_id,
+    )
+
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+                habit.is_active = False
+                habit.save(update_fields=["is_active"])
+            messages.success(request, f'You will no longer see "{habit}" while creating goals.')
+        except exception:
+            messages.error(request, "Something went wrong. Please try again later.")
+
+    return redirect_to_next(
+        request,
+        reverse("habits:home"),
+    )
+
+
+@login_required(login_url="accounts:login")
+def unarchive_habit_view(request, habit_id):
+    habit = get_object_or_404(
+        Habit.objects.for_user(request.user).filter(is_active=False),
+        pk=habit_id,
+    )
+
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+                habit.is_active = True
+                habit.save(update_fields=["is_active"])
+            messages.success(request, f'You can now create new goals using "{habit}"')
+        except exception:
+            messages.error(request, "Something went wrong. Please try again later.")
+
+    return redirect_to_next(
+        request,
+        reverse("habits:home"),
+    )
+
+
+@login_required(login_url="accounts:login")
 def delete_habit_view(request, habit_id):
     return delete_object_view(
         request=request,
@@ -204,15 +252,29 @@ def edit_habit_plan_view(request, plan_id):
         raise PermissionDenied
 
     if request.method == 'POST':
-        form = HabitPlanForm(request.POST, user=request.user, instance=goal)
+        form = HabitPlanForm(
+            request.POST,
+            user=request.user,
+            instance=goal,
+            extra_habit=goal.habit,
+        )
 
         if form.is_valid():
-            form.save()
+            with transaction.atomic():
+                instance = form.save()
+                if not instance.habit.is_active:
+                    instance.habit.is_active = True
+                    instance.habit.save(update_fields=["is_active"])
+
             messages.success(request,f'Updated goal, "{goal}"')
             return redirect_to_next(request, reverse('habits:home'))
 
     else:
-        form = HabitPlanForm(user=request.user, instance=goal)
+        form = HabitPlanForm(
+            user=request.user,
+            instance=goal,
+            extra_habit=goal.habit,
+        )
 
     return render(
         request,
@@ -310,6 +372,7 @@ def restart_habit_plan_view(request, plan_id):
     form = HabitPlanForm(
         request.POST or None,
         user=request.user,
+        extra_habit=plan.habit,
         initial={
             "habit": plan.habit_id,
             "target_value": plan.target_value,
@@ -319,7 +382,13 @@ def restart_habit_plan_view(request, plan_id):
     )
 
     if request.method == "POST" and form.is_valid():
-        instance = form.save()
+        with transaction.atomic():
+            instance = form.save()
+
+            if not instance.habit.is_active:
+                instance.habit.is_active = True
+                instance.habit.save(update_fields=["is_active"])
+
         messages.success(
             request,
             f"{instance} is all set. Time to get started!",

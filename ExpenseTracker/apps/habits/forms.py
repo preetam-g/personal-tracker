@@ -55,12 +55,21 @@ class HabitPlanForm(ModelForm):
             "end_date": DateInput(attrs={"type": "date"}),
         }
 
-    def __init__(self, *args, user, **kwargs):
+    def __init__(self, *args, user, extra_habit=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
+        self.extra_habit = extra_habit
 
-        # only active ones for addition
-        self.fields['habit'].queryset = Habit.objects.for_user(user=self.user).active()
+        self.fields['habit'].queryset = (
+            Habit.objects.for_user(user=self.user)
+            .active()
+        )
+        if self.extra_habit:
+            self.fields['habit'].queryset = (
+                Habit.objects.for_user(user=self.user)
+                .active_or(self.extra_habit)
+            )
+
         today = timezone.localdate()
         today_str = today.isoformat()
 
