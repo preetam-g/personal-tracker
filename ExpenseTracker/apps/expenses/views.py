@@ -98,7 +98,6 @@ def delete_expense_view(request, exp_id):
     return delete_object_view(
         request=request,
         model=models.Expense,
-        name="Expense",
         obj_id=exp_id,
         final_redirect_fallback="expenses:home",
         cache_delete_func=utils.invalidate_expenses_caches,

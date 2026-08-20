@@ -123,7 +123,7 @@ class Expense(TimeStampedModel):
         ]
 
     def __str__(self):
-        return f"{self.amount}, {timezone.localdate(self.date)} ({self.user.username})"
+        return f"{self.formatted_amount_entered}, {timezone.localdate(self.date)}"
 
     def clean(self):
         super().clean()
