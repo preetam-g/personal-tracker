@@ -33,7 +33,7 @@ class CategoryTypeValidationForm(forms.ModelForm):
             return cleaned_data
 
         model = self._meta.model
-        base_qs = model.all_objects.filter(filters)
+        base_qs = model.objects.filter(filters)
 
         if self.include_global:
             base_qs = base_qs.filter(Q(user=self.user) | Q(user__isnull=True))
@@ -44,17 +44,11 @@ class CategoryTypeValidationForm(forms.ModelForm):
         if self.instance.pk:
             base_qs = base_qs.exclude(pk=self.instance.pk)
 
-        active_qs = base_qs.filter(is_deleted=False)
-        deleted_qs = base_qs.filter(is_deleted=True)
-
-        if active_qs.exists():
+        if base_qs.exists():
             for field in self.unique_fields:
                 name = self.cleaned_data.get(field)
                 self.add_error(field, f'"{name}" already exists!')
                 return cleaned_data
-
-        if deleted_qs.exists():
-            self._restore_instance = deleted_qs.first()
 
         return cleaned_data
 
