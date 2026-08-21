@@ -29,10 +29,7 @@ textarea:disabled {
 ========================================= */
 
 .app-table-wrapper {
-    /*overflow-y: auto;*/
-    overflow: visible !important;
     margin: 0;
-    max-height: 100vh;
 }
 
 .app-table th {
