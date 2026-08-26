@@ -1,6 +1,6 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db.models.functions import Coalesce
-from django.db.models import Sum, Q, F, DecimalField, Manager
+from django.db.models import Sum, Q, F, DecimalField, QuerySet
 from django.utils import timezone
 
 from .utils import TransactionType
@@ -9,20 +9,17 @@ from datetime import timedelta, time, datetime
 from decimal import Decimal
 
 
-class TransactionManager(Manager):
+class TransactionQuerySet(QuerySet):
 
-    def base_for_user(self, user:AbstractBaseUser):
-        return self.get_queryset().filter(user=user)
+    def for_user(self, user:AbstractBaseUser):
+        return self.filter(contact__user=user)
 
-    def all_for_user(self, user:AbstractBaseUser):
-        return (
-            self.base_for_user(user)
-            .select_related('contact')
-        )
+    def with_contact(self, contact):
+        return self.filter(contact=contact)
 
-    def filtered_for_user(self, user:AbstractBaseUser, filter_form: dict):
+    def filtered(self, filter_form: dict):
 
-        qs = self.all_for_user(user)
+        qs = self
 
         start_date = filter_form.get('start_date')
         if start_date:
@@ -36,9 +33,9 @@ class TransactionManager(Manager):
 
         return qs
 
-    def get_contacts_summary(self, user:AbstractBaseUser, filter_form:dict) -> dict:
+    def get_contacts_summary(self) -> dict:
 
-        qs = self.filtered_for_user(user, filter_form).order_by()
+        qs = self
 
         aggregates = list(
             qs.values(
@@ -90,7 +87,7 @@ class TransactionManager(Manager):
         }
 
 
-class ContactManager(Manager):
+class ContactQuerySet(QuerySet):
 
     def for_user(self, user:AbstractBaseUser):
-        return self.get_queryset().filter(user=user)
+        return self.filter(user=user)
