@@ -116,7 +116,13 @@ def summary_view(request):
     else:
         filters = form.initial
 
-    context_data = Transaction.objects.get_contacts_summary(request.user, filters)
+    context_data = (
+        Transaction.objects
+        .for_user(request.user)
+        .with_contact()
+        .filter_with_form(filters)
+        .get_contacts_summary()
+    )
     return render(
         request,
         template_name='ledger/summary_page.html',
