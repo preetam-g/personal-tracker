@@ -30,6 +30,8 @@ textarea:disabled {
 
 .app-table-wrapper {
     margin: 0;
+    max-height: 100vh;
+    overflow: auto;
 }
 
 .app-table th {
