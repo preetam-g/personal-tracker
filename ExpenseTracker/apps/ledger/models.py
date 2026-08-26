@@ -68,6 +68,15 @@ class Transaction(TimeStampedModel):
     date = models.DateTimeField()
     note = models.TextField(null=True, blank=True, max_length=50)
 
+    is_settled = models.BooleanField(default=False)
+    settlement = models.ForeignKey(
+        'TransactionSettlement',
+        on_delete=models.PROTECT,
+        related_name='transactions',
+        null=True,
+        blank=True,
+    )
+
     class Meta:
         ordering = ('-date', '-created_at')
 
@@ -83,3 +92,30 @@ class Transaction(TimeStampedModel):
 
     def __str__(self):
         return f"{self.get_type_display()}: {self.amount} on {self.date}"
+
+
+class TransactionSettlement(TimeStampedModel):
+
+    contact = models.ForeignKey(
+        Contact,
+        on_delete=models.PROTECT,
+        related_name='settlements'
+    )
+
+    date = models.DateField()
+    carry_forward_transaction = models.OneToOneField(
+        Transaction,
+        on_delete=models.PROTECT,
+        related_name='carry_forward_settlement',
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        ordering = ('-date', '-created_at')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['contact', 'date'],
+                name='unique_contact_settlement_per_date',
+            )
+        ]
