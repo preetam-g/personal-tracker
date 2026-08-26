@@ -20,11 +20,9 @@ class TransactionForm(forms.ModelForm):
             'type': 'Type*',
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, user, **kwargs):
 
-        self.user = kwargs.pop('user', None)
-        if not self.user: raise Exception('User is required')
-
+        self.user = user
         super().__init__(*args, **kwargs)
 
         today = timezone.localdate().strftime('%Y-%m-%d')

@@ -11,13 +11,13 @@ from decimal import Decimal
 
 class TransactionQuerySet(QuerySet):
 
-    def for_user(self, user:AbstractBaseUser):
+    def for_user(self, user):
         return self.filter(contact__user=user)
 
-    def with_contact(self, contact):
-        return self.filter(contact=contact)
+    def with_contact(self):
+        return self.select_related('contact')
 
-    def filtered(self, filter_form: dict):
+    def filter_with_form(self, filter_form: dict):
 
         qs = self
 
@@ -89,5 +89,5 @@ class TransactionQuerySet(QuerySet):
 
 class ContactQuerySet(QuerySet):
 
-    def for_user(self, user:AbstractBaseUser):
+    def for_user(self, user):
         return self.filter(user=user)

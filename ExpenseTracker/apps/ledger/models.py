@@ -77,4 +77,4 @@ class Transaction(TimeStampedModel):
         return -self.amount
 
     def __str__(self):
-        return f"{self.get_type_display()}: {self.amount} on {self.date}"
+        return f"{self.get_type_display()}: {self.amount} on {self.date.date()}"
