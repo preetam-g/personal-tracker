@@ -84,12 +84,9 @@ def edit_transaction_view(request, tran_id):
 
         form = TransactionForm(request.POST, instance=transaction, user=request.user)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Transaction has been updated.')
-        else:
-            messages.error(request, 'Failed to update. Please try again later.')
-
-        return redirect_to_next(request, reverse("ledger:home"))
+            transaction= form.save()
+            messages.success(request, f'{transaction} has been updated.')
+            return redirect_to_next(request, reverse("ledger:home"))
 
     else:
         form = TransactionForm(instance=transaction, user=request.user)
