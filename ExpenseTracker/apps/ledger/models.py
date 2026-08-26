@@ -4,13 +4,13 @@ from django.db.models.functions import Lower
 
 from apps.base.models import TimeStampedModel
 from core import settings
-from .managers import TransactionManager, ContactManager
+from .managers import TransactionQuerySet, ContactQuerySet
 from .utils import TransactionType
 
 
 class Contact(TimeStampedModel):
 
-    objects = ContactManager()
+    objects = ContactQuerySet.as_manager()
 
     name = models.CharField(max_length=100)
     user = models.ForeignKey(
@@ -50,16 +50,11 @@ class Contact(TimeStampedModel):
 
 class Transaction(TimeStampedModel):
 
-    objects = TransactionManager()
+    objects = TransactionQuerySet.as_manager()
 
     contact = models.ForeignKey(
         Contact,
         on_delete=models.PROTECT,
-        related_name='transactions'
-    )
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
         related_name='transactions'
     )
 

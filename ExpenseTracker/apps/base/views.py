@@ -35,7 +35,7 @@ def delete_object_view(request, model, obj_id, final_redirect_fallback: str , na
 
             if cnt:
                 if cache_delete_func:
-                    cache_delete_func(obj)
+                    cache_delete_func(request.user)
                 messages.success(request, f'"{name}" successfully deleted.')
             else:
                 messages.error(request, 'Failed to delete. Try again later.')
