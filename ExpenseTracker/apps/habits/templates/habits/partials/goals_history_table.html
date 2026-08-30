@@ -25,11 +25,7 @@
                         <td data-label="Duration">
                             {{ goal.start_date|date:"M j, Y" }}
                             &ndash;
-                            {% if goal.end_date %}
-                                {{ goal.end_date|date:"M j, Y" }}
-                            {% else %}
-                                Ongoing
-                            {% endif %}
+                            {{ goal.end_date|date:"M j, Y"|default:"Ongoing" }}
                         </td>
                         <td data-label="Status">
                              <span class="amount-badge {{ goal.status.badge_class }}">
@@ -41,8 +37,7 @@
                                 href="{% url "habits:detail_goal" goal.id %}"
                                 class="app-btn-icon"
                                 title="Manage Daily Progress"
-                                data-tooltip="History"
-                                data-placement="left"
+                                data-tippy-content="History"
                             >
                                 {% include 'partials/icons/calendar.html' %}
                             </a>
@@ -50,8 +45,7 @@
                                 <a
                                     href="{% url 'habits:edit_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
                                     class="app-btn-icon"
-                                    data-tooltip="Edit"
-                                    data-placement="right"
+                                    data-tippy-content="Edit"
                                 >
                                     {% include 'partials/icons/edit.html' %}
                                 </a>
@@ -59,8 +53,7 @@
                                 <a
                                     href="{% url "habits:restart_goal" goal.id %}?next={{ request.get_full_path|urlencode }}"
                                     class="app-btn-icon"
-                                    data-tooltip="Start Again"
-                                    data-placement="right"
+                                    data-tippy-content="Start Again"
                                 >{% include "partials/icons/repeat.html" %}</a>
                             {% endif %}
                         </td>

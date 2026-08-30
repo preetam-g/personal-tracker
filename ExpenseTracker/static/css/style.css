@@ -31,7 +31,7 @@ textarea:disabled {
 .app-table-wrapper {
     margin: 0;
     max-height: 100vh;
-    overflow: auto;
+    overflow: visible auto;
 }
 
 .app-table th {
@@ -48,17 +48,24 @@ textarea:disabled {
 ========================================= */
 
 .app-table-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    white-space: nowrap !important;
+    vertical-align: middle;
+}
+
+.app-table-actions form {
+    display: inline-flex !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle;
 }
 
 .app-btn-icon {
-    padding: 0.35rem;
-    margin-bottom: 0;
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
+    vertical-align: middle;
+    padding: 0.35rem;
+    margin: 0 0.15rem !important;
     border: none;
     background: transparent;
     box-shadow: none;
@@ -82,9 +89,9 @@ textarea:disabled {
     pointer-events: none;
 }
 
-.app-btn-icon[data-tooltip] {
+.app-btn-icon[data-tippy-content] {
     border-bottom: none !important;
-    text-decoration: none !important; /* Just in case Pico uses text-decoration in your version */
+    text-decoration: none !important;
 }
 
 .app-btn-danger {
@@ -209,31 +216,10 @@ textarea:disabled {
     }
 
     .app-progress-bar-bg {
-        width: 120px;
+        width: 100px;
         flex-shrink: 0;
     }
 }
-
-/* =========================================
-   LEDGER TABLE STICKY HEADER
-========================================= */
-
-.app-table--ledger {
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.app-table--ledger thead {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-}
-
-.app-table--ledger thead th {
-    background-color: var(--pico-background-color);
-    box-shadow: 0 1px 0 var(--pico-muted-border-color);
-}
-
 
 /* =========================================
    TOM SELECT INPUT STYLES

@@ -28,48 +28,39 @@
                             {% endif %}
                         </td>
                         <td class="app-table-actions">
+                            {% if habit.is_active %}
+                                <form
+                                    method="post"
+                                    action="{% url 'habits:archive_habit' habit.id %}?next={{ request.get_full_path|urlencode }}"
+                                    style="display: inline;"
+                                >
+                                    {% csrf_token %}
+                                    <button
+                                        type="submit"
+                                        class="app-btn-icon"
+                                        data-tippy-content="Mark Inactive"
+                                        aria-label="Mark {{ habit }} as inactive"
+                                    >{% include "partials/icons/archive.html" %}</button>
+                                </form>
+                            {% else %}
+                               <form
+                                    method="post"
+                                    action="{% url 'habits:unarchive_habit' habit.id %}?next={{ request.get_full_path|urlencode }}"
+                                    style="display: inline;"
+                                >
+                                    {% csrf_token %}
+                                    <button
+                                        type="submit"
+                                        class="app-btn-icon"
+                                        data-tippy-content="Mark Active"
+                                        aria-label="Mark {{ habit }} as active"
+                                    >{% include "partials/icons/unarchive.html" %}</button>
+                                </form>
+                            {% endif %}
                             <a href="{% url 'habits:edit_habit' habit.id %}?next={{ request.get_full_path|urlencode }}"
                                class="app-btn-icon"
-                               data-tooltip="Edit"
-                               data-placement="left"
-                            >
-                                {% include "partials/icons/edit.html" %}
-                            </a>
-                            {% if habit.is_active %}
-                                    <form
-                                        method="post"
-                                        action="{% url 'habits:archive_habit' habit.id %}?next={{ request.get_full_path|urlencode }}"
-                                        style="display: inline;"
-                                    >
-                                        {% csrf_token %}
-                                        <button
-                                            type="submit"
-                                            class="app-btn-icon"
-                                            data-placement="right"
-                                            data-tooltip="Mark Inactive"
-                                            aria-label="Mark {{ habit }} as inactive"
-                                        >
-                                            {% include "partials/icons/archive.html" %}
-                                        </button>
-                                    </form>
-                                {% else %}
-                                   <form
-                                        method="post"
-                                        action="{% url 'habits:unarchive_habit' habit.id %}?next={{ request.get_full_path|urlencode }}"
-                                        style="display: inline;"
-                                    >
-                                        {% csrf_token %}
-                                        <button
-                                            type="submit"
-                                            class="app-btn-icon"
-                                            data-placement="right"
-                                            data-tooltip="Mark Active"
-                                            aria-label="Mark {{ habit }} as active"
-                                        >
-                                            {% include "partials/icons/unarchive.html" %}
-                                        </button>
-                                    </form>
-                                {% endif %}
+                               data-tippy-content="Edit"
+                            >{% include "partials/icons/edit.html" %}</a>
                         </td>
                     </tr>
                 {% endfor %}
