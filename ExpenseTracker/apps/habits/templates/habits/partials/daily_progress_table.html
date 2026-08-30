@@ -6,22 +6,18 @@
             <table role="grid" class="app-table">
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 30%;">Plan</th>
-                        <th scope="col" style="width: 20%">Date</th>
+                        <th scope="col" style="width: 25%;">Plan</th>
+                        <th scope="col" style="width: 15%;">Date</th>
                         <th scope="col" style="width: 20%;">Completion</th>
-                        <th scope="col" style="width: 5%;">Modify</th>
+                        <th scope="col" style="width: 10%;">Modify</th>
                     </tr>
                 </thead>
 
                 <tbody>
                     {% for progress in progresses %}
                         <tr>
-                            <td data-label="Plan">
-                                {{ progress.plan }}
-                            </td>
-                            <td data-label="Date">
-                                {{ progress.date }}
-                            </td>
+                            <td data-label="Plan">{{ progress.plan }}</td>
+                            <td data-label="Date">{{ progress.date }}</td>
                             <td data-label="Progress">
                                 {% include "habits/partials/progress_bar_with_progress.html" with obj=progress %}
                             </td>
@@ -39,30 +35,22 @@
                                             data-placement="left"
                                             data-tooltip="Mark completed"
                                             aria-label="Mark {{ progress }} as completed"
-                                        >
-                                            {% include "partials/icons/check_circle.html" %}
-                                        </button>
+                                        >{% include "partials/icons/check_circle.html" %}</button>
                                     </form>
                                 {% else %}
                                     <span
                                         class="app-btn-icon"
-                                        data-tooltip="Completed"
-                                        data-placement="left"
+                                        data-tippy-content="Completed"
                                         aria-label="Completed"
                                         aria-disabled="true"
                                         style="opacity: 0.5; cursor: default;"
-                                    >
-                                        {% include "partials/icons/check_circle.html" %}
-                                    </span>
+                                    >{% include "partials/icons/check_circle.html" %}</span>
                                 {% endif %}
                                 <a
                                     href="{% url 'habits:edit_daily_progress' progress.id %}?next={{ request.get_full_path|urlencode }}"
                                     class="app-btn-icon"
-                                    data-tooltip="Edit"
-                                    data-placement="right"
-                                >
-                                    {% include "partials/icons/edit.html" %}
-                                </a>
+                                    data-tippy-content="Edit"
+                                >{% include "partials/icons/edit.html" %}</a>
                             </td>
                         </tr>
                     {% endfor %}

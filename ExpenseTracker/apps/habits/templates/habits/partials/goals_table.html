@@ -41,15 +41,13 @@
                             <a
                                 href="{% url 'habits:edit_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
                                 class="app-btn-icon"
-                                data-tooltip="Edit"
-                                data-placement="left"
+                                data-tippy-content="Edit"
                             >{% include "partials/icons/edit.html" %}</a>
                             {% if goal.is_upcoming %}
                                 <button
                                     type="button"
                                     class="app-btn-icon app-btn-danger delete-btn"
-                                    data-tooltip="Delete"
-                                    data-placement="right"
+                                    data-tippy-content="Delete"
                                     data-action="{% url 'habits:delete_goal' goal.id %}?next={{ request.get_full_path|urlencode }}"
                                     data-message="
                                         Are you sure you want to delete
@@ -68,15 +66,13 @@
                                             <button
                                                 type="submit"
                                                 class="app-btn-icon"
-                                                data-tooltip="End Today"
-                                                data-placement="right"
+                                                data-tippy-content="End Today"
                                             >{% include "partials/icons/stop_circle.html" %}</button>
                                         </form>
                                     {% else %}
                                         <span
                                         class="app-btn-icon"
-                                        data-tooltip="Ending Today"
-                                        data-placement="right"
+                                        data-tippy-content="Ending Today"
                                         aria-label="Ending"
                                         aria-disabled="true"
                                         style="opacity: 0.5; cursor: default;"
