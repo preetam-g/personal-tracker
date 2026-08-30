@@ -35,7 +35,7 @@ class TransactionQuerySet(QuerySet):
 
     def get_contacts_summary(self) -> dict:
 
-        qs = self
+        qs = self.filter(is_settled=False)
 
         aggregates = list(
             qs.values(
@@ -59,26 +59,12 @@ class TransactionQuerySet(QuerySet):
             )
         )
 
+        owed = sum(item['balance'] for item in aggregates if item['balance'] > 0)
+        owe = -sum(item['balance'] for item in aggregates if item['balance'] < 0)
         total_stats = {
-            'owed': round(
-                sum(
-                    item['balance']
-                    for item in aggregates
-                    if item['balance'] > 0
-            ), 2),
-
-            'owe': round(
-                abs(sum(
-                    item['balance']
-                    for item in aggregates
-                    if item['balance'] < 0
-            )), 2),
-
-            'net_balance': round(
-                sum(
-                    item['balance']
-                    for item in aggregates
-            ), 2),
+            'owed': owed,
+            'owe': owe,
+            'net_balance': owed - owe
         }
 
         return {
@@ -91,3 +77,12 @@ class ContactQuerySet(QuerySet):
 
     def for_user(self, user):
         return self.filter(user=user)
+
+
+class TransactionSettlementQuerySet(QuerySet):
+
+    def for_user(self, user):
+        return self.filter(contact__user=user)
+
+    def with_contact(self):
+        return self.select_related('contact')

@@ -9,4 +9,5 @@ urlpatterns = [
     path('transaction/<int:tran_id>/edit/', views.edit_transaction_view, name='edit'),
     path('transaction/<int:tran_id>/delete/', views.delete_transaction_view, name='delete'),
     path('summary/', views.summary_view, name='summary'),
+    path('contact/<int:contact_id>/settle/', views.create_settlement_view, name='create_settlement'),
 ]
