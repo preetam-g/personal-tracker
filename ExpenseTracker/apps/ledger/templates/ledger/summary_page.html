@@ -69,7 +69,7 @@
                     margin-bottom: 0;
                     color: {% if stats.net_balance < 0 %} #d9534f {% else %} var(--pico-primary) {% endif %};
                 "
-            >{{ stats.net_balance|cut:'-'|default:0|floatformat:2 }}</h2>
+            >{{ stats.net_balance|default:0|floatformat:2 }}</h2>
         </article>
     </div>
 {% endif %}

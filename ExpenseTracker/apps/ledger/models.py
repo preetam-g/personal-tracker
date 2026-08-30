@@ -2,9 +2,13 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.functions import Lower
 
-from apps.base.models import TimeStampedModel
 from core import settings
-from .managers import TransactionQuerySet, ContactQuerySet
+from apps.base.models import TimeStampedModel
+from .managers import (
+    TransactionQuerySet,
+    ContactQuerySet,
+    TransactionSettlementQuerySet
+)
 from .utils import TransactionType
 
 
@@ -91,13 +95,14 @@ class Transaction(TimeStampedModel):
 
 class TransactionSettlement(TimeStampedModel):
 
+    objects = TransactionSettlementQuerySet.as_manager()
+
     contact = models.ForeignKey(
         Contact,
         on_delete=models.PROTECT,
         related_name='settlements'
     )
 
-    date = models.DateField()
     carry_forward_transaction = models.OneToOneField(
         Transaction,
         on_delete=models.PROTECT,
@@ -107,10 +112,4 @@ class TransactionSettlement(TimeStampedModel):
     )
 
     class Meta:
-        ordering = ('-date', '-created_at')
-        constraints = [
-            models.UniqueConstraint(
-                fields=['contact', 'date'],
-                name='unique_contact_settlement_per_date',
-            )
-        ]
+        ordering = ('-created_at',)
