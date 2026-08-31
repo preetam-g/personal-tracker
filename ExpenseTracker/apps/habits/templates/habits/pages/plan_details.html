@@ -8,6 +8,18 @@
 </div>
 
 <section style="margin-bottom: 3rem;">
+    <header class="grid" style="margin-bottom: 1rem; align-items: baseline;">
+      <hgroup style="margin-bottom: 0;">
+        <h3 style="margin-bottom: 0.25rem;">Progress Trend</h3>
+        <small style="color: var(--pico-muted-color);">
+            Your daily logged progress compared to your target.
+        </small>
+      </hgroup>
+    </header>
+    {% include "habits/partials/plan_trend_chart.html" %}
+</section>
+
+<section style="margin-bottom: 3rem;">
 
     <header class="grid" style="margin-bottom: 1.5rem; align-items: center;">
         <hgroup style="margin-bottom: 0;">
@@ -33,18 +45,6 @@
 
 {% include "habits/partials/daily_progress_table.html" %}
 
-</section>
-
-<section style="margin-bottom: 3rem;">
-    <header class="grid" style="margin-bottom: 1rem; align-items: baseline;">
-      <hgroup style="margin-bottom: 0;">
-        <h3 style="margin-bottom: 0.25rem;">Progress Trend</h3>
-        <small style="color: var(--pico-muted-color);">
-            Your daily logged progress compared to your target.
-        </small>
-      </hgroup>
-    </header>
-    {% include "habits/partials/plan_trend_chart.html" %}
 </section>
 
 {% endblock %}

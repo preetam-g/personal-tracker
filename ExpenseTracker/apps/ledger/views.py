@@ -32,7 +32,7 @@ def home_view(request):
         'end_date': today,
     }
 
-    cache_key = cache.home_key(request.user.id, timeframe)
+    cache_key = cache.home_key(request.user.id, today, timeframe)
     transactions = django_cache.get_or_set(
         key=cache_key,
         default=lambda: list(

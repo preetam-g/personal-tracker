@@ -29,7 +29,7 @@ class HabitForm(ModelForm):
         elif self.instance.plans.exists():
             self.fields['name'].disabled = True
             self.fields['name'].help_text = f"""
-                You cannot rename a habit once it has active plans. <br />
+                You cannot rename a habit once it has plans. <br />
                 Please archive it and create a new one instead.
             """
 

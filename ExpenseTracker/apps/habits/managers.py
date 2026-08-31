@@ -5,7 +5,6 @@ from django.utils import timezone
 
 from datetime import timedelta, date as datetime_date
 
-from apps.base.utils import TimeFrame
 from apps.habits.utils import dates_between, HabitPlanStatus
 
 
@@ -78,12 +77,15 @@ class HabitPlanQuerySet(models.QuerySet):
                 for progress_date in dates_between(start_date, end_date)
             )
 
-        DailyProgress.objects.bulk_create(
-            rows,
-            ignore_conflicts=True,
+        return (
+            DailyProgress.objects
+            .bulk_create(
+                rows,
+                ignore_conflicts=True,
+            )
         )
 
-    def by_status(self, *statuses):
+    def by_status(self, *statuses: HabitPlanStatus):
         """
         Filter HabitPlans by one or more HabitPlanStatus values.
         """
@@ -113,7 +115,7 @@ class DailyProgressQuerySet(models.QuerySet):
     def in_range(self, start, end):
         return self.filter(date__range=(start, end))
 
-    def get_trend_data(self, start_date, end_date):
+    def get_trend_data(self, start_date, end_date) -> dict:
         qs = self.in_range(start_date, end_date)
 
         delta_days = (end_date - start_date).days

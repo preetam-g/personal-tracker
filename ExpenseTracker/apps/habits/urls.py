@@ -8,11 +8,10 @@ urlpatterns = [
 
     path('history/', views.history_view, name='history'),
 
-    path('manage/', views.manage_habits_view, name='manage_habits'),
+    path('manage/', views.manage_view, name='manage_habits'),
 
     path('habit/add/', views.add_habit_view, name='add_habit'),
     path('habit/<int:habit_id>/edit/', views.edit_habit_view, name='edit_habit'),
-    path('habit/<int:habit_id>/delete/', views.delete_habit_view, name='delete_habit'),
     path('habit/<int:habit_id>/archive/', views.archive_habit_view, name='archive_habit'),
     path('habit/<int:habit_id>/unarchive/', views.unarchive_habit_view, name='unarchive_habit'),
 

@@ -3,14 +3,12 @@
 {% block content %}
 
 <div class="grid" style="align-items: center; margin-top: 2rem; margin-bottom: 2rem;">
-
     <div>
         <h2 style="margin-bottom: 0;">Your Goals</h2>
         <p style="color: var(--pico-muted-color);">
             Build better habits, one goal at a time.
         </p>
     </div>
-
     <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
         <a href="{% url 'habits:history' %}" role="button" class="secondary outline">History</a>
         <a href="{% url 'habits:manage_habits' %}" role="button">Manage</a>
@@ -18,34 +16,23 @@
 </div>
 
 <section style="margin-bottom: 3rem;">
-
     <header style="margin-bottom: 1rem;">
         <h3 style="margin-bottom: 0.25rem;">Today's Goals</h3>
         <small style="color: var(--pico-muted-color);">
             Small steps every day. Check off your targets for today.
         </small>
     </header>
-
-{% include "habits/partials/daily_progress_table.html" %}
-
+    {% include "habits/partials/daily_progress_table.html" %}
 </section>
 
 <section style="margin-bottom: 3rem;">
-    <header class="grid" style="margin-bottom: 1rem; align-items: baseline;">
-        <hgroup style="margin-bottom: 0;">
-            <h3 style="margin-bottom: 0.25rem;">Consistency Trend</h3>
-            <small style="color: var(--pico-muted-color);">
-                Your overall completion rate over recent days.
-            </small>
-        </hgroup>
-
-        <div style="text-align: right;">
-            <form method="GET" action="{% url 'habits:home' %}">
-                {{ form.as_p }}
-            </form>
-        </div>
+    <header style="margin-bottom: 1rem; align-items: baseline;">
+        <h3 style="margin-bottom: 0.25rem;">Consistency Trend</h3>
+        <small style="color: var(--pico-muted-color);">
+            Your overall completion rate in past 7 days.
+        </small>
     </header>
-{% include "habits/partials/progress_trend.html" %}
+    {% include "habits/partials/progress_trend.html" %}
 </section>
 
 {% endblock content %}

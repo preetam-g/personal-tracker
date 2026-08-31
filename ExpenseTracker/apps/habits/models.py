@@ -36,7 +36,7 @@ class Habit(TimeStampedModel):
 
     objects = HabitQuerySet.as_manager()
     class Meta:
-        ordering = ['name']
+        ordering = ['-is_active', 'name']
 
         constraints = [
             models.UniqueConstraint(
