@@ -1,10 +1,8 @@
 from django.contrib import messages
 from django.shortcuts import render, reverse, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.core.cache import cache
-from django.utils.timezone import localdate
 
-from . import forms, models, cache_keys, utils
+from . import forms, models
 
 from apps.base.utils import TimeFrame
 from apps.base.views import delete_object_view
@@ -13,14 +11,7 @@ from apps.base.navigation import redirect_to_next
 
 @login_required(login_url="accounts:login")
 def home_view(request):
-
-    home_key = cache_keys.home(request.user.id)
-    expenses = cache.get_or_set(
-        home_key,
-        lambda: list(
-            models.Expense.objects.for_user(request.user)[:10]
-        ),
-    )
+    expenses = models.Expense.objects.for_user(request.user)[:10]
     return render(request, 'expenses/home.html', {"expenses": expenses})
 
 
@@ -32,12 +23,9 @@ def add_expense_view(request):
         form = forms.ExpenseForm(request.POST, user=request.user)
 
         if form.is_valid():
-
             new_expense = form.save(commit=False)
             new_expense.user = request.user
             new_expense.save()
-
-            utils.invalidate_expenses_caches(new_expense)
 
             messages.success(request, 'Expense successfully added.')
         else:
@@ -71,9 +59,6 @@ def edit_expense_view(request, exp_id):
         form = forms.ExpenseForm(request.POST, instance=expense, user=request.user)
         if form.is_valid():
             form.save()
-
-            utils.invalidate_expenses_caches(expense)
-
             messages.success(request, 'Expense successfully updated.')
         else:
             messages.error(request, 'Failed to update. Please try again later.')
@@ -100,7 +85,6 @@ def delete_expense_view(request, exp_id):
         model=models.Expense,
         obj_id=exp_id,
         final_redirect_fallback="expenses:home",
-        cache_delete_func=utils.invalidate_expenses_caches,
     )
 
 
@@ -130,7 +114,7 @@ def filtered_expense_view(request):
 @login_required(login_url='accounts:login')
 def dashboard_view(request):
 
-    preferences = request.user.preferences
+    preferences = getattr(request.user, 'preferences', {})
 
     data = request.GET.dict()
     if not data.get('timeFrame'):
@@ -149,21 +133,7 @@ def dashboard_view(request):
             dashboard_last_timeframe=timeframe,
         )
 
-        dashboard_key = cache_keys.dashboard(
-            request.user.id,
-            timeframe,
-            today_date=localdate().isoformat(),
-        )
-
-        dashboard_data = cache.get_or_set(
-            dashboard_key,
-            lambda: dict(
-                models.Expense.objects.get_dashboard_data(
-                    request.user,
-                    timeframe,
-                )
-            ),
-        )
+        dashboard_data = models.Expense.objects.get_dashboard_data(request.user, timeframe)
 
     return render(request, 'expenses/dashboard.html', {
         'form': form,

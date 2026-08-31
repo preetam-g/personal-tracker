@@ -41,3 +41,6 @@ class ExchangeRate(models.Model):
                 name='unique_currency_pair',
             ),
         ]
+
+    def __str__(self):
+        return f"{self.base_currency} --> {self.target_currency}: {self.rate}"

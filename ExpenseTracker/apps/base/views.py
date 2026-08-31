@@ -17,7 +17,7 @@ from apps.forex import (
 )
 
 
-def delete_object_view(request, model, obj_id, final_redirect_fallback: str , name: str = None, cache_delete_func = None):
+def delete_object_view(request, model, obj_id, final_redirect_fallback: str , cache_delete_func = None):
     """
     Base template view for deleting an object.
     Use cache_delete_func if you want to call a function to invalidate cache keys, the object that is being deleted is passed as a parameter.
@@ -26,8 +26,6 @@ def delete_object_view(request, model, obj_id, final_redirect_fallback: str , na
         model.objects.for_user(request.user),
         id=obj_id
     )
-    if not name:
-        name = getattr(obj, 'name', str(obj))
 
     if request.method == 'POST':
         try:
@@ -36,13 +34,13 @@ def delete_object_view(request, model, obj_id, final_redirect_fallback: str , na
             if cnt:
                 if cache_delete_func:
                     cache_delete_func(request.user)
-                messages.success(request, f'"{name}" successfully deleted.')
+                messages.success(request, f'"{obj}" successfully deleted.')
             else:
                 messages.error(request, 'Failed to delete. Try again later.')
         except ProtectedError:
             messages.error(
                 request,
-                f"{name} cannot be deleted because it is currently in use.",
+                f"{obj} cannot be deleted because it is currently in use.",
             )
 
     return redirect_to_next(
@@ -60,7 +58,7 @@ def preferences_view(request):
 
     contacts = ledger_models.Contact.objects.for_user(user=request.user)
 
-    preferences = curr_user.preferences
+    preferences = getattr(curr_user, 'preferences', {})
     expenses_filter_form = expense_forms.ExpenseFilterDefaultsForm(
         initial=preferences.get_expenses_preferences(
             key='expenses_filter_defaults',

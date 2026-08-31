@@ -12,11 +12,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 # 3. CORE SECURITY
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-fallback-key")
+SECRET_KEY = os.environ["SECRET_KEY"]
 
 # Logic: DEBUG should be True locally, False on Render.
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-IS_PRODUCTION = os.getenv("IS_PRODUCTION", "False").lower() == "true"
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+IS_PRODUCTION = os.environ.get("IS_PRODUCTION", "False").lower() == "true"
 
 # 4. NETWORKING
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 if IS_PRODUCTION:
     DATABASES = {
         'default': dj_database_url.parse(
-            os.getenv("DATABASE_URL"),
+            os.environ["DATABASE_URL"],
             conn_max_age=60*5,
         )
     }
@@ -167,9 +167,10 @@ else:
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv("REDIS_URL"),
+        "LOCATION": os.environ["REDIS_URL"],
         "OPTIONS": cache_options,
-        "TIMEOUT": 60 * 10,
+        "TIMEOUT": 60 * 60 * 8, # 8 hours
+        "VERSION": 1,
     }
 }
 
