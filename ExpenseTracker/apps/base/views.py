@@ -154,7 +154,7 @@ def edit_category_view(request, cat_id):
 
         if form.is_valid():
             new_cat = form.save()
-            expenses_cache.invalidate_cache(request.user.id, cat)
+            expenses_cache.invalidate_cache(request.user.id)
             messages.success(request, f'"{cat}" successfully updated as "{new_cat}".')
             return redirect_to_next(request, reverse("base:preferences"))
     else:
@@ -178,7 +178,6 @@ def delete_category_view(request, cat_id):
         model=expenses_models.ExpenseCategory,
         obj_id=cat_id,
         final_redirect_fallback="base:preferences",
-        cache_delete_func=expenses_cache.invalidate_cache,
     )
 
 
@@ -223,7 +222,7 @@ def edit_type_view(request, type_id):
 
         if form.is_valid():
             new_type = form.save()
-            expenses_cache.invalidate_cache(request.user.id, type)
+            expenses_cache.invalidate_cache(request.user.id)
             messages.success(request, f'"{type}" successfully updated as "{new_type}".')
             return redirect_to_next(request, reverse("base:preferences"))
     else:
@@ -247,7 +246,6 @@ def delete_type_view(request, type_id):
         model=expenses_models.ExpenseType,
         obj_id=type_id,
         final_redirect_fallback="base:preferences",
-        cache_delete_func=expenses_cache.invalidate_cache,
     )
 
 

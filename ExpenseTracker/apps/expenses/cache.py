@@ -8,7 +8,7 @@ def home_key(user_id):
 def summary_key(user_id, date, timeframe):
     return f"{APP}:summary:user:{user_id}:date:{date}:timeframe:{timeframe}:"
 
-def invalidate_cache(user_id, obj):
+def invalidate_cache(user_id, obj=None):
     return cache.delete_pattern(
         f"{APP}:*:user:{user_id}*:"
     )
