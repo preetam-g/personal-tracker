@@ -99,15 +99,15 @@ class Transaction(TimeStampedModel):
     @property
     def can_be_deleted(self):
         return (
-                not self.is_settled
-                and not hasattr(self, "carry_forward_settlement")
+            not self.is_settled
+            and not hasattr(self, "carry_forward_settlement")
         )
 
     @property
     def can_be_edited(self):
         return (
-                not self.is_settled
-                and not hasattr(self, "carry_forward_settlement")
+            not self.is_settled
+            and not hasattr(self, "carry_forward_settlement")
         )
 
 

@@ -80,7 +80,7 @@ def edit_transaction_view(request, tran_id):
         Transaction.objects.for_user(request.user),
         pk=tran_id,
     )
-    if transaction.can_be_edited:
+    if not transaction.can_be_edited:
         messages.error(
             request,
             message="Settled and Carry-forward transactions can not be edited."
@@ -108,7 +108,7 @@ def delete_transaction_view(request, tran_id):
         Transaction.objects.for_user(request.user),
         pk=tran_id,
     )
-    if transaction.can_be_deleted:
+    if not transaction.can_be_deleted:
         messages.error(
             request,
             message="Settled and Carry-forward transactions can not be deleted."
