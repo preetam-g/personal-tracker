@@ -80,11 +80,10 @@ def edit_transaction_view(request, tran_id):
         Transaction.objects.for_user(request.user),
         pk=tran_id,
     )
-    if transaction.is_settled:
+    if transaction.can_be_edited:
         messages.error(
             request,
-            message="This transaction has been settled and cannot be modified. "
-                    "Create a new transaction instead."
+            message="Settled and Carry-forward transactions can not be edited."
         )
         return redirect_to_next(request, reverse('ledger:home'))
 
@@ -109,10 +108,10 @@ def delete_transaction_view(request, tran_id):
         Transaction.objects.for_user(request.user),
         pk=tran_id,
     )
-    if transaction.is_settled:
+    if transaction.can_be_deleted:
         messages.error(
             request,
-            message="This transaction has been settled and cannot be deleted."
+            message="Settled and Carry-forward transactions can not be deleted."
         )
         return redirect_to_next(request, reverse('ledger:home'))
 

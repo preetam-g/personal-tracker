@@ -1,9 +1,12 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.functions import Lower
+from django.utils import timezone
 
 from core import settings
+
 from apps.base.models import TimeStampedModel
+
 from .managers import (
     TransactionQuerySet,
     ContactQuerySet,
@@ -90,7 +93,22 @@ class Transaction(TimeStampedModel):
         return -self.amount
 
     def __str__(self):
-        return f"{self.get_type_display()}: {self.amount} on {self.date}"
+        return (f"{self.contact}-{self.get_type_display()}: "
+                f"{self.amount} on {timezone.localdate(self.date)}")
+
+    @property
+    def can_be_deleted(self):
+        return (
+                not self.is_settled
+                and not hasattr(self, "carry_forward_settlement")
+        )
+
+    @property
+    def can_be_edited(self):
+        return (
+                not self.is_settled
+                and not hasattr(self, "carry_forward_settlement")
+        )
 
 
 class TransactionSettlement(TimeStampedModel):
