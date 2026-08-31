@@ -1,8 +1,10 @@
 from django.contrib import messages
 from django.shortcuts import render, reverse, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache as django_cache
+from django.utils.timezone import localdate
 
-from . import forms, models
+from . import forms, models, cache
 
 from apps.base.utils import TimeFrame
 from apps.base.views import delete_object_view
@@ -11,7 +13,16 @@ from apps.base.navigation import redirect_to_next
 
 @login_required(login_url="accounts:login")
 def home_view(request):
-    expenses = models.Expense.objects.for_user(request.user)[:10]
+
+    cache_key = cache.home_key(user_id=request.user.id)
+    expenses = django_cache.get_or_set(
+        key=cache_key,
+        default=lambda: list(
+            models.Expense.objects
+            .for_user(user=request.user)[:10]
+        ),
+    )
+
     return render(request, 'expenses/home.html', {"expenses": expenses})
 
 
@@ -27,11 +38,10 @@ def add_expense_view(request):
             new_expense.user = request.user
             new_expense.save()
 
-            messages.success(request, 'Expense successfully added.')
-        else:
-            messages.error(request, 'Failed to add. Please try again later.')
+            cache.invalidate_cache(request.user.id)
 
-        return redirect_to_next(request, reverse("expenses:home"))
+            messages.success(request, f'{new_expense} successfully added.')
+            return redirect_to_next(request, reverse("expenses:home"))
 
     else:
         form = forms.ExpenseForm(user=request.user)
@@ -59,11 +69,12 @@ def edit_expense_view(request, exp_id):
         form = forms.ExpenseForm(request.POST, instance=expense, user=request.user)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Expense successfully updated.')
-        else:
-            messages.error(request, 'Failed to update. Please try again later.')
 
-        return redirect_to_next(request, reverse("expenses:home"))
+            cache.invalidate_cache(request.user.id)
+
+            messages.success(request, f'{expense} successfully updated.')
+            return redirect_to_next(request, reverse("expenses:home"))
+
     else:
         form = forms.ExpenseForm(instance=expense, user=request.user)
 
@@ -85,6 +96,7 @@ def delete_expense_view(request, exp_id):
         model=models.Expense,
         obj_id=exp_id,
         final_redirect_fallback="expenses:home",
+        cache_delete_func=cache.invalidate_cache,
     )
 
 
@@ -118,9 +130,11 @@ def dashboard_view(request):
 
     data = request.GET.dict()
     if not data.get('timeFrame'):
-        data['timeFrame'] = preferences.get_expenses_preferences(
-            'dashboard_last_timeframe',
-            TimeFrame.SEVEN_DAYS,
+        data['timeFrame'] = (
+            preferences.get_expenses_preferences(
+                'dashboard_last_timeframe',
+                TimeFrame.SEVEN_DAYS,
+            )
         )
 
     form = forms.DashboardForm(data)
@@ -133,9 +147,27 @@ def dashboard_view(request):
             dashboard_last_timeframe=timeframe,
         )
 
-        dashboard_data = models.Expense.objects.get_dashboard_data(request.user, timeframe)
+        cache_key = cache.summary_key(
+            user_id=request.user.id,
+            date=localdate(),
+            timeframe=timeframe,
+        )
+        dashboard_data = django_cache.get_or_set(
+            key=cache_key,
+            default=lambda: dict(
+                models.Expense.objects
+                .get_dashboard_data(
+                    user=request.user,
+                    timeframe=timeframe,
+                )
+            )
+        )
 
-    return render(request, 'expenses/dashboard.html', {
-        'form': form,
-        'data': dashboard_data,
-    })
+    return render(
+        request,
+        template_name='expenses/dashboard.html',
+        context={
+            'form': form,
+            'data': dashboard_data,
+        }
+    )

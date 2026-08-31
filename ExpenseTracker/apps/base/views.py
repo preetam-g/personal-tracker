@@ -5,19 +5,27 @@ from django.contrib.auth.decorators import login_required
 
 from .navigation import redirect_to_next
 from apps.expenses import (
-    models as expense_models,
-    forms as expense_forms
+    models as expenses_models,
+    forms as expenses_forms,
+    cache as expenses_cache,
 )
 from apps.ledger import (
     models as ledger_models,
-    forms as ledger_forms
+    forms as ledger_forms,
+    cache as ledger_cache,
 )
 from apps.forex import (
     forms as forex_forms
 )
 
 
-def delete_object_view(request, model, obj_id, final_redirect_fallback: str , cache_delete_func = None):
+def delete_object_view(
+        request,
+        model,
+        obj_id,
+        final_redirect_fallback: str ,
+        cache_delete_func = None
+):
     """
     Base template view for deleting an object.
     Use cache_delete_func if you want to call a function to invalidate cache keys, the object that is being deleted is passed as a parameter.
@@ -33,14 +41,14 @@ def delete_object_view(request, model, obj_id, final_redirect_fallback: str , ca
 
             if cnt:
                 if cache_delete_func:
-                    cache_delete_func(request.user)
+                    cache_delete_func(request.user.id, obj)
                 messages.success(request, f'"{obj}" successfully deleted.')
             else:
                 messages.error(request, 'Failed to delete. Try again later.')
         except ProtectedError:
             messages.error(
                 request,
-                f"{obj} cannot be deleted because it is currently in use.",
+                f'"{obj}" cannot be deleted because it is currently in use.'
             )
 
     return redirect_to_next(
@@ -53,13 +61,24 @@ def delete_object_view(request, model, obj_id, final_redirect_fallback: str , ca
 def preferences_view(request):
 
     curr_user = request.user
-    categories = expense_models.ExpenseCategory.objects.for_user(user=curr_user)
-    types = expense_models.ExpenseType.objects.for_user(user=curr_user)
-
-    contacts = ledger_models.Contact.objects.for_user(user=request.user)
+    categories = (
+        expenses_models.ExpenseCategory
+        .objects
+        .for_user(user=curr_user)
+    )
+    types = (
+        expenses_models.ExpenseType
+        .objects
+        .for_user(user=curr_user)
+    )
+    contacts = (
+        ledger_models.Contact
+        .objects
+        .for_user(user=request.user)
+    )
 
     preferences = getattr(curr_user, 'preferences', {})
-    expenses_filter_form = expense_forms.ExpenseFilterDefaultsForm(
+    expenses_filter_form = expenses_forms.ExpenseFilterDefaultsForm(
         initial=preferences.get_expenses_preferences(
             key='expenses_filter_defaults',
             default={}
@@ -82,8 +101,8 @@ def preferences_view(request):
 
     return render(
         request,
-        "base/user_preferences/preferences.html",
-        {
+        template_name="base/user_preferences/preferences.html",
+        context={
             "categories": categories,
             "types": types,
             "contacts": contacts,
@@ -98,7 +117,7 @@ def preferences_view(request):
 def add_category_view(request):
 
     if request.method == 'POST':
-        form = expense_forms.ExpenseCategoryForm(request.POST, user=request.user)
+        form = expenses_forms.ExpenseCategoryForm(request.POST, user=request.user)
 
         if form.is_valid():
             instance = form.save(commit=False)
@@ -109,7 +128,7 @@ def add_category_view(request):
             return redirect_to_next(request, reverse("base:preferences"))
 
     else:
-        form = expense_forms.ExpenseCategoryForm()
+        form = expenses_forms.ExpenseCategoryForm()
 
     return render(
         request=request,
@@ -126,19 +145,20 @@ def add_category_view(request):
 def edit_category_view(request, cat_id):
 
     cat = get_object_or_404(
-        expense_models.ExpenseCategory.objects.for_user(request.user),
+        expenses_models.ExpenseCategory.objects.for_user(request.user),
         id=cat_id,
     )
 
     if request.method == 'POST':
-        form = expense_forms.ExpenseCategoryForm(request.POST, instance=cat, user=request.user)
+        form = expenses_forms.ExpenseCategoryForm(request.POST, instance=cat, user=request.user)
 
         if form.is_valid():
             new_cat = form.save()
+            expenses_cache.invalidate_cache(request.user.id, cat)
             messages.success(request, f'"{cat}" successfully updated as "{new_cat}".')
             return redirect_to_next(request, reverse("base:preferences"))
     else:
-        form = expense_forms.ExpenseCategoryForm(instance=cat, user=request.user)
+        form = expenses_forms.ExpenseCategoryForm(instance=cat, user=request.user)
 
     return render(
         request=request,
@@ -155,9 +175,10 @@ def edit_category_view(request, cat_id):
 def delete_category_view(request, cat_id):
     return delete_object_view(
         request,
-        model=expense_models.ExpenseCategory,
+        model=expenses_models.ExpenseCategory,
         obj_id=cat_id,
         final_redirect_fallback="base:preferences",
+        cache_delete_func=expenses_cache.invalidate_cache,
     )
 
 
@@ -165,7 +186,7 @@ def delete_category_view(request, cat_id):
 def add_type_view(request):
 
     if request.method == 'POST':
-        form = expense_forms.ExpenseTypeForm(request.POST, user=request.user)
+        form = expenses_forms.ExpenseTypeForm(request.POST, user=request.user)
 
         if form.is_valid():
             instance = form.save(commit=False)
@@ -176,7 +197,7 @@ def add_type_view(request):
             return redirect_to_next(request, reverse("base:preferences"))
 
     else:
-        form = expense_forms.ExpenseTypeForm()
+        form = expenses_forms.ExpenseTypeForm()
 
     return render(
         request=request,
@@ -193,19 +214,20 @@ def add_type_view(request):
 def edit_type_view(request, type_id):
 
     type = get_object_or_404(
-        expense_models.ExpenseType.objects.for_user(request.user),
+        expenses_models.ExpenseType.objects.for_user(request.user),
         id=type_id
     )
 
     if request.method == 'POST':
-        form = expense_forms.ExpenseTypeForm(request.POST, instance=type, user=request.user)
+        form = expenses_forms.ExpenseTypeForm(request.POST, instance=type, user=request.user)
 
         if form.is_valid():
             new_type = form.save()
+            expenses_cache.invalidate_cache(request.user.id, type)
             messages.success(request, f'"{type}" successfully updated as "{new_type}".')
             return redirect_to_next(request, reverse("base:preferences"))
     else:
-        form = expense_forms.ExpenseTypeForm(instance=type, user=request.user)
+        form = expenses_forms.ExpenseTypeForm(instance=type, user=request.user)
 
     return render(
         request=request,
@@ -222,9 +244,10 @@ def edit_type_view(request, type_id):
 def delete_type_view(request, type_id):
     return delete_object_view(
         request=request,
-        model=expense_models.ExpenseType,
+        model=expenses_models.ExpenseType,
         obj_id=type_id,
         final_redirect_fallback="base:preferences",
+        cache_delete_func=expenses_cache.invalidate_cache,
     )
 
 

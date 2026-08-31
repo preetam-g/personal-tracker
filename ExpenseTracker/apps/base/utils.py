@@ -20,11 +20,7 @@ class TimeFrame(models.TextChoices):
             cls.THIS_MONTH: lambda t: t.replace(day=1),
             cls.THIS_YEAR: lambda t: t.replace(day=1, month=1),
         }
-
-        calculation_func = date_mapping.get(
-            timeframe,
-            date_mapping[cls.THIS_YEAR]
-        )
+        calculation_func = date_mapping.get(timeframe)
 
         return calculation_func(today)
 
