@@ -65,52 +65,8 @@ class ContactForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.user = user
 
-        self.fields['name'].widget.attrs['placeholder'] = "New Contact (Dad, Mom)"
-
         if not self.instance.pk:
             self.instance.user = self.user
-
-
-class LedgerSummaryForm(forms.Form):
-
-    start_date = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        label='Start Date',
-    )
-
-    end_date = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        label='End Date',
-    )
-
-    def __init__(self, *args, user, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user = user
-
-        today = timezone.localdate().strftime('%Y-%m-%d')
-        self.fields['start_date'].widget.attrs['max'] = today
-        self.fields['end_date'].widget.attrs['max'] = today
-
-        if not self.is_bound:
-            defaults = self.user.preferences.get_ledger_preferences(
-                "ledger_defaults",
-                {},
-            )
-
-            timeframe = defaults.get(
-                f"timeframe_summary",
-            ) or TimeFrame.THIRTY_DAYS
-
-            if timeframe:
-                self.initial['start_date'] = TimeFrame.get_start_date(
-                    today=timezone.localdate(),
-                    timeframe=timeframe,
-                )
-                self.initial['end_date'] = timezone.localdate()
-
-            self.initial.update(defaults)
 
 
 class LedgerSummaryDefaultsForm(forms.Form):
@@ -120,13 +76,6 @@ class LedgerSummaryDefaultsForm(forms.Form):
         initial=TimeFrame.THIRTY_DAYS,
         required=False,
         label="Timeframe (Home Page)",
-    )
-
-    timeframe_summary = forms.ChoiceField(
-        choices=TimeFrame,
-        initial=TimeFrame.THIRTY_DAYS,
-        required=False,
-        label="Timeframe (Summary Page)",
     )
 
     def __init__(self, *args, user, **kwargs):

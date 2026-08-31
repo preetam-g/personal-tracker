@@ -292,6 +292,7 @@ def edit_contact_view(request, cont_id):
 
         if form.is_valid():
             new_item = form.save()
+            ledger_cache.invalidate_cache(request.user.id, contact)
             messages.success(request, f'"{contact}" successfully updated as "{new_item}".')
             return redirect_to_next(request, reverse("base:preferences"))
     else:

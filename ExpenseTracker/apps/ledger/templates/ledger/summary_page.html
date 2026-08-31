@@ -14,43 +14,6 @@
     </hgroup>
 </header>
 
-<article>
-    <form method="GET" action="{% url "ledger:summary" %}" id="ledger-summary-filter-form">
-        <div class="grid">
-            {% for field in form %}
-                <div>
-                    <label for="{{ field.id_for_label }}">
-                        {{ field.label }}
-                        {{ field }}
-                    </label>
-                    {% if field.errors %}
-                        <small style="color: var(--pico-form-element-invalid-active-border-color);">
-                            {{ field.errors.0 }}
-                        </small>
-                    {% endif %}
-                </div>
-
-                {% if forloop.counter|divisibleby:3 %}
-                    </div><div class="grid">
-                {% endif %}
-            {% endfor %}
-
-            {% if form.visible_fields|length|divisibleby:3 %}
-                <div></div>
-            {% endif %}
-
-            <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: flex-end; padding-bottom: var(--pico-spacing);">
-                <a href="{% url 'ledger:summary' %}"
-                   style="flex: 1; margin-bottom: 0; max-width: 25%"
-                   role="button"
-                   class="secondary outline">Reset</a>
-                <button type="submit" style="flex: 1; margin-bottom: 0; max-width: 25%">Apply</button>
-            </div>
-        </div>
-    </form>
-
-</article>
-
 {% if stats %}
     <div class="grid" style="margin-bottom: 1rem">
         <article style="padding: 1rem; text-align: center; margin-bottom: 0;">
@@ -75,27 +38,4 @@
 {% endif %}
 
 {% include "ledger/partials/contact_balances_table.html" %}
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Target the date inputs by their typical Django IDs or names
-        const startDateInput = document.querySelector('input[name="start_date"]');
-        const endDateInput = document.querySelector('input[name="end_date"]');
-
-        if (startDateInput && endDateInput) {
-            if (startDateInput.value) {
-                endDateInput.min = startDateInput.value;
-            }
-            // 2. Listen for changes on start_date
-            startDateInput.addEventListener('change', function() {
-                endDateInput.min = this.value;
-
-                // Optional: If end_date is now before start_date, clear end_date
-                if (endDateInput.value && endDateInput.value < this.value) {
-                    endDateInput.value = "";
-                }
-            });
-        }
-    });
-</script>
 {% endblock content %}

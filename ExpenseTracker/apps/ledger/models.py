@@ -19,7 +19,10 @@ class Contact(TimeStampedModel):
 
     objects = ContactQuerySet.as_manager()
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(
+        max_length=100,
+        help_text='Example: Mom, Dad'
+    )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
