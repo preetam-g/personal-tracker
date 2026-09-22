@@ -23,14 +23,9 @@
     <hgroup style="margin-bottom: 0;">
         <h3 style="margin-bottom: 0;">Your Records</h3>
         <p style="color: var(--pico-muted-color); margin-bottom: 0;">
-            Make sure to save some contacts beforehand
-            <a href="{% url 'base:add_contact' %}?next={{ request.get_full_path|urlencode }}">(Click Here)</a>
+            Latest 10 transactions.
         </p>
     </hgroup>
-
-    <div style="text-align: right;">
-        {{ form.as_p }}
-    </div>
 
 </header>
 

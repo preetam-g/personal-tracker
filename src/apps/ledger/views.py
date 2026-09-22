@@ -14,9 +14,6 @@ from apps.base.views import delete_object_view
 from apps.base.utils import TimeFrame
 from apps.base.navigation import redirect_to_next
 
-from apps.expenses.forms import ExpenseFilterForm
-from apps.expenses.models import Expense
-
 
 @login_required(login_url='accounts:login')
 def home_view(request):
@@ -26,23 +23,13 @@ def home_view(request):
         user=request.user,
     )
 
-    form_data = form.cleaned_data if form.is_valid() else form.initial
-    timeframe = form_data.get('timeframe')
-
-    today = localdate()
-    filters = {
-        'start_date': TimeFrame.get_start_date(today, timeframe),
-        'end_date': today,
-    }
-
-    cache_key = cache.home_key(request.user.id, today, timeframe)
+    cache_key = cache.home_key(request.user.id, localdate())
     transactions = django_cache.get_or_set(
         key=cache_key,
         default=lambda: list(
             Transaction.objects
             .for_user(request.user)
-            .with_contact()
-            .filter_with_form(filters)
+            .with_contact()[:10]
         ),
     )
 

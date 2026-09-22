@@ -2,12 +2,11 @@ from django.core.cache import cache
 
 APP = "ledger"
 
-def home_key(user_id, date, timeframe):
+def home_key(user_id, date):
     return (
         f"{APP}:home:"
         f"user:{user_id}:"
         f"date:{date}:"
-        f"timeframe:{timeframe}:"
     )
 
 def summary_key(user_id):
