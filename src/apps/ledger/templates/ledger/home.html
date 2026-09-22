@@ -12,7 +12,8 @@
     </div>
 
     <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
-        <a href="{% url 'ledger:summary' %}" role="button" class="secondary outline">Summary</a>
+        <a href="{% url 'ledger:summary' %}" role="button" class="secondary">Summary</a>
+        <a href="{% url 'ledger:activity' %}" role="button" class="secondary outline">Activity</a>
         <a href="{% url 'ledger:add' %}?next={{ request.get_full_path|urlencode }}" role="button">+ New Entry</a>
     </div>
 </div>
@@ -28,11 +29,7 @@
     </hgroup>
 
     <div style="text-align: right;">
-        <form method="get" action="{% url 'ledger:home' %}">
-            <fieldset role="group">
-                {{ form.timeframe }}
-            </fieldset>
-        </form>
+        {{ form.as_p }}
     </div>
 
 </header>

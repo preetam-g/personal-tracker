@@ -17,8 +17,3 @@ class TransactionType(models.TextChoices):
         return (
             cls.MONEY_RECEIVED,
         )
-
-class LinkStatus(models.TextChoices):
-    UNLINKED = 'unlinked', 'Unlinked'
-    PENDING = 'pending', 'Pending'
-    LINKED = 'confirmed', 'Confirmed'

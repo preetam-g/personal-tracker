@@ -10,4 +10,5 @@ urlpatterns = [
     path('transaction/<int:tran_id>/delete/', views.delete_transaction_view, name='delete'),
     path('summary/', views.summary_view, name='summary'),
     path('contact/<int:contact_id>/settle/', views.create_settlement_view, name='create_settlement'),
+    path('activity/', views.activity_view, name='activity'),
 ]

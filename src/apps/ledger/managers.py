@@ -31,6 +31,18 @@ class TransactionQuerySet(QuerySet):
             end_date = timezone.make_aware(datetime.combine(end_date + timedelta(days=1), time.min))
             qs = qs.filter(date__lt=end_date)
 
+        contact = filter_form.get("contact")
+        if contact:
+            qs = qs.filter(contact=contact)
+
+        tran_type = filter_form.get("type")
+        if tran_type:
+            qs = qs.filter(type=tran_type)
+
+        settlement = filter_form.get("settlement")
+        if settlement:
+            qs = qs.filter(is_settled=(settlement == "True"))
+
         return qs
 
     def get_contacts_summary(self) -> dict:

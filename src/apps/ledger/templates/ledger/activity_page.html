@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<div style="margin-bottom: 1.5rem;">
+    <a href="{% url 'ledger:home' %}" class="secondary" style="text-decoration: none;">
+        &larr; Back
+    </a>
+</div>
+
+<header style="margin-bottom: 2rem;">
+    <hgroup style="margin-bottom: 0;">
+        <h2 style="margin-bottom: 0;">Transaction Activity</h2>
+        <p style="color: var(--pico-muted-color); margin-bottom: 0;">
+            Filter your transactions.
+        </p>
+    </hgroup>
+</header>
+
+<article>
+    <form method="GET" action="{% url 'ledger:activity' %}" id="transaction-filter-form">
+        <div class="app-filter-grid">
+            {{form.as_div}}
+        </div>
+        <div class="app-filter-actions">
+            <a href="{% url 'ledger:activity' %}"
+               role="button"
+               class="secondary outline"
+               style="text-align: center;">Reset</a>
+            <button type="submit">Apply</button>
+        </div>
+    </form>
+</article>
+
+
+{% include "ledger/partials/ledger_table.html" %}
+
+{% endblock content %}

@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.core.cache import cache as django_cache
 from django.utils.timezone import localdate
 
-from .forms import TransactionForm, LedgerHomeForm
+from .forms import TransactionForm, LedgerHomeForm, LedgerFilterForm
 from .models import Transaction, Contact
 from .services import create_settlement
 from . import cache
@@ -13,6 +13,9 @@ from . import cache
 from apps.base.views import delete_object_view
 from apps.base.utils import TimeFrame
 from apps.base.navigation import redirect_to_next
+
+from apps.expenses.forms import ExpenseFilterForm
+from apps.expenses.models import Expense
 
 
 @login_required(login_url='accounts:login')
@@ -181,4 +184,39 @@ def create_settlement_view(request, contact_id):
     return redirect_to_next(
         request,
         reverse('ledger:summary'),
+    )
+
+
+@login_required(login_url='accounts:login')
+def activity_view(request):
+
+    form = LedgerFilterForm(request.GET or None, user=request.user)
+
+    filters = dict(
+        form.cleaned_data
+        if form.is_valid()
+        else form.initial
+    )
+
+    today = localdate()
+    timeframe = filters.pop('timeframe', None)
+    filters = {
+        "start_date": TimeFrame.get_start_date(today, timeframe),
+        "end_date": today,
+        **filters,
+    }
+
+    transactions = (
+        Transaction.objects
+        .for_user(request.user)
+        .filter_with_form(filters)
+    )
+
+    return render(
+        request,
+        template_name='ledger/activity_page.html',
+        context={
+            "form" : form,
+            "transactions" : transactions,
+        }
     )

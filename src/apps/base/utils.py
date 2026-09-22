@@ -1,5 +1,6 @@
 from django.db import models
 import datetime
+from django import forms
 
 
 class TimeFrame(models.TextChoices):
@@ -22,8 +23,15 @@ class TimeFrame(models.TextChoices):
         }
         calculation_func = date_mapping.get(timeframe)
 
-        return calculation_func(today)
+        return calculation_func(today) if timeframe else None
 
 
 DEFAULT_BASE_CURRENCY_CODE = 'INR'
 DEFAULT_BASE_CURRENCY_SYMBOL = '₹'
+
+
+class EmptyChoiceField(forms.ChoiceField):
+    def __init__(self, *args, empty_label="---------", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.empty_label = empty_label
+        self.choices = [("", empty_label), *self.choices]

@@ -16,36 +16,15 @@
 
 <article>
     <form method="GET" action="{% url 'expenses:summary' %}" id="filter-form">
-        <div class="grid">
-            {% for field in form %}
-                <div>
-                    <label for="{{ field.id_for_label }}">
-                        {{ field.label }}
-                        {{ field }}
-                    </label>
-                    {% if field.errors %}
-                        <small style="color: var(--pico-form-element-invalid-active-border-color);">
-                            {{ field.errors.0 }}
-                        </small>
-                    {% endif %}
-                </div>
-
-                {% if forloop.counter|divisibleby:3 %}
-                    </div><div class="grid">
-                {% endif %}
-            {% endfor %}
-
-            {% if form.visible_fields|length|divisibleby:3 %}
-                <div></div>
-            {% endif %}
-
-            <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: flex-end; padding-bottom: var(--pico-spacing);">
-                <a href="{% url 'expenses:summary' %}"
-                   style="flex: 1; margin-bottom: 0; max-width: 25%"
-                   role="button"
-                   class="secondary outline">Reset</a>
-                <button type="submit" style="flex: 1; margin-bottom: 0; max-width: 25%">Apply</button>
-            </div>
+        <div class="app-filter-grid">
+            {{form.as_div}}
+        </div>
+        <div class="app-filter-actions">
+            <a href="{% url 'ledger:activity' %}"
+               role="button"
+               class="secondary outline"
+               style="text-align: center;">Reset</a>
+            <button type="submit">Apply</button>
         </div>
     </form>
 </article>

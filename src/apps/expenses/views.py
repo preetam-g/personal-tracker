@@ -108,10 +108,11 @@ def filtered_expense_view(request):
         user=request.user
     )
 
-    if form.is_valid():
-        filters = form.cleaned_data
-    else:
-        filters = form.initial
+    filters = dict(
+        form.cleaned_data
+        if form.is_valid()
+        else form.initial
+    )
 
     stats = models.Expense.objects.get_stats(request.user, filters)
     expenses = models.Expense.objects.filtered_for_user(request.user, filters)

@@ -1,8 +1,9 @@
 from django import forms
 from django.utils import timezone
 
-from apps.base.utils import TimeFrame
+from apps.base.utils import TimeFrame, EmptyChoiceField
 from apps.ledger.models import Transaction, Contact
+from apps.ledger.utils import TransactionType
 
 
 class TransactionForm(forms.ModelForm):
@@ -116,3 +117,44 @@ class LedgerHomeForm(forms.Form):
                 'timeframe_home',
                 TimeFrame.SEVEN_DAYS,
             )
+
+
+class LedgerFilterForm(forms.Form):
+
+    timeframe = EmptyChoiceField(
+        choices=TimeFrame.choices,
+        empty_label="All Dates",
+        required=False,
+    )
+
+    contact = forms.ModelChoiceField(
+        queryset=Contact.objects.none(),
+        required=False,
+        empty_label="All Contacts",
+    )
+
+    type = EmptyChoiceField(
+        choices=TransactionType.choices,
+        empty_label="All Types",
+        required=False,
+    )
+
+    # settlement = EmptyChoiceField(
+    #     choices=(
+    #         ("True", "Settled"),
+    #         ("False", "Unsettled"),
+    #     ),
+    #     required=False,
+    #     empty_label="All Transactions",
+    # )
+
+    def __init__(self, *args, user, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.fields["contact"].queryset = Contact.objects.for_user(user)
+
+        if not self.is_bound:
+            defaults = {
+                'timeframe': TimeFrame.THIRTY_DAYS,
+            }
+            self.initial.update(defaults)
