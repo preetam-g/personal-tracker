@@ -123,14 +123,13 @@ def expense_filter_defaults_view(request):
 
 
 @login_required(login_url='accounts:login')
-def ledger_summary_defaults_view(request):
-
+def ledger_defaults_view(request):
 
     if request.method != 'POST':
         return redirect('base:preferences')
 
     preferences = request.user.preferences
-    form = ledger_forms.LedgerSummaryDefaultsForm(request.POST, user=request.user)
+    form = ledger_forms.LedgerDefaultsForm(request.POST, user=request.user)
     if form.is_valid():
 
         preferences.set_ledger_preferences(
@@ -138,7 +137,7 @@ def ledger_summary_defaults_view(request):
         )
         messages.success(
             request,
-            'Ledger summary defaults saved successfully.'
+            'Ledger defaults saved successfully.'
         )
     else:
         messages.error(request, "Something went wrong. Please try again.")

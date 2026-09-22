@@ -86,7 +86,7 @@ def preferences_view(request):
         user=curr_user,
     )
 
-    ledger_summary_form = ledger_forms.LedgerSummaryDefaultsForm(
+    ledger_summary_form = ledger_forms.LedgerDefaultsForm(
         initial=preferences.get_ledger_preferences(
             key='ledger_summary_defaults',
             default={}

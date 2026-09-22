@@ -70,18 +70,31 @@ class ContactForm(forms.ModelForm):
             self.instance.user = self.user
 
 
-class LedgerSummaryDefaultsForm(forms.Form):
+class LedgerDefaultsForm(forms.Form):
 
-    timeframe_home = forms.ChoiceField(
-        choices=TimeFrame,
+    timeframe = EmptyChoiceField(
+        choices=TimeFrame.choices,
+        empty_label="All Dates",
         initial=TimeFrame.THIRTY_DAYS,
         required=False,
-        label="Timeframe (Home Page)",
+    )
+
+    contact = forms.ModelChoiceField(
+        queryset=Contact.objects.none(),
+        required=False,
+        empty_label="All Contacts",
+    )
+
+    type = EmptyChoiceField(
+        choices=TransactionType.choices,
+        empty_label="All Types",
+        required=False,
     )
 
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
+        self.fields["contact"].queryset = Contact.objects.for_user(user)
 
         defaults = self.user.preferences.get_ledger_preferences(
             "ledger_defaults",
@@ -124,6 +137,7 @@ class LedgerFilterForm(forms.Form):
     timeframe = EmptyChoiceField(
         choices=TimeFrame.choices,
         empty_label="All Dates",
+        initial=TimeFrame.THIRTY_DAYS,
         required=False,
     )
 
@@ -154,7 +168,9 @@ class LedgerFilterForm(forms.Form):
         self.fields["contact"].queryset = Contact.objects.for_user(user)
 
         if not self.is_bound:
-            defaults = {
-                'timeframe': TimeFrame.THIRTY_DAYS,
-            }
+            defaults = self.user.preferences.get_ledger_preferences(
+                key='ledger_defaults',
+                default={}
+            )
+
             self.initial.update(defaults)

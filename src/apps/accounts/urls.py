@@ -30,6 +30,6 @@ urlpatterns = [
     # ), name="password_reset_complete"),
 
     path("expense-filter-defaults/", views.expense_filter_defaults_view, name="expenses_filter_defaults"),
-    path("ledger-summary-defaults", views.ledger_summary_defaults_view, name="ledger_summary_defaults"),
+    path("ledger-defaults", views.ledger_defaults_view, name="ledger_defaults"),
     path("forex-features-preferences", views.forex_features_preferences_view, name="forex_features_preferences"),
 ]
