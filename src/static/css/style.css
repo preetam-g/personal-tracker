@@ -175,19 +175,21 @@ textarea:disabled {
 
 .app-progress-wrapper {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    width: 100%;
-    max-width: 150px;
+    align-items: center;
+    gap: 12px;
+    width: 80%;
 }
 
 .app-progress-text {
+    flex-shrink: 0;
     font-size: 0.875rem;
-    color: #4b5563;
+    color: var(--pico-muted-color);
+    white-space: nowrap;
 }
 
 .app-progress-bar-bg {
-    width: 100%;
+    flex: 1;
+    min-width: 60px;
     height: 8px;
     background-color: #e5e7eb;
     border-radius: 9999px;
@@ -269,22 +271,6 @@ textarea:disabled {
         color: var(--pico-muted-color);
         text-align: left;
         margin-right: 1rem;
-    }
-
-    /* Mobile Daily Progress Overrides */
-    .app-progress-wrapper {
-        flex-direction: row;
-        max-width: none;
-        gap: 12px;
-    }
-
-    .app-progress-text {
-        white-space: nowrap;
-    }
-
-    .app-progress-bar-bg {
-        width: 100px;
-        flex-shrink: 0;
     }
 
     .app-filter-grid {

@@ -28,14 +28,30 @@
         <div style="display: flex; justify-content: flex-end; margin-top: 2rem;">
             <div style="display: flex; gap: 1rem;">
                 <a href="{{ request.GET.next }}"
-                   role="button" class="secondary outline" style="margin-bottom: 0;">Cancel</a>
-                <button type="submit" style="margin-bottom: 0;">
+                   role="button"
+                   id="form-cancel-btn"
+                   class="secondary outline"
+                   style="margin-bottom: 0;">Cancel</a>
+                <button type="submit" id="form-submit-btn" style="margin-bottom: 0;">
                     {% if form.instance.pk %}Update{% else %}Save{% endif %}
                 </button>
             </div>
         </div>
     </form>
 </article>
+
+
+<script>
+document.getElementById("{{ form_id|default:'generic-form' }}").addEventListener("submit", function () {
+    const button1 = document.getElementById("form-submit-btn");
+    button1.disabled = true;
+    button1.textContent = "Saving...";
+
+    const button2 = document.getElementById("form-cancel-btn");
+    button2.disabled = true;
+});
+</script>
+
 
 {% block form_scripts %}
 {% endblock form_scripts %}
