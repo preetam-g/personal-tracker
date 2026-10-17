@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'groups/group.css' %}">{% endblock extra_css %}
+
+{% block content %}
+<div class="shared-ledger">
+<p class="shared-ledger-back"><a href="{% url 'groups:home' %}">&larr; Shared Groups</a></p>
+<header class="shared-ledger-header">
+    <div>
+        <h2>{{ group.name }}</h2>
+        <p>All amounts are in INR. Every member sees the same bills and balances.</p>
+    </div>
+    <div class="shared-ledger-actions">
+        {% if group.created_by_id == user.pk %}
+            <a href="{% url 'groups:add_member' group.pk %}" role="button" class="secondary outline shared-ledger-button">+ Add Person</a>
+        {% endif %}
+        <a href="{% url 'groups:add_bill' group.pk %}" role="button" class="shared-ledger-button">+ Add Bill</a>
+        <a href="#simplified-payments" role="button" class="secondary shared-ledger-button">Settle Up</a>
+    </div>
+</header>
+
+<section class="shared-ledger-section">
+    <h3>Balances</h3>
+    <article>
+        <div class="shared-ledger-members">
+            {% for member in members %}<span class="shared-ledger-member">{{ member.username }}{% if member.pk == group.created_by_id %} (owner){% endif %}</span>{% endfor %}
+        </div>
+        <div class="app-table-wrapper">
+            <table class="app-table">
+                <thead><tr><th>Person</th><th>Net balance</th></tr></thead>
+                <tbody>
+                {% for row in balance_rows %}
+                    <tr>
+                        <td data-label="Person">{{ row.user.username }}</td>
+                        <td data-label="Net balance">
+                            {% if row.amount > 0 %}<span class="amount-badge amount-badge--success" title="To receive" aria-label="To receive ₹{{ row.absolute_amount|floatformat:2 }}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"></line><polyline points="19 19 5 19 5 5"></polyline></svg>₹{{ row.absolute_amount|floatformat:2 }}</span>
+                            {% elif row.amount < 0 %}<span class="amount-badge amount-badge--danger" title="To pay" aria-label="To pay ₹{{ row.absolute_amount|floatformat:2 }}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="19" x2="19" y2="5"></line><polyline points="5 5 19 5 19 19"></polyline></svg>₹{{ row.absolute_amount|floatformat:2 }}</span>
+                            {% else %}Settled{% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+
+<section class="shared-ledger-section" id="simplified-payments">
+    <h3>Simplified payments</h3>
+    <article>
+        {% if pending_payments %}
+            <div class="split-pending-list" aria-label="Payments waiting for receiver confirmation">
+                {% for payment in pending_payments %}
+                    <p class="split-pending-item">₹{{ payment.amount|floatformat:2 }} from {{ payment.from_user.username }} to {{ payment.to_user.username }} — waiting for {{ payment.to_user.username }} to confirm receipt.</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if suggestions %}
+            <p>Tap your payment below to open a UPI app. The receiver confirms it here after the money arrives.</p>
+            {% if not exact_simplification %}<p>For groups with more than 12 unsettled people, these are short payment suggestions; the absolute minimum is not guaranteed.</p>{% endif %}
+            <div class="app-table-wrapper">
+                <table class="app-table">
+                    <thead><tr><th>From</th><th>To</th><th>Amount</th><th></th></tr></thead>
+                    <tbody>
+                    {% for suggestion in suggestions %}
+                        <tr>
+                            <td data-label="From">{{ suggestion.sender.username }}</td>
+                            <td data-label="To">{{ suggestion.receiver.username }}</td>
+                            <td data-label="Amount">₹{{ suggestion.amount|floatformat:2 }}</td>
+                            <td class="shared-ledger-table-action">
+                                {% if suggestion.sender.pk == user.pk %}
+                                    {% if suggestion.reference %}
+                                        <button type="button" class="outline shared-ledger-button" onclick="document.getElementById('settle-{{ forloop.counter }}').showModal()">Settle ₹{{ suggestion.amount|floatformat:2 }}</button>
+                                        <dialog id="settle-{{ forloop.counter }}" class="split-settle-dialog" data-settlement-dialog data-full-amount="{{ suggestion.amount }}">
+                                            <div class="split-settle-dialog-content">
+                                                <h3>Pay {{ suggestion.receiver.username }}</h3>
+                                                <p class="split-settle-amount" data-settlement-display>₹{{ suggestion.amount|floatformat:2 }}</p>
+                                                <p>To UPI ID <strong>{{ suggestion.receiver.upi_id }}</strong></p>
+                                                <fieldset class="split-settle-choice">
+                                                    <legend>How much?</legend>
+                                                    <label><input type="radio" name="amount_mode_{{ forloop.counter }}" value="full" checked> Settle full amount</label>
+                                                    <label><input type="radio" name="amount_mode_{{ forloop.counter }}" value="partial"> Settle a particular amount</label>
+                                                </fieldset>
+                                                <label for="settle-amount-{{ forloop.counter }}">Amount (₹)</label>
+                                                <input id="settle-amount-{{ forloop.counter }}" type="number" min="0.01" max="{{ suggestion.amount }}" step="0.01" value="{{ suggestion.amount }}" readonly data-settlement-amount>
+                                                <div class="split-settle-apps">
+                                                    <a href="{{ suggestion.gpay_url }}" data-payment-link data-base-href="{{ suggestion.gpay_url }}" role="button" aria-label="Pay with Google Pay"><img src="{% static 'groups/gpay-mark.svg' %}" alt="Google Pay"></a>
+                                                    <a href="{{ suggestion.cred_url }}" data-payment-link data-base-href="{{ suggestion.cred_url }}" role="button" class="secondary">Choose CRED</a>
+                                                </div>
+                                                <p class="split-settle-note">The selected amount is sent to the UPI app. For CRED, choose CRED in the UPI app picker. Check the details before paying, then return here to request confirmation.</p>
+                                                <form method="post" action="{% url 'groups:add_payment' group.pk %}" data-settlement-form>
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="to_user" value="{{ suggestion.receiver.pk }}">
+                                                    <input type="hidden" name="amount" value="{{ suggestion.amount }}" data-settlement-submit-amount>
+                                                    <input type="hidden" name="payment_reference" value="{{ suggestion.reference }}">
+                                                    <button type="submit">I have paid — request confirmation</button>
+                                                </form>
+                                                <button type="button" class="secondary outline" onclick="document.getElementById('settle-{{ forloop.counter }}').close()">Cancel</button>
+                                            </div>
+                                        </dialog>
+                                    {% else %}
+                                        <small>{{ suggestion.receiver.username }} needs to add a UPI ID.</small>
+                                    {% endif %}
+                                {% else %}<small>Only {{ suggestion.sender.username }} can pay</small>{% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif not pending_payments %}
+            <p>Everyone is settled.</p>
+        {% endif %}
+    </article>
+</section>
+
+<section class="shared-ledger-section group-activity" id="group-activity">
+    <h3>Group activity</h3>
+    {% if activity %}
+        <div class="group-activity-list">
+            {% for item in activity %}
+                <details class="group-activity-card">
+                    <summary>
+                        {% if item.kind == 'bill' %}
+                            <span class="group-activity-main"><strong>{{ item.bill.paid_by.username }}</strong> paid <strong>₹{{ item.bill.amount|floatformat:2 }}</strong> for {{ item.bill.title }}.</span>
+                            <span class="group-activity-meta">{{ item.bill.date }}</span>
+                        {% else %}
+                            <span class="group-activity-main"><strong>{{ item.payment.from_user.username }}</strong> paid <strong>₹{{ item.payment.amount|floatformat:2 }}</strong> to {{ item.payment.to_user.username }} to settle up.</span>
+                            <span class="group-activity-meta">{{ item.payment.get_status_display }} · {{ item.payment.date }}</span>
+                        {% endif %}
+                        <span class="group-activity-open">View details</span>
+                    </summary>
+                    <div class="group-activity-detail">
+                        {% if item.kind == 'bill' %}
+                            <p><strong>Bill:</strong> {{ item.bill.title }}{% if item.bill.category %} · {{ item.bill.category.name }}{% endif %}</p>
+                            <p><strong>Split:</strong></p>
+                            <ul>{% for share in item.bill.shares.all %}<li>{{ share.user.username }}: ₹{{ share.amount|floatformat:2 }} ({{ share.percentage }}%)</li>{% endfor %}</ul>
+                            {% if item.bill.paid_by_id == user.pk %}
+                                <div class="group-activity-actions">
+                                    <a href="{% url 'groups:edit_bill' group.pk item.bill.pk %}" role="button" class="secondary outline shared-ledger-button">Edit bill</a>
+                                    <form method="post" action="{% url 'groups:delete_bill' group.pk item.bill.pk %}" onsubmit="return confirm('Remove this bill?');">
+                                        {% csrf_token %}<button type="submit" class="secondary outline shared-ledger-button">Delete bill</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <p><strong>Status:</strong> {{ item.payment.get_status_display }}{% if item.payment.confirmed_at %} · Receiver confirmed{% endif %}</p>
+                            {% if item.payment.payment_reference %}<p><strong>Reference:</strong> {{ item.payment.payment_reference }}</p>{% endif %}
+                            {% if item.payment.to_user_id == user.pk %}
+                                {% if item.payment.status == 'pending' %}
+                                    <div class="group-activity-actions">
+                                        <form method="post" action="{% url 'groups:confirm_payment' group.pk item.payment.pk %}">
+                                            {% csrf_token %}<button type="submit" class="shared-ledger-button">Confirm received</button>
+                                        </form>
+                                        <form method="post" action="{% url 'groups:reject_payment' group.pk item.payment.pk %}">
+                                            {% csrf_token %}<button type="submit" class="secondary outline shared-ledger-button">Reject</button>
+                                        </form>
+                                    </div>
+                                {% endif %}
+                                {% if item.payment.status != 'rejected' %}
+                                    <form method="post" action="{% url 'groups:edit_payment' group.pk item.payment.pk %}" class="group-payment-edit-form">
+                                        {% csrf_token %}
+                                        <label for="payment-amount-{{ item.payment.pk }}">Correct received amount (₹)</label>
+                                        <input id="payment-amount-{{ item.payment.pk }}" name="amount" type="number" step="0.01" min="0.01" value="{{ item.payment.amount }}" required>
+                                        <button type="submit" class="secondary outline shared-ledger-button">Save amount</button>
+                                    </form>
+                                {% endif %}
+                                    <form method="post" action="{% url 'groups:delete_payment' group.pk item.payment.pk %}" onsubmit="return confirm('Remove this payment?');">
+                                        {% csrf_token %}<button type="submit" class="secondary outline shared-ledger-button">Delete payment</button>
+                                    </form>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </details>
+            {% endfor %}
+        </div>
+    {% else %}<article><p>No group activity yet.</p></article>{% endif %}
+</section>
+</div>
+<script src="{% static 'groups/settlement.js' %}" defer></script>
+{% endblock content %}

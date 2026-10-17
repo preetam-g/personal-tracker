@@ -36,6 +36,19 @@
         <div>
 
             <article style="margin-bottom: var(--pico-block-spacing-vertical);">
+                <h3 style="margin-bottom: 0.5rem;">UPI ID</h3>
+                <p style="color: var(--pico-muted-color); font-size: 0.9rem;">
+                    Add the UPI ID you want group members to pay when settling up. Double-check it; this app cannot verify its owner yet.
+                </p>
+                <form method="post" action="{% url 'accounts:profile' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="upi">
+                    {{ upi_form.as_p }}
+                    <button type="submit" style="width: 100%; margin-bottom: 0;">Save UPI ID</button>
+                </form>
+            </article>
+
+            <article style="margin-bottom: var(--pico-block-spacing-vertical);">
                 <h3 style="margin-bottom: 0.5rem;">Customization</h3>
                 <p style="color: var(--pico-muted-color); font-size: 0.9rem;">
                     Convert the app to suit your needs.

@@ -12,6 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/css/tom-select.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock extra_css %}
 
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.4.3/dist/js/tom-select.complete.min.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
@@ -29,6 +30,7 @@
             <ul>
                 <li><a href="{% url 'expenses:home' %}">Expenses</a></li>
                 <li><a href="{% url 'ledger:home' %}">Ledger</a></li>
+                <li><a href="{% url 'groups:home' %}">Groups</a></li>
                 <li><a href="{% url 'habits:home' %}">Goals</a></li>
                 {% if user.is_authenticated %}
                     <li><a href="{% url 'accounts:profile' %}">{{ user.username|slice:":1"|upper }}</a></li>

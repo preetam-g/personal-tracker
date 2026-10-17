@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'groups/group.css' %}">{% endblock extra_css %}
+
+{% block content %}
+<div class="shared-ledger split-bill-page">
+    <p class="shared-ledger-back"><a href="{{ cancel_url }}">&larr; {{ group.name }}</a></p>
+    <header class="split-bill-heading">
+        <p class="split-bill-eyebrow">SHARED EXPENSE</p>
+        <h1>{% if editing %}Edit bill{% else %}Add a bill{% endif %}</h1>
+        <p>Choose who was part of it and how you want to split the cost.</p>
+    </header>
+
+    <form method="post" id="split-bill-form" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="split-bill-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+
+        <section class="split-bill-card" aria-labelledby="bill-details-title">
+            <div class="split-bill-card-heading">
+                <span class="split-bill-step">1</span>
+                <div>
+                    <h2 id="bill-details-title">Bill details</h2>
+                    <p>What was paid, when, and by whom?{% if editing %} Only the payer can change this bill.{% endif %}</p>
+                </div>
+            </div>
+            <div class="split-bill-fields">
+                <div class="split-bill-field split-bill-field-wide">
+                    <label for="{{ form.title.id_for_label }}">Bill name</label>
+                    {{ form.title }}{{ form.title.errors }}
+                </div>
+                <div class="split-bill-field">
+                    <label for="{{ form.amount.id_for_label }}">Total amount <span>₹ INR</span></label>
+                    {{ form.amount }}{{ form.amount.errors }}
+                </div>
+                <div class="split-bill-field">
+                    <label for="{{ form.date.id_for_label }}">Date</label>
+                    {{ form.date }}{{ form.date.errors }}
+                </div>
+                <div class="split-bill-field split-bill-field-wide">
+                    <label for="{{ form.paid_by.id_for_label }}">Paid by</label>
+                    {{ form.paid_by }}{{ form.paid_by.errors }}
+                </div>
+                <div class="split-bill-field split-bill-field-wide">
+                    <label for="{{ form.category.id_for_label }}">Expense category <span>optional</span></label>
+                    {{ form.category }}{{ form.category.errors }}
+                </div>
+            </div>
+        </section>
+
+        <section class="split-bill-card" aria-labelledby="split-method-title">
+            <div class="split-bill-card-heading">
+                <span class="split-bill-step">2</span>
+                <div>
+                    <h2 id="split-method-title">Split the bill</h2>
+                    <p>Tick everyone who should share this expense.</p>
+                </div>
+            </div>
+            <fieldset class="split-bill-methods">
+                <legend>How should it be split?</legend>
+                {% for choice in form.split_method %}
+                    <label class="split-bill-method">
+                        {{ choice.tag }}
+                        <span class="split-bill-method-name">{{ choice.choice_label }}</span>
+                        <small>{% if forloop.counter == 1 %}Same share for each person{% elif forloop.counter == 2 %}Set a percent for each person{% else %}Enter exact rupees for each person{% endif %}</small>
+                    </label>
+                {% endfor %}
+            </fieldset>
+            {{ form.split_method.errors }}
+
+            <div class="split-bill-participants-heading">
+                <h3>People in this bill</h3>
+                <span id="split-bill-selected-count"></span>
+            </div>
+            <div class="split-bill-members">
+                {% for row in form.split_rows %}
+                    <div class="split-bill-member" data-member-row>
+                        <div class="split-bill-member-person">
+                            {{ row.included }}
+                            <label for="{{ row.included.id_for_label }}">{{ row.member.username }}</label>
+                        </div>
+                        <div class="split-bill-member-value" data-equal-value></div>
+                        <div class="split-bill-member-value" data-percentage-value hidden>
+                            <label for="{{ row.percentage.id_for_label }}">Percent</label>
+                            <div class="split-bill-number">{{ row.percentage }}<span>%</span></div>
+                            {{ row.percentage.errors }}
+                        </div>
+                        <div class="split-bill-member-value" data-amount-value hidden>
+                            <label for="{{ row.amount.id_for_label }}">Amount</label>
+                            <div class="split-bill-number"><span>₹</span>{{ row.amount }}</div>
+                            {{ row.amount.errors }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="split-bill-total" aria-live="polite">
+                <span id="split-bill-total-label">Selected people</span>
+                <strong id="split-bill-total-value"></strong>
+            </div>
+            <p class="split-bill-guidance" id="split-bill-guidance"></p>
+        </section>
+
+        <div class="split-bill-footer">
+            <a href="{{ cancel_url }}" role="button" class="secondary outline shared-ledger-button">Cancel</a>
+            <button type="submit" class="shared-ledger-button">{% if editing %}Save changes{% else %}Add bill{% endif %}</button>
+        </div>
+    </form>
+</div>
+<script src="{% static 'groups/shared_bill.js' %}" defer></script>
+{% endblock content %}

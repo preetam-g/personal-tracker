@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'groups/group.css' %}">{% endblock extra_css %}
+
+{% block content %}
+<div class="shared-ledger">
+<header class="shared-ledger-header">
+    <div>
+        <h2>Shared Groups</h2>
+        <p>Split bills with people who have an account here.</p>
+    </div>
+    <a href="{% url 'groups:create' %}" role="button" class="shared-ledger-button">+ New Group</a>
+</header>
+
+{% if groups %}
+    <div class="grid">
+        {% for group in groups %}
+            <article class="shared-ledger-group-card">
+                <h3>{{ group.name }}</h3>
+                <p>{{ group.members.count }} member{{ group.members.count|pluralize }}</p>
+                <a href="{% url 'groups:detail' group.pk %}" role="button" class="outline shared-ledger-button">Open Group</a>
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <article>
+        <p>No shared groups yet. Create one and add your friends by username.</p>
+    </article>
+{% endif %}
+</div>
+{% endblock content %}

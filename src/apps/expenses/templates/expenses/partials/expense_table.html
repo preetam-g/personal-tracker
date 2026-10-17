@@ -29,6 +29,9 @@
                             {% endif %}
                         </td>
                         <td class="app-table-actions">
+                            {% if expense.group_bill_share_id %}
+                                <small>Shared bill</small>
+                            {% else %}
                             <a href="{% url 'expenses:edit' expense.id %}?next={{ request.get_full_path|urlencode }}"
                                class="app-btn-icon"
                                data-tippy-content="Edit"
@@ -50,6 +53,7 @@
                                 ">
                                 {% include "partials/icons/delete.html" %}
                             </button>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

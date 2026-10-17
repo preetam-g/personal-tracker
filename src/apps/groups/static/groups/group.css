@@ -1,0 +1,563 @@
+.shared-ledger-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 2rem 0;
+}
+
+.shared-ledger-header h2,
+.shared-ledger-header p {
+    margin-bottom: 0;
+}
+
+.shared-ledger-header p {
+    margin-top: 0.35rem;
+    color: var(--pico-muted-color);
+}
+
+.shared-ledger-back {
+    margin-top: 1.5rem;
+}
+
+.shared-ledger-section {
+    margin: 2rem 0;
+}
+
+.shared-ledger-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.shared-ledger :is(a[role="button"], button).shared-ledger-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 10rem;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.shared-ledger-group-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.shared-ledger-group-card p {
+    color: var(--pico-muted-color);
+}
+
+.shared-ledger-group-card .shared-ledger-button {
+    margin-top: auto !important;
+}
+
+.shared-ledger-members {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.shared-ledger-member {
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: 999px;
+    color: var(--pico-muted-color);
+}
+
+.shared-ledger-table-action {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.shared-ledger-table-action form {
+    margin: 0;
+}
+
+.shared-ledger-table-action form + form {
+    margin-top: 0.4rem;
+}
+
+.split-settle-dialog {
+    width: min(32rem, calc(100% - 2rem));
+    max-height: min(90vh, 44rem);
+    padding: 0;
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: calc(var(--pico-border-radius) * 1.5);
+    background: var(--pico-card-background-color);
+    color: var(--pico-color);
+    text-align: left;
+    white-space: normal;
+}
+
+.split-settle-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.split-settle-dialog-content {
+    padding: 1.5rem;
+}
+
+.split-settle-dialog-content h3 {
+    margin-bottom: 0.4rem;
+}
+
+.split-settle-amount {
+    margin-bottom: 0.75rem;
+    color: var(--pico-primary);
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.split-settle-apps {
+    display: grid;
+    gap: 0.6rem;
+    margin: 1.2rem 0;
+}
+
+.split-settle-apps a[role="button"],
+.split-settle-dialog-content button {
+    width: 100% !important;
+    margin: 0;
+    text-align: center;
+}
+
+.split-settle-apps a[role="button"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+}
+
+.split-settle-apps img {
+    width: auto;
+    height: 1.3rem;
+}
+
+.split-settle-apps a[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.split-settle-choice {
+    margin: 1rem 0;
+}
+
+.split-settle-choice label {
+    margin-bottom: 0.4rem;
+}
+
+.split-pending-list {
+    margin-bottom: 1.25rem;
+}
+
+.split-pending-item {
+    margin: 0 0 0.5rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    background: var(--pico-card-background-color);
+}
+
+.group-activity-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.group-activity-card {
+    padding: 0;
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    background: var(--pico-card-background-color);
+}
+
+.group-activity-card summary {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 1rem 1.2rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.group-activity-card summary::-webkit-details-marker {
+    display: none;
+}
+
+.group-activity-main {
+    flex: 1 1 18rem;
+}
+
+.group-activity-meta {
+    color: var(--pico-muted-color);
+    font-size: 0.85rem;
+}
+
+.group-activity-open {
+    color: var(--pico-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.group-activity-card[open] .group-activity-open {
+    font-size: 0;
+}
+
+.group-activity-card[open] .group-activity-open::after {
+    content: 'Hide details';
+    font-size: 0.85rem;
+}
+
+.group-activity-detail {
+    padding: 1rem 1.2rem;
+    border-top: 1px solid var(--pico-muted-border-color);
+}
+
+.group-activity-detail p {
+    margin-bottom: 0.5rem;
+}
+
+.group-activity-detail ul {
+    margin-bottom: 1rem;
+}
+
+.group-activity-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.group-activity-detail form {
+    margin: 0;
+}
+
+.group-payment-edit-form {
+    display: flex;
+    align-items: end;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin: 0.75rem 0 !important;
+}
+
+.group-payment-edit-form label {
+    flex: 1 1 100%;
+    margin: 0;
+}
+
+.group-payment-edit-form input {
+    width: 10rem;
+    margin: 0;
+}
+
+.split-settle-note {
+    color: var(--pico-muted-color);
+    font-size: 0.85rem;
+}
+
+.split-settle-dialog-content form {
+    margin: 0 0 0.6rem;
+}
+
+.shared-ledger-form {
+    max-width: 640px;
+    margin: 2rem auto;
+}
+
+.shared-ledger-form-actions {
+    justify-content: flex-end;
+}
+
+.split-bill-page {
+    max-width: 820px;
+    margin: 0 auto 3rem;
+}
+
+.split-bill-heading {
+    margin: 1.75rem 0 2rem;
+}
+
+.split-bill-heading h1 {
+    margin: 0 0 0.35rem;
+}
+
+.split-bill-heading > p:last-child {
+    margin: 0;
+    color: var(--pico-muted-color);
+}
+
+.split-bill-eyebrow {
+    margin-bottom: 0.45rem;
+    color: var(--pico-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.split-bill-card {
+    padding: 1.75rem;
+    margin: 0 0 1.25rem;
+    background: var(--pico-card-background-color);
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: calc(var(--pico-border-radius) * 1.5);
+}
+
+.split-bill-card-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.split-bill-card-heading h2 {
+    margin: 0 0 0.2rem;
+    font-size: 1.2rem;
+}
+
+.split-bill-card-heading p {
+    margin: 0;
+    color: var(--pico-muted-color);
+}
+
+.split-bill-step {
+    display: inline-flex;
+    flex: 0 0 2rem;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--pico-primary) 14%, var(--pico-card-background-color));
+    color: var(--pico-primary);
+    font-weight: 700;
+}
+
+.split-bill-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1rem;
+}
+
+.split-bill-field-wide {
+    grid-column: 1 / -1;
+}
+
+.split-bill-field label,
+.split-bill-member-value label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+}
+
+.split-bill-field label span {
+    color: var(--pico-muted-color);
+    font-weight: 400;
+}
+
+.split-bill-field :is(input, select),
+.split-bill-number input {
+    margin-bottom: 0;
+}
+
+.split-bill-methods {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.6rem;
+}
+
+.split-bill-methods legend {
+    margin-bottom: 0.6rem;
+    font-weight: 600;
+}
+
+.split-bill-method {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 0.55rem;
+    align-content: start;
+    margin: 0;
+    padding: 0.9rem;
+    border: 1px solid var(--pico-muted-border-color);
+    border-radius: var(--pico-border-radius);
+    cursor: pointer;
+}
+
+.split-bill-method:has(input:checked) {
+    border-color: var(--pico-primary);
+    background: color-mix(in srgb, var(--pico-primary) 7%, var(--pico-card-background-color));
+}
+
+.split-bill-method input {
+    margin: 0.15rem 0 0;
+}
+
+.split-bill-method-name {
+    font-weight: 700;
+}
+
+.split-bill-method small {
+    grid-column: 2;
+    color: var(--pico-muted-color);
+    line-height: 1.3;
+}
+
+.split-bill-participants-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+    margin-bottom: 0.6rem;
+}
+
+.split-bill-participants-heading h3 {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.split-bill-participants-heading span {
+    color: var(--pico-muted-color);
+    font-size: 0.85rem;
+}
+
+.split-bill-member {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(9rem, 12rem);
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.split-bill-member.is-excluded {
+    opacity: 0.55;
+}
+
+.split-bill-member-person {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+}
+
+.split-bill-member-person :is(input, label) {
+    margin: 0;
+}
+
+.split-bill-member-person label {
+    overflow-wrap: anywhere;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.split-bill-member-value {
+    text-align: right;
+    font-weight: 600;
+}
+
+.split-bill-member-value[hidden] {
+    display: none !important;
+}
+
+.split-bill-member-value label {
+    font-size: 0.8rem;
+    text-align: left;
+}
+
+.split-bill-number {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.split-bill-number input {
+    min-width: 0;
+    text-align: right;
+}
+
+.split-bill-number span {
+    color: var(--pico-muted-color);
+}
+
+.split-bill-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1rem;
+}
+
+.split-bill-guidance {
+    margin: 0.4rem 0 0;
+    color: var(--pico-muted-color);
+    font-size: 0.85rem;
+}
+
+.split-bill-errors {
+    padding: 0.8rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--pico-del-color);
+    border-radius: var(--pico-border-radius);
+}
+
+.split-bill-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+
+
+@media (max-width: 768px) {
+    .shared-ledger .app-table td:last-child {
+        justify-content: space-between;
+    }
+
+    .shared-ledger .app-table td.shared-ledger-table-action {
+        justify-content: flex-end;
+    }
+
+}
+
+@media (max-width: 480px) {
+    .split-bill-card {
+        padding: 1.2rem;
+    }
+
+    .split-bill-fields,
+    .split-bill-methods {
+        grid-template-columns: 1fr;
+    }
+
+    .split-bill-member {
+        grid-template-columns: minmax(0, 1fr) minmax(7rem, 9rem);
+    }
+
+    .split-bill-footer > * {
+        flex: 1 1 0;
+        width: auto !important;
+    }
+
+    .shared-ledger-header,
+    .shared-ledger-header .shared-ledger-actions,
+    .shared-ledger-form-actions {
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .shared-ledger-header .shared-ledger-actions > *,
+    .shared-ledger-header > .shared-ledger-button,
+    .shared-ledger-form-actions > * {
+        flex: 1 1 100%;
+        width: 100% !important;
+    }
+}
