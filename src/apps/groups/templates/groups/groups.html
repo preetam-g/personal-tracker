@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'groups/group.css' %}">{% endblock extra_css %}
+
+{% block content %}
+<div class="shared-ledger">
+<header class="shared-ledger-header">
+    <div>
+        <span class="app-page-eyebrow">Shared money</span>
+        <h1>Shared Groups</h1>
+        <p>Split bills and settle up with your people.</p>
+    </div>
+    <a href="{% url 'groups:create' %}" role="button" class="shared-ledger-button">+ New group</a>
+</header>
+
+{% if groups %}
+    <div class="grid">
+        {% for group in groups %}
+            <article class="shared-ledger-group-card">
+                <span class="shared-ledger-group-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="9" r="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 20v-2a5.5 5.5 0 0 1 11 0v2h-11ZM15 15a4 4 0 0 1 6.5 3v2H16" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+                <h3>{{ group.name }}</h3>
+                <p>{{ group.members.count }} member{{ group.members.count|pluralize }}</p>
+                <a href="{% url 'groups:detail' group.pk %}" role="button" class="outline shared-ledger-button">Open Group</a>
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <article class="app-empty-state">
+        <span class="shared-ledger-group-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="9" r="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 20v-2a5.5 5.5 0 0 1 11 0v2h-11ZM15 15a4 4 0 0 1 6.5 3v2H16" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+        <h3 class="app-empty-title">Start your first group</h3>
+        <p>Create a group and add your friends by username to split bills together.</p>
+    </article>
+{% endif %}
+</div>
+{% endblock content %}

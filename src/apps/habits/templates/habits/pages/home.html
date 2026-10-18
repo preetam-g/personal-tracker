@@ -2,18 +2,17 @@
 
 {% block content %}
 
-<div class="grid" style="align-items: center; margin-top: 2rem; margin-bottom: 2rem;">
+<header class="app-page-head">
     <div>
-        <h2 style="margin-bottom: 0;">Your Goals</h2>
-        <p style="color: var(--pico-muted-color);">
-            Build better habits, one goal at a time.
-        </p>
+        <span class="app-page-eyebrow">Daily progress</span>
+        <h1>Your Goals</h1>
+        <p>Build better habits, one goal at a time.</p>
     </div>
-    <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
+    <div class="app-page-actions">
         <a href="{% url 'habits:history' %}" role="button" class="secondary outline">History</a>
-        <a href="{% url 'habits:manage_habits' %}" role="button">Manage</a>
+        <a href="{% url 'habits:manage_habits' %}" role="button">Manage goals</a>
     </div>
-</div>
+</header>
 
 <section style="margin-bottom: 3rem;">
     <header style="margin-bottom: 1rem;">

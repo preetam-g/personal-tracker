@@ -3,7 +3,7 @@
         {{ trend_data|json_script:"trend-data" }}
 
         <article>
-            <div id="trendWrapper" style="height: 320px; display:flex; align-items:center; justify-content:center;">
+            <div id="trendWrapper" class="app-trend-wrapper">
                 <canvas id="trendChart"></canvas>
                 <p id="trendEmpty" style="display:none; color: var(--pico-muted-color);">
                     No data available.
@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const hasData = trendData.length > 0 && trendData.some(i => i.completion_rate !== null);
 
     if (!hasData) {
+        document.getElementById('trendWrapper').classList.add('app-trend-wrapper--empty');
         document.getElementById('trendChart').style.display = 'none';
         document.getElementById('trendEmpty').style.display = 'block';
         document.getElementById('trendEmpty').textContent = "No goals existed during this timeframe.";

@@ -64,6 +64,9 @@ def edit_expense_view(request, exp_id):
         models.Expense.objects.for_user(request.user),
         id=exp_id,
     )
+    if expense.group_bill_share_id:
+        messages.error(request, 'This expense comes from a shared bill. Change it from the group ledger.')
+        return redirect_to_next(request, reverse('expenses:home'))
 
     if request.method == 'POST':
         form = forms.ExpenseForm(request.POST, instance=expense, user=request.user)
@@ -91,6 +94,10 @@ def edit_expense_view(request, exp_id):
 
 @login_required(login_url='accounts:login')
 def delete_expense_view(request, exp_id):
+    expense = get_object_or_404(models.Expense.objects.for_user(request.user), id=exp_id)
+    if expense.group_bill_share_id:
+        messages.error(request, 'This expense comes from a shared bill. Remove the bill from the group ledger.')
+        return redirect_to_next(request, reverse('expenses:home'))
     return delete_object_view(
         request=request,
         model=models.Expense,

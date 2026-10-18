@@ -7,6 +7,7 @@ from apps.forex.models import Currency
 
 
 class UserProfile(AbstractUser):
+    upi_id = models.CharField(max_length=255, blank=True)
 
     class Meta:
         ordering = ['-date_joined']

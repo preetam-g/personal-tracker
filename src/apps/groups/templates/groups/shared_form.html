@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'groups/group.css' %}">{% endblock extra_css %}
+
+{% block content %}
+<article class="shared-ledger shared-ledger-form">
+    <header>
+        <h2>{{ title }}</h2>
+        {% if hint %}<p>{{ hint }}</p>{% endif %}
+    </header>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="shared-ledger-actions shared-ledger-form-actions">
+            <a href="{{ cancel_url }}" role="button" class="secondary outline shared-ledger-button">Cancel</a>
+            <button type="submit" class="shared-ledger-button">Save</button>
+        </div>
+    </form>
+</article>
+{% endblock content %}

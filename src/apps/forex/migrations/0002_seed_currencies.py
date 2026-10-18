@@ -13,23 +13,19 @@ def seed_currencies(apps, schema_editor):
     base_url = getattr(settings, 'EXCHANGE_RATE_BASE_URL', None)
     api_key = getattr(settings, 'EXCHANGE_RATE_API_KEY', None)
 
-    if not (api_key or base_url):
-        raise ValueError("EXCHANGE_RATE_API_KEY is missing from settings.")
-
-    url = f"{base_url}/{api_key}/codes"
-
-    response = requests.get(url, timeout=20)
-    if response.status_code != 200:
-        raise Exception(f"Failed to fetch currencies from API. Status Code: {response.status_code}")
-
-    data = response.json()
-    if data['result'] == "error":
-        raise Exception(f"Failed to fetch currencies from API. Error Type: {data['error-type']}")
-
-    codes = data.get("supported_codes", [])
-
-    if not codes:
-        raise Exception("API returned an empty list of currencies.")
+    # Database setup must also work without a live third-party API or key.
+    # INR is enough for the app's default currency; a configured provider
+    # supplies the full list when available.
+    codes = [('INR', 'Indian Rupee')]
+    if api_key and base_url:
+        try:
+            response = requests.get(f"{base_url}/{api_key}/codes", timeout=20)
+            response.raise_for_status()
+            data = response.json()
+            if data.get('result') == 'success' and data.get('supported_codes'):
+                codes = data['supported_codes']
+        except (requests.RequestException, ValueError):
+            pass
 
     for code, name in codes:
         symbol = CurrencySymbols.get_symbol(code) or ""

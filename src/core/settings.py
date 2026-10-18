@@ -25,7 +25,11 @@ if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME]
     CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
 else:
-    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost'] + [
+        host.strip()
+        for host in os.environ.get('LOCAL_ALLOWED_HOSTS', '').split(',')
+        if host.strip()
+    ]
 
 # 5. APPLICATION DEFINITION
 INSTALLED_APPS = [
@@ -42,6 +46,7 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.base',
     'apps.ledger',
+    'apps.groups',
     'apps.forex',
     'apps.habits',
 
@@ -118,7 +123,14 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # WhiteNoise Configuration for Production
 if IS_PRODUCTION or not DEBUG:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STORAGES = {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
 
 # 10. EMAIL SYSTEM
 if DEBUG:

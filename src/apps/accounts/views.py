@@ -58,7 +58,15 @@ def logout_view(request):
 @login_required(login_url='accounts:login')
 def profile_view(request):
 
-    if request.method == 'POST':
+    upi_form = forms.UPIIdForm(instance=request.user)
+    if request.method == 'POST' and request.POST.get('form_type') == 'upi':
+        upi_form = forms.UPIIdForm(request.POST, instance=request.user)
+        form = forms.UpdateUserForm(instance=request.user)
+        if upi_form.is_valid():
+            upi_form.save()
+            messages.success(request, 'Your UPI ID has been saved.')
+            return redirect('accounts:profile')
+    elif request.method == 'POST':
 
         form = forms.UpdateUserForm(request.POST, instance=request.user)
         if form.is_valid():
@@ -73,6 +81,7 @@ def profile_view(request):
 
     context = {
         'form': form,
+        'upi_form': upi_form,
         'profile': request.user,
     }
 

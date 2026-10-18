@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.shortcuts import render
+from django.http import HttpResponse
 from django.urls import path, include
 
 def home_view(request):
@@ -23,9 +24,11 @@ def home_view(request):
 
 urlpatterns = [
     path("", home_view, name="home"),
+    path('healthz/', lambda request: HttpResponse('ok', content_type='text/plain'), name='healthz'),
     
     path('expenses/', include('apps.expenses.urls')),
     path('ledger/', include('apps.ledger.urls')),
+    path('groups/', include('apps.groups.urls')),
     path('goals/', include('apps.habits.urls')),
 
     path('user/', include('apps.accounts.urls')),

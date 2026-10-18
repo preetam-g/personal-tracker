@@ -1,7 +1,7 @@
+
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, reverse
+from django.shortcuts import render, get_object_or_404, reverse, redirect
 from django.contrib import messages
-from django.core.exceptions import ValidationError
 from django.core.cache import cache as django_cache
 from django.utils.timezone import localdate
 

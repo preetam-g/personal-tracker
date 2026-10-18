@@ -2,30 +2,22 @@
 
 {% block content %}
 
-<div class="grid" style="align-items: center; margin-top: 2rem; margin-bottom: 2rem;">
+<header class="app-page-head">
 
     <div>
-        <h2 style="margin-bottom: 0;">Your Expenses</h2>
-        <p style="color: var(--pico-muted-color);">
-            Track, manage, and analyze your spending.
-        </p>
+        <span class="app-page-eyebrow">Money overview</span>
+        <h1>Your Expenses</h1>
+        <p>Track, manage, and understand your spending.</p>
     </div>
 
-    <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
-        <a href="{% url 'expenses:dashboard' %}" role="button" class="secondary">📊 Dashboard</a>
-        <a href="{% url 'expenses:summary' %}" role="button" class="secondary outline">📜 Activity</a>
-        <a href="{% url 'expenses:add' %}?next={{ request.get_full_path|urlencode }}" role="button">+ Add Expense</a>
+    <div class="app-page-actions">
+        <a href="{% url 'expenses:dashboard' %}" role="button" class="secondary">Dashboard</a>
+        <a href="{% url 'expenses:summary' %}" role="button" class="secondary outline">Activity</a>
+        <a href="{% url 'expenses:add' %}?next={{ request.get_full_path|urlencode }}" role="button">+ Add expense</a>
     </div>
-</div>
+</header>
 
-<div style="
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05rem;
-    color: var(--pico-muted-color);
-    margin-bottom: 1rem;
-    font-weight: 600;
-">Latest 10 Transactions</div>
+<h2 class="app-section-title">Latest 10 transactions</h2>
 
 {% include "expenses/partials/expense_table.html" %}
 

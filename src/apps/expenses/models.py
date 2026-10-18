@@ -80,6 +80,10 @@ class Expense(TimeStampedModel):
         on_delete=models.CASCADE,
         related_name='expenses'
     )
+    group_bill_share = models.OneToOneField(
+        'groups.BillShare', on_delete=models.CASCADE,
+        null=True, blank=True, related_name='personal_expense',
+    )
 
     date = models.DateTimeField(null=False, blank=False)
     amount = models.DecimalField(max_digits=18, decimal_places=8)
