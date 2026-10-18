@@ -2,7 +2,7 @@ name: Keep Render demo awake
 
 on:
   schedule:
-    - cron: '3,13,23,33,43,53 * * * *'
+    - cron: '3/10 * * * *'
   workflow_dispatch:
 
 permissions: {}
@@ -13,4 +13,11 @@ jobs:
     timeout-minutes: 3
     steps:
       - name: Request tracker health endpoint
-        run: curl --fail --silent --show-error --location --max-time 120 --retry 2 --retry-delay 5 https://expense-tracker-kq6l.onrender.com/healthz/
+        run: curl --fail \
+                  --silent \
+                  --show-error \
+                  --location \
+                  --max-time 120 \
+                  --retry 2 \
+                  --retry-delay 5 \
+                  https://expense-tracker-kq6l.onrender.com/
