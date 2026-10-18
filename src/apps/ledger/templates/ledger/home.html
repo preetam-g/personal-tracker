@@ -2,32 +2,22 @@
 
 {% block content %}
 
-<div class="grid" style="align-items: center; margin-top: 2rem; margin-bottom: 2rem;">
+<header class="app-page-head">
 
     <div>
-        <h2 style="margin-bottom: 0;">Not Just You</h2>
-        <p style="color: var(--pico-muted-color);">
-            Manage your shared expenses
-        </p>
+        <span class="app-page-eyebrow">Personal records</span>
+        <h1>Your Ledger</h1>
+        <p>Keep track of money between you and your contacts.</p>
     </div>
 
-    <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
+    <div class="app-page-actions">
         <a href="{% url 'ledger:summary' %}" role="button" class="secondary">Summary</a>
         <a href="{% url 'ledger:activity' %}" role="button" class="secondary outline">Activity</a>
-        <a href="{% url 'ledger:add' %}?next={{ request.get_full_path|urlencode }}" role="button">+ New Entry</a>
+        <a href="{% url 'ledger:add' %}?next={{ request.get_full_path|urlencode }}" role="button">+ New entry</a>
     </div>
-</div>
-
-<header class="grid" style="margin-bottom: 2rem; align-items: center;">
-
-    <hgroup style="margin-bottom: 0;">
-        <h3 style="margin-bottom: 0;">Your Records</h3>
-        <p style="color: var(--pico-muted-color); margin-bottom: 0;">
-            Latest 10 transactions.
-        </p>
-    </hgroup>
-
 </header>
+
+<h2 class="app-section-title">Latest 10 records</h2>
 
 {% include "ledger/partials/ledger_table.html" %}
 

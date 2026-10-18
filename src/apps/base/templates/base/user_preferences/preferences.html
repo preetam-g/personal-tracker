@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<main class="container" style="max-width: 900px; margin-top: 1.5rem;">
+<div class="app-preferences">
 
 <div style="margin-bottom: 1.5rem;">
     <a href="{% url 'accounts:profile' %}"
@@ -14,9 +14,8 @@
 
 <section style="margin-bottom: 3rem;">
 
-    <h2 style="margin-bottom: 0;">
-        Personalization
-    </h2>
+    <span class="app-page-eyebrow">Make it yours</span>
+    <h1>Personalization</h1>
 
     <small>
         Add your categories, types, and contacts used throughout the app.
@@ -78,6 +77,6 @@
 
 </section>
 
-</main>
+</div>
 
 {% endblock content %}

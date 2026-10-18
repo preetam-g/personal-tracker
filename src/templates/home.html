@@ -1,43 +1,51 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <article style="text-align: center; max-width: 700px; margin: 2rem auto;">
-
+<div class="app-home">
+    <section class="app-home-hero">
+        <span class="app-page-eyebrow">Your everyday dashboard</span>
         {% if user.is_authenticated %}
-
-            <header style="margin-top: 0.5vh">
-                <h2>Welcome back, {{ user.username }}!</h2>
-                <p style="color: var(--pico-muted-color);"> Everything you need to stay on top of your money and goals, all in one place. </p>
-            </header>
-           <p>
-               Keep track of your spending and understand where your money goes.
-               <a href="{% url 'expenses:home' %}">
-                   <strong>Expenses</strong>
-               </a>💰
-           </p>
-            <p>
-                Manage shared expenses and keep track of who owes whom.
-                <a href="{% url 'ledger:home' %}">
-                   <strong>Ledger</strong>
-               </a>🤝
-            </p>
-            <p>
-                Set goals, build habits, and track your progress.
-                <a href="{% url 'habits:home' %}">
-                   <strong>Goals</strong>
-               </a>🎯
-            </p>
-
-        {% else %}
-
-            <p>You are currently browsing as a guest.</p>
-
-            <div class="grid" style="margin-top: 2rem;">
-                <a href="{% url 'accounts:login' %}" role="button">Log In</a>
-                <a href="{% url 'accounts:signup' %}" role="button" class="secondary">Sign Up</a>
+            <h1>Good to see you, {{ user.username }}.</h1>
+            <p>Your spending, shared balances, and goals are all in one place. Pick up where you left off.</p>
+            <div class="app-page-actions">
+                <a href="{% url 'expenses:home' %}" role="button">View expenses &rarr;</a>
+                <a href="{% url 'groups:home' %}" role="button" class="secondary outline">Open groups</a>
             </div>
-
+        {% else %}
+            <h1>Keep everything on track.</h1>
+            <p>A simple home for your expenses, shared bills, balances, and everyday goals.</p>
+            <div class="app-page-actions">
+                <a href="{% url 'accounts:login' %}" role="button">Log in &rarr;</a>
+                <a href="{% url 'accounts:signup' %}" role="button" class="secondary outline">Create account</a>
+            </div>
         {% endif %}
+    </section>
 
-    </article>
+    <div class="app-home-grid" aria-label="App sections">
+        <a class="app-home-card" href="{% url 'expenses:home' %}">
+            <span class="app-home-card-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M16 15h2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <strong>Expenses</strong>
+            <p>Know where your money goes and review every transaction.</p>
+            <span class="app-home-card-arrow">Explore &rarr;</span>
+        </a>
+        <a class="app-home-card" href="{% url 'groups:home' %}">
+            <span class="app-home-card-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><circle cx="17" cy="9" r="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 20v-2a5.5 5.5 0 0 1 11 0v2h-11ZM15 15a4 4 0 0 1 6.5 3v2H16" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+            <strong>Groups</strong>
+            <p>Split bills, see balances, and settle up together.</p>
+            <span class="app-home-card-arrow">Explore &rarr;</span>
+        </a>
+        <a class="app-home-card" href="{% url 'ledger:home' %}">
+            <span class="app-home-card-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 3h11l3 3v15H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 11h8M8 15h8M8 7h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+            <strong>Ledger</strong>
+            <p>Keep a clear record of money between you and your contacts.</p>
+            <span class="app-home-card-arrow">Explore &rarr;</span>
+        </a>
+        <a class="app-home-card" href="{% url 'habits:home' %}">
+            <span class="app-home-card-icon"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></span>
+            <strong>Goals</strong>
+            <p>Build momentum and see your progress over time.</p>
+            <span class="app-home-card-arrow">Explore &rarr;</span>
+        </a>
+    </div>
+</div>
 {% endblock content %}

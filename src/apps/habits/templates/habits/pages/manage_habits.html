@@ -7,20 +7,19 @@
     </a>
 </div>
 
-<div class="grid" style="align-items: center; margin-top: 2rem; margin-bottom: 2rem;">
+<header class="app-page-head">
 
     <div>
-        <h2 style="margin-bottom: 0;">Manage Habits</h2>
-        <p style="color: var(--pico-muted-color); margin-bottom: 0;">
-            Build habits, set goals, and track your progress.
-        </p>
+        <span class="app-page-eyebrow">Plan your progress</span>
+        <h1>Manage Habits</h1>
+        <p>Build habits, set goals, and track your progress.</p>
     </div>
 
-    <div style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;">
-        <a href="{% url 'habits:add_goal' %}?next={{ request.get_full_path|urlencode }}" role="button" class="secondary">🎯 Create Goal</a>
-        <a href="{% url 'habits:add_habit' %}?next={{ request.get_full_path|urlencode }}" role="button">+ Add Habit</a>
+    <div class="app-page-actions">
+        <a href="{% url 'habits:add_goal' %}?next={{ request.get_full_path|urlencode }}" role="button" class="secondary">Create goal</a>
+        <a href="{% url 'habits:add_habit' %}?next={{ request.get_full_path|urlencode }}" role="button">+ Add habit</a>
     </div>
-</div>
+</header>
 
 <section style="margin-bottom: 3rem;">
 
