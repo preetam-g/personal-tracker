@@ -165,6 +165,8 @@ class GroupPaymentForm(forms.Form):
     to_user = forms.ModelChoiceField(queryset=get_user_model().objects.none())
     amount = forms.DecimalField(max_digits=12, decimal_places=2, min_value=Decimal('0.01'))
     payment_reference = forms.CharField(max_length=64, widget=forms.HiddenInput)
+    destination_token = forms.CharField(max_length=2048, widget=forms.HiddenInput)
+    payment_completed = forms.BooleanField(required=True)
 
     def __init__(self, *args, group, sender, **kwargs):
         super().__init__(*args, **kwargs)
@@ -177,6 +179,7 @@ class GroupPaymentForm(forms.Form):
             group=self.group, from_user=self.sender,
             to_user=self.cleaned_data['to_user'], amount=self.cleaned_data['amount'],
             reference=self.cleaned_data['payment_reference'],
+            destination_token=self.cleaned_data['destination_token'],
         )
 
 

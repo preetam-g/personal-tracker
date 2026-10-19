@@ -1,10 +1,12 @@
-from urllib.parse import urlencode
 from uuid import uuid4
+from hashlib import sha256
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, reverse, redirect
+from django.views.decorators.cache import never_cache
 from .forms import SharedGroupForm, AddMemberForm, SharedBillForm, GroupPaymentForm, PaymentAmountEditForm
 from .models import SharedGroup, SharedBill, GroupPayment
 from .services import (
@@ -12,10 +14,18 @@ from .services import (
     delete_payment, edit_payment_amount, group_balances, reject_payment, simplify_balances,
 )
 from apps.expenses import cache as expenses_cache
+from .settlement_tokens import payment_token, suggested_payee_name
 
 
 def _shared_group_for_user(user, group_id):
     return get_object_or_404(SharedGroup.objects.filter(members=user).distinct(), pk=group_id)
+
+
+def _payment_response(request, group, message, *, success=True):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'ok': success, 'message': message}, status=200 if success else 400)
+    (messages.success if success else messages.error)(request, message)
+    return redirect('groups:detail', group_id=group.pk)
 
 
 @login_required(login_url='accounts:login')
@@ -35,6 +45,7 @@ def create_group_view(request):
     })
 
 
+@never_cache
 @login_required(login_url='accounts:login')
 def group_detail_view(request, group_id):
     group = _shared_group_for_user(request.user, group_id)
@@ -44,36 +55,31 @@ def group_detail_view(request, group_id):
     pending_payments = list(group.payments.filter(
         status=GroupPayment.Status.PENDING,
     ).select_related('from_user', 'to_user'))
-    available_balances = balances.copy()
-    for payment in pending_payments:
-        available_balances[payment.from_user_id] += payment.amount
-        available_balances[payment.to_user_id] -= payment.amount
     balance_rows = [
         {'user': member, 'amount': balances[member.pk], 'absolute_amount': abs(balances[member.pk])}
         for member in members
     ]
     suggestions = []
-    for item in simplify_balances(available_balances):
+    for item in simplify_balances(balances):
         sender = users[item['from_user_id']]
         receiver = users[item['to_user_id']]
         suggestion = {
             'sender': sender, 'receiver': receiver, 'amount': item['amount'],
         }
-        if sender.pk == request.user.pk and receiver.upi_id:
+        if sender.pk == request.user.pk:
             reference = f'TRK{uuid4().hex[:20]}'
-            parameters = urlencode({
-                'pa': receiver.upi_id, 'pn': receiver.get_full_name() or receiver.username,
-                'am': f"{item['amount']:.2f}", 'cu': 'INR', 'tr': reference,
-                'tn': f'{group.name} settlement'[:80],
-            })
             suggestion.update({
                 'reference': reference,
-                'gpay_url': f'gpay://upi/pay?{parameters}',
-                'cred_url': f'upi://pay?{parameters}',
+                'payee_name': suggested_payee_name(receiver),
+                'destination_token': payment_token(group, request.user, receiver, item['amount'], reference),
             })
         suggestions.append(suggestion)
-    bills = group.bills.select_related('paid_by', 'created_by').prefetch_related('shares__user')[:30]
-    payments = group.payments.select_related('from_user', 'to_user', 'created_by')[:30]
+    bills = list(group.bills.select_related('paid_by', 'created_by').prefetch_related('shares__user')[:30])
+    payments = list(group.payments.select_related('from_user', 'to_user', 'created_by')[:30])
+    revision = sha256(repr((
+        group.name, [(m.pk, m.username, m.upi_id, suggested_payee_name(m)) for m in members], list(balances.items()),
+        [(b.pk, b.updated_at) for b in bills], [(p.pk, p.status, p.updated_at) for p in payments],
+    )).encode()).hexdigest()
     activity = sorted(
         [{'kind': 'bill', 'bill': bill, 'created_at': bill.created_at} for bill in bills]
         + [{'kind': 'payment', 'payment': payment, 'created_at': payment.created_at} for payment in payments],
@@ -83,7 +89,8 @@ def group_detail_view(request, group_id):
         'group': group, 'members': members, 'balance_rows': balance_rows,
         'suggestions': suggestions, 'activity': activity,
         'pending_payments': pending_payments,
-        'exact_simplification': sum(bool(amount) for amount in available_balances.values()) <= MAX_EXACT_BALANCES,
+        'revision': revision,
+        'exact_simplification': sum(bool(amount) for amount in balances.values()) <= MAX_EXACT_BALANCES,
     })
 
 
@@ -149,12 +156,11 @@ def add_group_payment_view(request, group_id):
         try:
             form.save()
         except ValidationError as error:
-            messages.error(request, ' '.join(error.messages))
+            return _payment_response(request, group, ' '.join(error.messages), success=False)
         else:
-            messages.success(request, 'Payment submitted. The receiver must confirm it before balances change.')
+            return _payment_response(request, group, 'Payment recorded and automatically approved. Balances updated; the receiver can correct or reject it.')
     else:
-        messages.error(request, 'Check the payment details and try again.')
-    return redirect('groups:detail', group_id=group.pk)
+        return _payment_response(request, group, 'Check the payment details and try again.', success=False)
 
 
 @login_required(login_url='accounts:login')
@@ -166,10 +172,9 @@ def confirm_group_payment_view(request, group_id, payment_id):
     try:
         confirm_payment(payment, request.user)
     except ValidationError as error:
-        messages.error(request, ' '.join(error.messages))
+        return _payment_response(request, group, ' '.join(error.messages), success=False)
     else:
-        messages.success(request, 'Payment confirmed. Group balances are updated.')
-    return redirect('groups:detail', group_id=group.pk)
+        return _payment_response(request, group, 'Receipt confirmed. This payment is counted once.')
 
 
 @login_required(login_url='accounts:login')
@@ -181,10 +186,9 @@ def reject_group_payment_view(request, group_id, payment_id):
     try:
         reject_payment(payment, request.user)
     except ValidationError as error:
-        messages.error(request, ' '.join(error.messages))
+        return _payment_response(request, group, ' '.join(error.messages), success=False)
     else:
-        messages.success(request, 'Payment request rejected. Balances have not changed.')
-    return redirect('groups:detail', group_id=group.pk)
+        return _payment_response(request, group, 'Payment rejected. Its effect on balances has been reversed.')
 
 
 @login_required(login_url='accounts:login')
@@ -219,12 +223,11 @@ def edit_group_payment_view(request, group_id, payment_id):
         try:
             edit_payment_amount(payment, request.user, form.cleaned_data['amount'])
         except ValidationError as error:
-            messages.error(request, ' '.join(error.messages))
+            return _payment_response(request, group, ' '.join(error.messages), success=False)
         else:
-            messages.success(request, 'Payment amount updated.')
+            return _payment_response(request, group, 'Received amount corrected. Balances recalculated.')
     else:
-        messages.error(request, 'Enter a valid payment amount.')
-    return redirect('groups:detail', group_id=group.pk)
+        return _payment_response(request, group, 'Enter a valid payment amount.', success=False)
 
 
 @login_required(login_url='accounts:login')
@@ -236,5 +239,4 @@ def delete_group_payment_view(request, group_id, payment_id):
     if request.user.pk != payment.to_user_id:
         raise PermissionDenied('Only the receiver can delete this payment.')
     delete_payment(payment, request.user)
-    messages.success(request, 'Payment removed.')
-    return redirect('groups:detail', group_id=group.pk)
+    return _payment_response(request, group, 'Payment removed. Balances recalculated.')
