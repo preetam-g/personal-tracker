@@ -4,10 +4,12 @@ from django.db import models
 
 from apps.base.models import TimeStampedModel
 from apps.forex.models import Currency
+from .validators import validate_upi_id
 
 
 class UserProfile(AbstractUser):
-    upi_id = models.CharField(max_length=255, blank=True)
+    upi_id = models.CharField(max_length=255, blank=True, validators=[validate_upi_id])
+    upi_account_name = models.CharField(max_length=99, blank=True)
 
     class Meta:
         ordering = ['-date_joined']

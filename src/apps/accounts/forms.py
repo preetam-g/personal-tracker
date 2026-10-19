@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordResetForm, PasswordChangeForm
 from django import forms
-import re
 
 UserModel = get_user_model()
 
@@ -36,6 +35,4 @@ class UPIIdForm(forms.ModelForm):
 
     def clean_upi_id(self):
         upi_id = self.cleaned_data['upi_id'].strip().lower()
-        if upi_id and not re.fullmatch(r'[a-z0-9._-]{2,}@[a-z0-9.-]{2,}', upi_id):
-            raise forms.ValidationError('Enter a valid UPI ID, for example yourname@bank.')
         return upi_id

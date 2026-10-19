@@ -580,6 +580,27 @@ textarea:disabled {
 }
 
 @media (max-width: 768px) {
+    .grid > *,
+    .app-filter-grid > *,
+    .app-page-head > *,
+    article,
+    .ts-wrapper {
+        min-width: 0;
+    }
+
+    main :is(h1, h2, h3, p, a, label, small, td) {
+        overflow-wrap: anywhere;
+    }
+
+    main :is(button, a[role="button"], input, select, textarea) {
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    main :is(button, a[role="button"]) {
+        white-space: normal;
+    }
+
     .app-table,
     .app-table thead,
     .app-table tbody,
@@ -603,6 +624,8 @@ textarea:disabled {
 
     .app-table td {
         display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
         justify-content: space-between;
         align-items: center;
         padding: 0.75rem 1rem;
@@ -625,11 +648,47 @@ textarea:disabled {
     }
 
     .app-filter-grid {
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .app-filter-actions {
-        grid-column: 2 / 4;
+        grid-column: auto;
+        width: 100%;
+        max-width: none;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        padding-bottom: 0;
+    }
+
+    .app-filter-actions > * {
+        min-width: 0;
+    }
+
+    .app-table-actions {
+        white-space: normal !important;
+    }
+
+    .app-page-actions,
+    .app-page-actions > * {
+        max-width: 100%;
+    }
+
+    .app-menu-panel a small {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .app-manage-item { gap: 0.75rem; }
+    .app-manage-item > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+    .app-manage-item > span:last-child { flex-shrink: 0; }
+
+    #global-delete-modal article {
+        max-width: calc(100vw - 2rem);
+        overflow-wrap: anywhere;
+    }
+
+    #global-delete-modal footer {
+        flex-wrap: wrap;
     }
 
 }

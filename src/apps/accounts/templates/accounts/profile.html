@@ -39,15 +39,15 @@
         <div>
 
             <article style="margin-bottom: var(--pico-block-spacing-vertical);">
-                <h3 style="margin-bottom: 0.5rem;">UPI ID</h3>
+                <h3 style="margin-bottom: 0.5rem;">Receive group settlements</h3>
                 <p style="color: var(--pico-muted-color); font-size: 0.9rem;">
-                    Add the UPI ID you want group members to pay when settling up. Double-check it; this app cannot verify its owner yet.
+                    Add your UPI ID so group members know where to send a direct payment. Complete payments in your UPI app, then record them in the group.
                 </p>
                 <form method="post" action="{% url 'accounts:profile' %}">
                     {% csrf_token %}
                     <input type="hidden" name="form_type" value="upi">
                     {{ upi_form.as_p }}
-                    <button type="submit" style="width: 100%; margin-bottom: 0;">Save UPI ID</button>
+                    <button type="submit" style="width: 100%; margin-bottom: 0;">Save payment details</button>
                 </form>
             </article>
 

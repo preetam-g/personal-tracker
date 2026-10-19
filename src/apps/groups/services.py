@@ -4,10 +4,10 @@ from functools import lru_cache
 
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Sum
 from django.utils import timezone
 
 from .models import BillShare, GroupMembership, GroupPayment, SharedBill, SharedGroup
+from .settlement_tokens import read_payment_token, validate_payment_amount
 
 
 CENT = Decimal('0.01')
@@ -188,30 +188,30 @@ def record_payment(group, from_user, to_user, amount, date, created_by):
 
 
 @transaction.atomic
-def claim_payment(group, from_user, to_user, amount, reference):
-    """A payer reports a UPI transfer; it remains untrusted until the receiver confirms it."""
+def claim_payment(group, from_user, to_user, amount, reference, destination_token):
+    """Apply an explicit paid claim once; the receiver can correct or reject it."""
     SharedGroup.objects.select_for_update().get(pk=group.pk)
     member_ids = set(group.members.values_list('id', flat=True))
     if not {from_user.pk, to_user.pk}.issubset(member_ids) or from_user == to_user:
         raise ValidationError('Choose two different members of this group.')
-    if not to_user.upi_id:
-        raise ValidationError('The receiver needs to add a UPI ID to their profile first.')
-    if amount <= 0 or amount != amount.quantize(CENT):
-        raise ValidationError('Enter a positive amount in rupees and paise.')
+    amount = validate_payment_amount(amount)
+    destination = read_payment_token(destination_token, group, from_user, to_user, amount, reference)
+    existing = group.payments.filter(from_user=from_user, payment_reference=reference).first()
+    if existing:
+        if existing.status == GroupPayment.Status.REJECTED:
+            raise ValidationError('This claim was rejected. Open a fresh settlement to report a new payment.')
+        if existing.to_user_id == to_user.pk and existing.amount == amount:
+            return existing
+        raise ValidationError('This payment reference has already been used. Refresh the group.')
     balances = group_balances(group)
-    pending_sent = GroupPayment.objects.filter(
-        group=group, from_user=from_user, status=GroupPayment.Status.PENDING,
-    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-    pending_received = GroupPayment.objects.filter(
-        group=group, to_user=to_user, status=GroupPayment.Status.PENDING,
-    ).aggregate(total=Sum('amount'))['total'] or Decimal('0.00')
-    available = min(-balances[from_user.pk] - pending_sent, balances[to_user.pk] - pending_received)
+    available = min(-balances[from_user.pk], balances[to_user.pk])
     if available < amount:
         raise ValidationError('This amount exceeds the current unsettled balance. Refresh the group.')
     return GroupPayment.objects.create(
         group=group, from_user=from_user, to_user=to_user, created_by=from_user,
-        amount=amount, date=timezone.localdate(), status=GroupPayment.Status.PENDING,
-        payee_upi_id=to_user.upi_id, payment_reference=reference[:64],
+        amount=amount, date=timezone.localdate(), status=GroupPayment.Status.AUTO_APPROVED,
+        payee_upi_id=destination['upi'], payee_name=destination['name'],
+        payment_reference=reference[:64],
     )
 
 
@@ -219,11 +219,12 @@ def claim_payment(group, from_user, to_user, amount, reference):
 def confirm_payment(payment, receiver):
     SharedGroup.objects.select_for_update().get(pk=payment.group_id)
     payment = GroupPayment.objects.select_for_update().get(pk=payment.pk)
-    if payment.to_user_id != receiver.pk or payment.status != GroupPayment.Status.PENDING:
-        raise ValidationError('Only the receiver can confirm a pending payment.')
-    balances = group_balances(payment.group)
-    if payment.amount > min(-balances[payment.from_user_id], balances[payment.to_user_id]):
-        raise ValidationError('Balances changed. This payment cannot be confirmed as entered.')
+    if payment.to_user_id == receiver.pk and payment.status == GroupPayment.Status.CONFIRMED:
+        return payment  # Idempotent receipt confirmation.
+    if payment.to_user_id != receiver.pk or payment.status not in (
+        GroupPayment.Status.PENDING, GroupPayment.Status.AUTO_APPROVED,
+    ):
+        raise ValidationError('Only the receiver can confirm this payment.')
     payment.status = GroupPayment.Status.CONFIRMED
     payment.confirmed_at = timezone.now()
     payment.save(update_fields=['status', 'confirmed_at', 'updated_at'])
@@ -234,8 +235,8 @@ def confirm_payment(payment, receiver):
 def reject_payment(payment, receiver):
     SharedGroup.objects.select_for_update().get(pk=payment.group_id)
     payment = GroupPayment.objects.select_for_update().get(pk=payment.pk)
-    if payment.to_user_id != receiver.pk or payment.status != GroupPayment.Status.PENDING:
-        raise ValidationError('Only the receiver can reject a pending payment.')
+    if payment.to_user_id != receiver.pk:
+        raise ValidationError('Only the receiver can reject this payment.')
     payment.status = GroupPayment.Status.REJECTED
     payment.save(update_fields=['status', 'updated_at'])
     return payment
@@ -249,24 +250,13 @@ def edit_payment_amount(payment, receiver, amount):
         raise ValidationError('Only the receiver can edit this payment.')
     if payment.status == GroupPayment.Status.REJECTED:
         raise ValidationError('Rejected payments cannot be edited.')
-    if amount <= 0 or amount != amount.quantize(CENT):
-        raise ValidationError('Enter a positive amount in rupees and paise.')
-    balances = group_balances(payment.group)
-    if payment.status == GroupPayment.Status.CONFIRMED:
-        # Reconstruct balances without this transfer before validating its replacement.
-        balances[payment.from_user_id] -= payment.amount
-        balances[payment.to_user_id] += payment.amount
-    else:
-        if amount > payment.amount:
-            raise ValidationError('A pending payment can only be corrected downwards.')
-        pending = payment.group.payments.filter(status=GroupPayment.Status.PENDING).exclude(pk=payment.pk)
-        for other in pending:
-            balances[other.from_user_id] += other.amount
-            balances[other.to_user_id] -= other.amount
-    if amount > min(-balances[payment.from_user_id], balances[payment.to_user_id]):
-        raise ValidationError('This amount exceeds the unsettled balance.')
+    amount = validate_payment_amount(amount)
+    # This is a correction to a historical transfer, so current bills/net debt
+    # must not cap what the receiver actually received.
     payment.amount = amount
-    payment.save(update_fields=['amount', 'updated_at'])
+    payment.status = GroupPayment.Status.CONFIRMED
+    payment.confirmed_at = timezone.now()
+    payment.save(update_fields=['amount', 'status', 'confirmed_at', 'updated_at'])
     return payment
 
 
@@ -286,7 +276,9 @@ def group_balances(group):
         balances[bill.paid_by_id] += bill.amount
         for share in bill.shares.all():
             balances[share.user_id] -= share.amount
-    for payment in group.payments.filter(status=GroupPayment.Status.CONFIRMED):
+    for payment in group.payments.filter(status__in=[
+        GroupPayment.Status.CONFIRMED, GroupPayment.Status.AUTO_APPROVED,
+    ]):
         balances[payment.from_user_id] += payment.amount
         balances[payment.to_user_id] -= payment.amount
     return balances

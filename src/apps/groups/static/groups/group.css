@@ -138,36 +138,14 @@
     font-weight: 700;
 }
 
-.split-settle-apps {
-    display: grid;
-    gap: 0.6rem;
-    margin: 1.2rem 0;
-}
-
-.split-settle-apps a[role="button"],
 .split-settle-dialog-content button {
     width: 100% !important;
     margin: 0;
     text-align: center;
 }
-
-.split-settle-apps a[role="button"] {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 3rem;
-}
-
-.split-settle-apps img {
-    width: auto;
-    height: 1.3rem;
-}
-
-.split-settle-apps a[aria-disabled="true"] {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
+.split-settle-dialog [hidden] { display: none !important; }
+.split-settle-dialog :is(p, strong, a) { overflow-wrap: anywhere; }
+.split-live-notice { padding: 0.75rem 1rem; border: 1px solid var(--pico-muted-border-color); border-radius: 0.7rem; }
 .split-settle-choice {
     margin: 1rem 0;
 }
@@ -538,6 +516,20 @@
 
 
 @media (max-width: 768px) {
+    .shared-ledger :is(.group-activity-main, .group-activity-detail, .shared-ledger-header > *) {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .group-activity-main { flex-basis: 100%; }
+
+    .shared-ledger :is(a[role="button"], button).shared-ledger-button {
+        max-width: 100%;
+        white-space: normal;
+    }
+
+    .split-settle-dialog-content { overflow-wrap: anywhere; }
+
     .shared-ledger .app-table td:last-child {
         justify-content: space-between;
     }
@@ -549,6 +541,7 @@
 }
 
 @media (max-width: 480px) {
+
     .split-bill-card {
         padding: 1.2rem;
     }
@@ -581,3 +574,6 @@
         width: 100% !important;
     }
 }
+
+.split-gpay-link { display: block; width: 100%; margin: 1rem 0; }
+.split-gpay-link[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }

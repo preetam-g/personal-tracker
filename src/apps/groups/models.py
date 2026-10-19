@@ -70,6 +70,7 @@ class BillShare(models.Model):
 class GroupPayment(TimeStampedModel):
     class Status(models.TextChoices):
         PENDING = 'pending', 'Waiting for receiver'
+        AUTO_APPROVED = 'autoapproved', 'Automatically approved'
         CONFIRMED = 'confirmed', 'Settled'
         REJECTED = 'rejected', 'Rejected'
 
@@ -79,9 +80,10 @@ class GroupPayment(TimeStampedModel):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='recorded_shared_payments')
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     date = models.DateField(default=timezone.localdate)
-    status = models.CharField(max_length=12, choices=Status.choices, default=Status.CONFIRMED)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.AUTO_APPROVED)
     payment_reference = models.CharField(max_length=64, blank=True)
     payee_upi_id = models.CharField(max_length=255, blank=True)
+    payee_name = models.CharField(max_length=99, blank=True)
     confirmed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -90,4 +92,8 @@ class GroupPayment(TimeStampedModel):
         constraints = [
             models.CheckConstraint(condition=models.Q(amount__gt=0), name='shared_payment_amount_positive'),
             models.CheckConstraint(condition=~models.Q(from_user=models.F('to_user')), name='shared_payment_distinct_people'),
+            models.UniqueConstraint(
+                fields=['group', 'from_user', 'payment_reference'],
+                condition=~models.Q(payment_reference=''), name='unique_group_payment_claim',
+            ),
         ]

@@ -4,7 +4,8 @@
 {% block extra_css %}<link rel="stylesheet" href="{% static 'groups/group.css' %}">{% endblock extra_css %}
 
 {% block content %}
-<div class="shared-ledger">
+<p class="split-live-notice" role="status" data-group-live-notice hidden></p>
+<div class="shared-ledger" data-group-live data-group-revision="{{ revision }}" data-group-refresh-url="{% url 'groups:detail' group.pk %}">
 <p class="shared-ledger-back"><a href="{% url 'groups:home' %}">&larr; Shared Groups</a></p>
 <header class="shared-ledger-header">
     <div>
@@ -56,9 +57,10 @@
                     <p class="split-pending-item">₹{{ payment.amount|floatformat:2 }} from {{ payment.from_user.username }} to {{ payment.to_user.username }} — waiting for {{ payment.to_user.username }} to confirm receipt.</p>
                 {% endfor %}
             </div>
+            <p>These older claims have not yet been counted. Review them below. <a href="#group-activity">Review pending payments</a></p>
         {% endif %}
         {% if suggestions %}
-            <p>Tap your payment below to open a UPI app. The receiver confirms it here after the money arrives.</p>
+            <p>Transfer the money, then mark paid to update balances. The receiver can correct or reject the recorded payment. Opening GPay does not record a payment.</p>
             {% if not exact_simplification %}<p>For groups with more than 12 unsettled people, these are short payment suggestions; the absolute minimum is not guaranteed.</p>{% endif %}
             <div class="app-table-wrapper">
                 <table class="app-table">
@@ -72,12 +74,15 @@
                             <td class="shared-ledger-table-action">
                                 {% if suggestion.sender.pk == user.pk %}
                                     {% if suggestion.reference %}
-                                        <button type="button" class="outline shared-ledger-button" onclick="document.getElementById('settle-{{ forloop.counter }}').showModal()">Settle ₹{{ suggestion.amount|floatformat:2 }}</button>
-                                        <dialog id="settle-{{ forloop.counter }}" class="split-settle-dialog" data-settlement-dialog data-full-amount="{{ suggestion.amount }}">
+                                        <button type="button" class="outline shared-ledger-button" onclick="document.getElementById('settle-{{ forloop.counter }}').showModal()">Settle up</button>
+                                        <dialog id="settle-{{ forloop.counter }}" class="split-settle-dialog" data-settlement-dialog data-full-amount="{{ suggestion.amount }}" data-upi-id="{{ suggestion.receiver.upi_id }}" data-payee-name="{{ suggestion.payee_name }}">
                                             <div class="split-settle-dialog-content">
                                                 <h3>Pay {{ suggestion.receiver.username }}</h3>
                                                 <p class="split-settle-amount" data-settlement-display>₹{{ suggestion.amount|floatformat:2 }}</p>
-                                                <p>To UPI ID <strong>{{ suggestion.receiver.upi_id }}</strong></p>
+                                                {% if suggestion.receiver.upi_id %}<p>Receiver-provided UPI ID: <strong>{{ suggestion.receiver.upi_id }}</strong></p>{% endif %}
+                                                <p class="split-settle-note">Pay the receiver directly in your UPI app. Website and bank names may differ; verify the recipient name and UPI ID before paying.</p>
+                                                <p class="split-settle-note" data-ios-payment-note hidden>You’re using iOS. Pay the UPI ID above directly in GPay or your UPI app, then return here and mark paid.</p>
+                                                <a class="split-gpay-link" role="button" data-gpay-link hidden>Pay with GPay</a>
                                                 <fieldset class="split-settle-choice">
                                                     <legend>How much?</legend>
                                                     <label><input type="radio" name="amount_mode_{{ forloop.counter }}" value="full" checked> Settle full amount</label>
@@ -85,23 +90,25 @@
                                                 </fieldset>
                                                 <label for="settle-amount-{{ forloop.counter }}">Amount (₹)</label>
                                                 <input id="settle-amount-{{ forloop.counter }}" type="number" min="0.01" max="{{ suggestion.amount }}" step="0.01" value="{{ suggestion.amount }}" readonly data-settlement-amount>
-                                                <div class="split-settle-apps">
-                                                    <a href="{{ suggestion.gpay_url }}" data-payment-link data-base-href="{{ suggestion.gpay_url }}" role="button" aria-label="Pay with Google Pay"><img src="{% static 'groups/gpay-mark.svg' %}" alt="Google Pay"></a>
-                                                    <a href="{{ suggestion.cred_url }}" data-payment-link data-base-href="{{ suggestion.cred_url }}" role="button" class="secondary">Choose CRED</a>
-                                                </div>
-                                                <p class="split-settle-note">The selected amount is sent to the UPI app. For CRED, choose CRED in the UPI app picker. Check the details before paying, then return here to request confirmation.</p>
-                                                <form method="post" action="{% url 'groups:add_payment' group.pk %}" data-settlement-form>
+                                                <button type="button" class="secondary outline" data-settlement-copy-amount>Copy amount</button>
+                                                <small role="status" data-payment-copy-status></small>
+                                                <p class="split-settle-note">Mark paid only after your payment app shows success. This automatically approves the payment and updates balances. The receiver can reject it or correct the amount later.</p>
+                                                <form method="post" action="{% url 'groups:add_payment' group.pk %}" data-settlement-form data-group-action>
                                                     {% csrf_token %}
                                                     <input type="hidden" name="to_user" value="{{ suggestion.receiver.pk }}">
                                                     <input type="hidden" name="amount" value="{{ suggestion.amount }}" data-settlement-submit-amount>
                                                     <input type="hidden" name="payment_reference" value="{{ suggestion.reference }}">
-                                                    <button type="submit">I have paid — request confirmation</button>
+                                                    <input type="hidden" name="destination_token" value="{{ suggestion.destination_token }}">
+                                                    <div data-payment-confirmation>
+                                                        <input type="hidden" name="payment_completed" value="on">
+                                                        <button type="submit">I’ve paid — update balances</button>
+                                                    </div>
                                                 </form>
                                                 <button type="button" class="secondary outline" onclick="document.getElementById('settle-{{ forloop.counter }}').close()">Cancel</button>
                                             </div>
                                         </dialog>
                                     {% else %}
-                                        <small>{{ suggestion.receiver.username }} needs to add a UPI ID.</small>
+                                        <small>{% if suggestion.payment_error %}{{ suggestion.payment_error }}{% else %}Payment details are unavailable. Reopen Settle Up.{% endif %}</small>
                                     {% endif %}
                                 {% else %}<small>Only {{ suggestion.sender.username }} can pay</small>{% endif %}
                             </td>
@@ -121,13 +128,23 @@
     {% if activity %}
         <div class="group-activity-list">
             {% for item in activity %}
-                <details class="group-activity-card">
+                <details class="group-activity-card" data-activity-key="{% if item.kind == 'bill' %}bill-{{ item.bill.pk }}{% else %}payment-{{ item.payment.pk }}{% endif %}">
                     <summary>
                         {% if item.kind == 'bill' %}
-                            <span class="group-activity-main"><strong>{{ item.bill.paid_by.username }}</strong> paid <strong>₹{{ item.bill.amount|floatformat:2 }}</strong> for {{ item.bill.title }}.</span>
+                            <span class="group-activity-main"><strong>{{ item.bill.created_by.username }}</strong> added a bill of <strong>₹{{ item.bill.amount|floatformat:2 }}</strong> for {{ item.bill.title }}.</span>
                             <span class="group-activity-meta">{{ item.bill.date }}</span>
                         {% else %}
-                            <span class="group-activity-main"><strong>{{ item.payment.from_user.username }}</strong> paid <strong>₹{{ item.payment.amount|floatformat:2 }}</strong> to {{ item.payment.to_user.username }} to settle up.</span>
+                            <span class="group-activity-main">
+                                {% if item.payment.status == 'confirmed' %}
+                                    <strong>{{ item.payment.from_user.username }}</strong> paid <strong>₹{{ item.payment.amount|floatformat:2 }}</strong> to {{ item.payment.to_user.username }} to settle up.
+                                {% elif item.payment.status == 'autoapproved' %}
+                                    <strong>{{ item.payment.from_user.username }}</strong> marked <strong>₹{{ item.payment.amount|floatformat:2 }}</strong> as paid to {{ item.payment.to_user.username }} — automatically approved.
+                                {% elif item.payment.status == 'pending' %}
+                                    <strong>{{ item.payment.from_user.username }}</strong> marked <strong>₹{{ item.payment.amount|floatformat:2 }}</strong> as paid to {{ item.payment.to_user.username }}; awaiting receiver confirmation.
+                                {% else %}
+                                    {{ item.payment.to_user.username }} rejected {{ item.payment.from_user.username }}’s payment claim of <strong>₹{{ item.payment.amount|floatformat:2 }}</strong>.
+                                {% endif %}
+                            </span>
                             <span class="group-activity-meta">{{ item.payment.get_status_display }} · {{ item.payment.date }}</span>
                         {% endif %}
                         <span class="group-activity-open">View details</span>
@@ -135,6 +152,7 @@
                     <div class="group-activity-detail">
                         {% if item.kind == 'bill' %}
                             <p><strong>Bill:</strong> {{ item.bill.title }}{% if item.bill.category %} · {{ item.bill.category.name }}{% endif %}</p>
+                            <p><strong>Paid by:</strong> {{ item.bill.paid_by.username }} (bill expense, not a settlement)</p>
                             <p><strong>Split:</strong></p>
                             <ul>{% for share in item.bill.shares.all %}<li>{{ share.user.username }}: ₹{{ share.amount|floatformat:2 }} ({{ share.percentage }}%)</li>{% endfor %}</ul>
                             {% if item.bill.paid_by_id == user.pk %}
@@ -146,28 +164,32 @@
                                 </div>
                             {% endif %}
                         {% else %}
-                            <p><strong>Status:</strong> {{ item.payment.get_status_display }}{% if item.payment.confirmed_at %} · Receiver confirmed{% endif %}</p>
+                            <p><strong>Status:</strong> {{ item.payment.get_status_display }}{% if item.payment.status == 'confirmed' and item.payment.confirmed_at %} · Receiver confirmed{% endif %}</p>
+                            {% if item.payment.status == 'autoapproved' %}<p>Automatically approved after the payer marked paid. The receiver can correct or reject this payment; it is not bank-verified.</p>{% endif %}
+                            {% if item.payment.payee_upi_id %}<p><strong>Payment destination at the time:</strong> {{ item.payment.payee_upi_id }}{% if item.payment.payee_name %} · {{ item.payment.payee_name }} (suggested name, not bank-verified){% endif %}</p>{% endif %}
                             {% if item.payment.payment_reference %}<p><strong>Reference:</strong> {{ item.payment.payment_reference }}</p>{% endif %}
                             {% if item.payment.to_user_id == user.pk %}
-                                {% if item.payment.status == 'pending' %}
+                                {% if item.payment.status != 'rejected' %}
                                     <div class="group-activity-actions">
-                                        <form method="post" action="{% url 'groups:confirm_payment' group.pk item.payment.pk %}">
+                                        {% if item.payment.status != 'confirmed' %}
+                                        <form method="post" action="{% url 'groups:confirm_payment' group.pk item.payment.pk %}" data-group-action>
                                             {% csrf_token %}<button type="submit" class="shared-ledger-button">Confirm received</button>
                                         </form>
-                                        <form method="post" action="{% url 'groups:reject_payment' group.pk item.payment.pk %}">
+                                        {% endif %}
+                                        <form method="post" action="{% url 'groups:reject_payment' group.pk item.payment.pk %}" data-group-action>
                                             {% csrf_token %}<button type="submit" class="secondary outline shared-ledger-button">Reject</button>
                                         </form>
                                     </div>
                                 {% endif %}
                                 {% if item.payment.status != 'rejected' %}
-                                    <form method="post" action="{% url 'groups:edit_payment' group.pk item.payment.pk %}" class="group-payment-edit-form">
+                                    <form method="post" action="{% url 'groups:edit_payment' group.pk item.payment.pk %}" class="group-payment-edit-form" data-group-action>
                                         {% csrf_token %}
                                         <label for="payment-amount-{{ item.payment.pk }}">Correct received amount (₹)</label>
                                         <input id="payment-amount-{{ item.payment.pk }}" name="amount" type="number" step="0.01" min="0.01" value="{{ item.payment.amount }}" required>
                                         <button type="submit" class="secondary outline shared-ledger-button">Save amount</button>
                                     </form>
                                 {% endif %}
-                                    <form method="post" action="{% url 'groups:delete_payment' group.pk item.payment.pk %}" onsubmit="return confirm('Remove this payment?');">
+                                    <form method="post" action="{% url 'groups:delete_payment' group.pk item.payment.pk %}" onsubmit="return confirm('Remove this payment?');" data-group-action>
                                         {% csrf_token %}<button type="submit" class="secondary outline shared-ledger-button">Delete payment</button>
                                     </form>
                             {% endif %}

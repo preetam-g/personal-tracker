@@ -10,14 +10,16 @@ permissions: {}
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 8
     steps:
       - name: Request tracker health endpoint
         run: curl --fail \
                   --silent \
                   --show-error \
                   --location \
-                  --max-time 120 \
+                  --connect-timeout 15 \
+                  --max-time 90 \
+                  --retry-max-time 300 \
                   --retry 2 \
                   --retry-delay 5 \
-                  https://expense-tracker-kq6l.onrender.com/
+                  https://expense-tracker-kq6l.onrender.com/healthz/
