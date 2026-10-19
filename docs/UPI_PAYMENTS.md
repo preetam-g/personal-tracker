@@ -36,4 +36,4 @@ Browser tests cannot establish native app/bank acceptance or actual money transf
 
 The paid button is the only confirmation action; there is no additional checkbox. The hidden completion marker is submitted only with the explicit form POST.
 
-The keep-awake workflow requests `/healthz/` with bounded curl attempts and an 8-minute job timeout, so cold-start retries can finish inside the job budget. This workflow checks service availability; it is not a Django regression-test CI job.
+The keep-awake workflow uses a YAML literal multiline block to preserve shell continuations (the old folded scalar produced malformed curl URLs). It requests `/healthz/` with bounded curl attempts and an 8-minute job timeout, so cold-start retries can finish inside the job budget. This workflow checks service availability; it is not a Django regression-test CI job.
