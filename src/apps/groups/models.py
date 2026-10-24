@@ -7,11 +7,13 @@ from apps.base.models import TimeStampedModel
 class SharedGroup(TimeStampedModel):
     name = models.CharField(max_length=100)
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.PROTECT,
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
         related_name='created_shared_groups',
     )
     members = models.ManyToManyField(
-        settings.AUTH_USER_MODEL, through='GroupMembership',
+        settings.AUTH_USER_MODEL,
+        through='GroupMembership',
         related_name='shared_groups',
     )
 
@@ -35,8 +37,11 @@ class SharedBill(TimeStampedModel):
     paid_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='paid_shared_bills')
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='created_shared_bills')
     category = models.ForeignKey(
-        'expenses.ExpenseCategory', on_delete=models.SET_NULL,
-        null=True, blank=True, related_name='shared_bills',
+        'expenses.ExpenseCategory',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='shared_bills',
     )
 
     class Meta:
@@ -44,7 +49,7 @@ class SharedBill(TimeStampedModel):
         constraints = [models.CheckConstraint(condition=models.Q(amount__gt=0), name='shared_bill_amount_positive')]
 
     def __str__(self):
-        return self.title
+        return f"{self.title} - {self.amount}"
 
 
 class BillShare(models.Model):
