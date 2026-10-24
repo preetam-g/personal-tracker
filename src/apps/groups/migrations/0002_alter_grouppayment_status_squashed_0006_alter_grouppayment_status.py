@@ -6,27 +6,15 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [('groups', '0002_alter_grouppayment_status'), ('groups', '0003_grouppayment_payee_name_alter_grouppayment_status'), ('groups', '0004_grouppayment_payee_payment_link'), ('groups', '0005_remove_grouppayment_payee_payment_link'), ('groups', '0006_alter_grouppayment_status')]
-
     dependencies = [
         ('groups', '0001_initial'),
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='grouppayment',
-            name='status',
-            field=models.CharField(choices=[('pending', 'Waiting for receiver'), ('autoapproved', 'Automatically approved'), ('confirmed', 'Settled'), ('rejected', 'Rejected')], default='confirmed', max_length=12),
-        ),
         migrations.AddField(
             model_name='grouppayment',
             name='payee_name',
             field=models.CharField(blank=True, max_length=99),
-        ),
-        migrations.AlterField(
-            model_name='grouppayment',
-            name='status',
-            field=models.CharField(choices=[('pending', 'Waiting for receiver'), ('autoapproved', 'Automatically approved'), ('confirmed', 'Settled'), ('rejected', 'Rejected')], default='pending', max_length=12),
         ),
         migrations.AddConstraint(
             model_name='grouppayment',
