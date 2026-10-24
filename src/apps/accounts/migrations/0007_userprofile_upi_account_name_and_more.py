@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0007_userprofile_upi_id'),
+        ('accounts', '0006_remove_userpreference_show_advanced_currency_features'),
     ]
 
     operations = [
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='upi_account_name',
             field=models.CharField(blank=True, max_length=99),
         ),
-        migrations.AlterField(
+        migrations.AddField(
             model_name='userprofile',
             name='upi_id',
             field=models.CharField(blank=True, max_length=255, validators=[django.core.validators.RegexValidator(message='Enter a valid UPI ID, for example yourname@bank.', regex='\\A[a-zA-Z0-9._-]{2,}@[a-zA-Z0-9.-]{2,}\\Z')]),

@@ -15,9 +15,6 @@ class SharedGroup(TimeStampedModel):
         related_name='shared_groups',
     )
 
-    class Meta:
-        db_table = 'ledger_sharedgroup'
-
     def __str__(self):
         return self.name
 
@@ -27,7 +24,6 @@ class GroupMembership(TimeStampedModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
 
     class Meta:
-        db_table = 'ledger_groupmembership'
         constraints = [models.UniqueConstraint(fields=['group', 'user'], name='unique_shared_group_member')]
 
 
@@ -44,7 +40,6 @@ class SharedBill(TimeStampedModel):
     )
 
     class Meta:
-        db_table = 'ledger_sharedbill'
         ordering = ['-date', '-created_at']
         constraints = [models.CheckConstraint(condition=models.Q(amount__gt=0), name='shared_bill_amount_positive')]
 
@@ -59,7 +54,6 @@ class BillShare(models.Model):
     amount = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
-        db_table = 'ledger_billshare'
         constraints = [
             models.UniqueConstraint(fields=['bill', 'user'], name='unique_shared_bill_participant'),
             models.CheckConstraint(condition=models.Q(percentage__gt=0) & models.Q(percentage__lte=100), name='shared_bill_percentage_range'),
@@ -87,7 +81,6 @@ class GroupPayment(TimeStampedModel):
     confirmed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        db_table = 'ledger_grouppayment'
         ordering = ['-date', '-created_at']
         constraints = [
             models.CheckConstraint(condition=models.Q(amount__gt=0), name='shared_payment_amount_positive'),
