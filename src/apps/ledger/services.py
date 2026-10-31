@@ -18,7 +18,6 @@ def create_settlement(contact):
             .filter(
                 contact=contact,
                 is_settled=False,
-                carry_forward_settlement__isnull=True,
             )
         )
         if not transactions:
